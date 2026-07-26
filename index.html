@@ -66,6 +66,14 @@
   kbd{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12px;font-family:inherit}
   .report{background:none;border:none;color:var(--sub);font-size:12px;cursor:pointer;text-decoration:underline;padding:2px 4px}
   .report:hover{color:var(--bad)}
+  .wclick{cursor:pointer;border-bottom:1.5px dotted transparent;border-radius:3px;transition:background .12s}
+  .wclick:hover{background:var(--accent-soft);border-bottom-color:var(--accent)}
+  #wpop{position:fixed;z-index:99;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 30px rgba(20,30,60,.18);padding:14px 16px;max-width:280px;display:none}
+  #wpop .ww{font-size:18px;font-weight:800;color:var(--accent);display:flex;align-items:center;gap:8px}
+  #wpop .ws{width:30px;height:30px;border-radius:50%;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:13px;flex-shrink:0}
+  #wpop .wm{margin-top:6px;font-size:14px;line-height:1.5}
+  #wpop .wp{color:var(--sub);font-size:11.5px;margin-top:2px}
+  #wpop .wx{position:absolute;top:8px;right:10px;border:none;background:none;color:var(--sub);cursor:pointer;font-size:14px}
   .foot{margin-top:14px;font-size:12.5px;color:var(--sub)}
   @media(max-width:600px){ .tabs{margin-left:0;width:100%} .card{padding:18px} }
 </style>
@@ -194,7 +202,7 @@
   // ---------- 렌더 ----------
   function vocabHtml(s){
     if(!s.vocab.length) return '';
-    return '<div class="vocab">'+s.vocab.map(v=>`<span class="vw"><b>${v.w}</b> ${v.m} <i>${v.p}</i></span>`).join('')+'</div>';
+    return '<div class="vocab">'+s.vocab.map(v=>`<span class="vw" style="cursor:pointer" title="클릭하면 발음" onclick="event.stopPropagation();sayWord('${wArg(v.w)}')"><b>${v.w}</b> ${v.m} <i>${v.p}</i> 🔊</span>`).join('')+'</div>';
   }
   function audioRow(s){
     return `<div class="audiorow">
@@ -233,7 +241,7 @@
       stage.innerHTML=`<div class="card flash" id="flashCard">
         <div class="qnum"><span>#${String(s.n).padStart(3,'0')}</span><span>${revealed?'뒷면':'앞면'} <button class="report" onclick="event.stopPropagation();reportIssue(${s.n})">오류 신고</button></span></div>
         ${audioRow(s)}
-        <div class="en">${s.en}</div>
+        <div class="en">${clickableWords(s.en,s.n)}</div>
         ${revealed?`<div class="ko">${s.ko}</div>${vocabHtml(s)}`:'<div class="hint">클릭하면 번역과 단어가 보입니다</div>'}
         <div class="btnrow" onclick="event.stopPropagation()">
           <button class="btn good" id="btnKnow">알아요 ✓</button>
@@ -274,7 +282,7 @@
     const label=gaveUp?'정답 공개':(correct?'✓ 만점! '+g.okCount+'/'+g.total:'✗ '+g.okCount+'/'+g.total+' 단어 일치');
     $('#resultArea').innerHTML=`<div class="result">
       <div class="score ${cls}">${label}</div>
-      <div class="diff">${g.out.map(w=>`<span class="w-${w.c==='ok'?'ok':w.c==='miss'?'miss':'extra'}">${w.t}</span>`).join(' ')}</div>
+      <div class="diff">${g.out.map(w=>`<span class="w-${w.c==='ok'?'ok':w.c==='miss'?'miss':'extra'} wclick" onclick="wordInfo(event,'${wArg(w.t)}',${s.n})">${w.t}</span>`).join(' ')}</div>
       <div class="ko">${s.ko}</div>
       ${vocabHtml(s)}
       <div class="btnrow">
@@ -288,6 +296,42 @@
   }
 
   function advance(){ stopAll(); idx++; revealed=false; document.onkeydown=null; render(); }
+
+  // ---------- 단어 팝업 (뜻 + 발음) ----------
+  const wpop=document.createElement('div'); wpop.id='wpop'; document.body.appendChild(wpop);
+  document.addEventListener('click',e=>{ if(!wpop.contains(e.target) && !e.target.classList.contains('wclick')) wpop.style.display='none'; },true);
+  const sayWord=window.sayWord=function(w){
+    if(!window.speechSynthesis) return;
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(w); u.lang='en-US'; u.rate=0.9;
+    speechSynthesis.speak(u);
+  };
+  function findVocab(word,s){
+    const nw=norm(word);
+    const cands=[nw,nw.replace(/'s$/,''),nw.replace(/(es|s)$/,''),nw.replace(/(ed|d)$/,''),nw.replace(/ing$/,''),nw.replace(/ies$/,'y')];
+    for(const v of s.vocab){ const nv=norm(v.w); if(cands.includes(nv)||nv===nw) return v; }
+    return null;
+  }
+  window.wordInfo=function(ev,word,n){
+    ev.stopPropagation();
+    const s=sentences().find(x=>x.n===n); if(!s) return;
+    const clean=word.replace(/[^A-Za-z'\-]/g,''); if(!clean) return;
+    const v=findVocab(clean,s);
+    wpop.innerHTML=`<button class="wx" onclick="document.getElementById('wpop').style.display='none'">✕</button>
+      <div class="ww">${clean} <button class="ws" title="발음">🔊</button></div>
+      ${v?`<div class="wm">${v.m}</div><div class="wp">${v.p}</div>`:'<div class="wm" style="color:var(--sub)">단어장에 없는 단어예요</div>'}`;
+    wpop.querySelector('.ws').onclick=e=>{e.stopPropagation();sayWord(clean);};
+    wpop.style.display='block';
+    const pw=wpop.offsetWidth||260, ph=wpop.offsetHeight||90;
+    let x=Math.min(ev.clientX,innerWidth-pw-12), y=ev.clientY+14;
+    if(y+ph>innerHeight-10) y=ev.clientY-ph-14;
+    wpop.style.left=Math.max(8,x)+'px'; wpop.style.top=Math.max(8,y)+'px';
+    sayWord(clean);
+  };
+  const wArg=w=>w.replace(/[^A-Za-z'\-]/g,'').replace(/'/g,"&#39;");
+  function clickableWords(text,n){
+    return text.split(/\s+/).map(w=>`<span class="wclick" onclick="wordInfo(event,'${wArg(w)}',${n})">${w}</span>`).join(' ');
+  }
 
   window.reportIssue=function(n){
     const s=sentences().find(x=>x.n===n); if(!s) return;
