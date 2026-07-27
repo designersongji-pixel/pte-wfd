@@ -12,35 +12,37 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Apple SD Gothic Neo','Pretendard','Noto Sans KR',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
-  header{background:var(--card);border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:10}
+  header{background:var(--card);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:10}
   header h1{font-size:18px;font-weight:800;letter-spacing:-.3px}
   header h1 span{color:var(--accent)}
-  select,button{font-family:inherit;font-size:14px}
-  select{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
-  .tabs{display:flex;gap:6px;margin-left:auto}
-  .tab{padding:8px 16px;border-radius:9px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:600;color:var(--sub)}
+  select,button,input{font-family:inherit;font-size:14px}
+  select,input[type=number],input[type=text]{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  .tabs{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap}
+  .tab{padding:8px 13px;border-radius:9px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:600;color:var(--sub);font-size:13.5px}
   .tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
-  main{max-width:860px;margin:0 auto;padding:22px 16px 60px}
-  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;font-size:14px;color:var(--sub)}
+  main{max-width:880px;margin:0 auto;padding:20px 16px 60px}
+  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;font-size:14px;color:var(--sub)}
   .bar label{display:flex;align-items:center;gap:6px}
   .chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px}
   .chip b{color:var(--accent)}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:0 1px 3px rgba(20,30,60,.05)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 1px 3px rgba(20,30,60,.05)}
   .qnum{font-size:13px;color:var(--sub);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
-  .audiorow{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
-  .playbtn{width:54px;height:54px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:22px;cursor:pointer;flex-shrink:0;transition:transform .1s}
+  .audiorow{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+  .playbtn{width:52px;height:52px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:21px;cursor:pointer;flex-shrink:0;transition:transform .1s}
   .playbtn:active{transform:scale(.93)}
+  .playbtn.small{width:34px;height:34px;font-size:13px}
   .speed{display:flex;gap:4px}
   .speed button{padding:5px 10px;border-radius:7px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:12px;color:var(--sub)}
   .speed button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
-  textarea{width:100%;min-height:92px;padding:14px;border:1.5px solid var(--line);border-radius:12px;font-size:16px;font-family:inherit;resize:vertical;outline:none}
+  textarea{width:100%;min-height:90px;padding:14px;border:1.5px solid var(--line);border-radius:12px;font-size:16px;font-family:inherit;resize:vertical;outline:none}
   textarea:focus{border-color:var(--accent)}
-  .btnrow{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
-  .btn{padding:11px 22px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:15px}
+  .btnrow{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center}
+  .btn{padding:11px 20px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:15px}
   .btn.primary{background:var(--accent);color:#fff}
   .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
   .btn.good{background:var(--ok);color:#fff}
   .btn.badb{background:var(--bad);color:#fff}
+  .btn.sm{padding:7px 13px;font-size:13px}
   .result{margin-top:20px;padding-top:18px;border-top:1px dashed var(--line)}
   .score{font-size:15px;font-weight:800;margin-bottom:10px}
   .score.allok{color:var(--ok)} .score.miss{color:var(--bad)}
@@ -50,32 +52,60 @@
   .w-extra{color:var(--warn);text-decoration:line-through}
   .ko{margin-top:12px;color:var(--sub);font-size:15px}
   .vocab{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
-  .vw{background:var(--accent-soft);border-radius:8px;padding:6px 10px;font-size:13px}
+  .vw{background:var(--accent-soft);border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer}
   .vw b{color:var(--accent)}
   .vw i{color:var(--sub);font-style:normal;font-size:11px}
-  .flash{cursor:pointer;user-select:none;min-height:220px;display:flex;flex-direction:column;justify-content:center}
-  .flash .en{font-size:22px;font-weight:700;line-height:1.5;letter-spacing:-.2px}
+  .flash{cursor:pointer;user-select:none;min-height:200px;display:flex;flex-direction:column;justify-content:center}
+  .flash .en{font-size:22px;font-weight:700;line-height:1.55;letter-spacing:-.2px}
   .flash .hint{margin-top:18px;font-size:13px;color:var(--sub)}
-  .empty{text-align:center;color:var(--sub);padding:60px 0;font-size:15px}
-  .stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
-  .stat .box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
-  .stat .box .v{font-size:22px;font-weight:800;color:var(--accent)}
-  .stat .box .l{font-size:12px;color:var(--sub);margin-top:2px}
-  .prog{height:6px;background:var(--line);border-radius:3px;margin-bottom:18px;overflow:hidden}
+  .empty{text-align:center;color:var(--sub);padding:50px 0;font-size:15px}
+  .stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px}
+  .stat .box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+  .stat .box .v{font-size:20px;font-weight:800;color:var(--accent)}
+  .stat .box .l{font-size:11.5px;color:var(--sub);margin-top:2px}
+  .prog{height:6px;background:var(--line);border-radius:3px;margin-bottom:16px;overflow:hidden}
   .prog i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .3s}
   kbd{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12px;font-family:inherit}
+  .foot{margin-top:14px;font-size:12.5px;color:var(--sub)}
   .report{background:none;border:none;color:var(--sub);font-size:12px;cursor:pointer;text-decoration:underline;padding:2px 4px}
   .report:hover{color:var(--bad)}
   .wclick{cursor:pointer;border-bottom:1.5px dotted transparent;border-radius:3px;transition:background .12s}
   .wclick:hover{background:var(--accent-soft);border-bottom-color:var(--accent)}
-  #wpop{position:fixed;z-index:99;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 30px rgba(20,30,60,.18);padding:14px 16px;max-width:280px;display:none}
-  #wpop .ww{font-size:18px;font-weight:800;color:var(--accent);display:flex;align-items:center;gap:8px}
+  #wpop{position:fixed;z-index:99;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 30px rgba(20,30,60,.18);padding:14px 16px;max-width:300px;display:none}
+  #wpop .ww{font-size:18px;font-weight:800;color:var(--accent);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  #wpop .wipa{font-size:13px;color:var(--sub);font-weight:400}
   #wpop .ws{width:30px;height:30px;border-radius:50%;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:13px;flex-shrink:0}
   #wpop .wm{margin-top:6px;font-size:14px;line-height:1.5}
   #wpop .wp{color:var(--sub);font-size:11.5px;margin-top:2px}
   #wpop .wx{position:absolute;top:8px;right:10px;border:none;background:none;color:var(--sub);cursor:pointer;font-size:14px}
-  .foot{margin-top:14px;font-size:12.5px;color:var(--sub)}
-  @media(max-width:600px){ .tabs{margin-left:0;width:100%} .card{padding:18px} }
+  #wpop .wsave{margin-top:10px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700;cursor:pointer;font-size:13px}
+  #wpop .wsave.saved{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+  /* 플랜 */
+  .plan{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:14px}
+  .plan .ptitle{font-weight:800;color:var(--accent)}
+  .plan input{width:64px;text-align:center}
+  .plan .pinfo{color:var(--sub);font-size:13px}
+  .plan .preset{padding:6px 11px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:12.5px;color:var(--sub)}
+  .plan .preset.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+  .planbadge{background:var(--ok-soft);color:var(--ok);border-radius:8px;padding:4px 10px;font-size:12.5px;font-weight:700}
+  /* 전체보기 */
+  .browse-item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+  .browse-item .bi-top{display:flex;gap:10px;align-items:flex-start}
+  .browse-item .bi-num{font-size:12px;color:var(--sub);font-weight:700;padding-top:8px;min-width:38px}
+  .browse-item .bi-en{font-size:15.5px;font-weight:600;line-height:1.6;flex:1;padding-top:5px}
+  .browse-item .bi-ko{font-size:13.5px;color:var(--sub);margin-top:6px;padding-left:48px}
+  .browse-item .bi-badge{font-size:11px;border-radius:6px;padding:2px 7px;margin-left:6px;vertical-align:middle}
+  .b-wrong{background:var(--bad-soft);color:var(--bad)}
+  .b-done{background:var(--ok-soft);color:var(--ok)}
+  /* 단어장 */
+  .word-item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+  .word-item .wi-word{font-weight:800;font-size:16px;color:var(--accent);min-width:110px;cursor:pointer}
+  .word-item .wi-ipa{color:var(--sub);font-size:12px}
+  .word-item .wi-mean{flex:1;font-size:14px}
+  .word-item .wi-mean.hidden{filter:blur(6px);cursor:pointer}
+  .word-item .wi-del{border:none;background:none;color:var(--sub);cursor:pointer;font-size:15px}
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:10px;font-size:13.5px;display:none;z-index:100}
+  @media(max-width:640px){ .tabs{margin-left:0;width:100%} .card{padding:18px} .browse-item .bi-ko{padding-left:0} }
 </style>
 </head>
 <body>
@@ -86,43 +116,54 @@
     <button class="tab on" data-mode="wfd">받아쓰기</button>
     <button class="tab" data-mode="flash">학습카드</button>
     <button class="tab" data-mode="review">오답복습</button>
+    <button class="tab" data-mode="browse">전체보기</button>
+    <button class="tab" data-mode="words">내 단어장</button>
   </nav>
 </header>
 <main>
+  <div class="plan" id="planBox"></div>
   <div class="stat" id="statBoxes"></div>
-  <div class="bar">
+  <div class="bar" id="ctrlBar">
     <label>범위 <select id="rangeSel"></select></label>
     <label>순서 <select id="orderSel"><option value="seq">번호순</option><option value="rand">랜덤</option></select></label>
     <label><input type="checkbox" id="autoPlay" checked> 자동재생</label>
     <span class="chip" id="posChip"></span>
   </div>
-  <div class="prog"><i id="progBar"></i></div>
+  <div class="prog" id="progWrap"><i id="progBar"></i></div>
   <div id="stage"></div>
-  <p class="foot">단축키: <kbd>Enter</kbd> 제출 → 한 번 더 <kbd>Enter</kbd> 다음 문제 · 학습카드는 클릭으로 뒤집기 · 문제 오류는 각 카드의 "오류 신고"로 알려주세요</p>
+  <p class="foot" id="footTip">단축키: <kbd>Enter</kbd> 제출 → 한 번 더 <kbd>Enter</kbd> 다음 · <kbd>←</kbd><kbd>→</kbd> 이전/다음 문제 · 단어 클릭 = 뜻/발음 · 문제 오류는 "오류 신고"로</p>
 </main>
+<div id="toast"></div>
 <script src="data.js"></script>
 <script>
 (function(){
   const D = window.WFD_DATA;
-  if(!D || !D.weeks){ document.getElementById('stage').innerHTML='<div class="card empty">data.js를 찾을 수 없습니다. index.html과 같은 폴더에 있어야 합니다.</div>'; return; }
+  if(!D || !D.weeks){ document.getElementById('stage').innerHTML='<div class="card empty">data.js를 찾을 수 없습니다.</div>'; return; }
 
-  // ---------- 상태 ----------
-  const LS='wfd_stats_v2';
-  let stats = JSON.parse(localStorage.getItem(LS)||'{}'); // key -> {r,w,streak,last}
+  // ---------- 상태/저장 ----------
+  const LS='wfd_stats_v2', LSW='wfd_words_v1', LSP='wfd_plan_v1', LSI='wfd_ipa_v1';
+  let stats = JSON.parse(localStorage.getItem(LS)||'{}');
+  let savedWords = JSON.parse(localStorage.getItem(LSW)||'{}');
+  let plan = JSON.parse(localStorage.getItem(LSP)||'null'); // {perDay, startDate}
+  let ipaCache = JSON.parse(localStorage.getItem(LSI)||'{}');
   let week = localStorage.getItem('wfd_week') || D.latest;
   if(!D.weeks[week]) week = D.latest;
   let mode='wfd', pool=[], idx=0, revealed=false, audio=null, speed=1.0;
   let session={done:0,ok:0};
+  let lastAutoKey='';
 
   const $=s=>document.querySelector(s);
   const norm=w=>w.toLowerCase().replace(/[^a-z0-9']/g,'');
-  const keyOf=s=>{ // 영어문장 기반 키: 주차가 바뀌어도 학습기록 유지
+  const keyOf=s=>{
     const t=s.en.toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
     let h=0; for(let i=0;i<t.length;i++){h=(h*31+t.charCodeAt(i))>>>0;}
     return 'k'+h.toString(36);
   };
   const sentences=()=>D.weeks[week].sentences;
   const isWrongItem=s=>{const st=stats[keyOf(s)]; return st && st.w>0 && st.streak<2;};
+  const isDone=s=>{const st=stats[keyOf(s)]; return st && st.streak>=2;};
+  const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+  function toast(msg){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._tm); t._tm=setTimeout(()=>t.style.display='none',2200); }
 
   // ---------- 주차/범위 ----------
   function buildWeekSel(){
@@ -132,10 +173,59 @@
       return `<option value="${w}" ${w===week?'selected':''}>${t?t[0]:w} (${D.weeks[w].sentences.length}문제)</option>`;
     }).join('');
   }
+  function todayRange(){
+    if(!plan) return null;
+    const n=sentences().length;
+    const day=Math.floor((Date.now()-new Date(plan.startDate+'T00:00:00'))/86400000);
+    const a=day*plan.perDay+1;
+    if(a>n) return {a:null,day:day+1,done:true};
+    return {a, b:Math.min(a+plan.perDay-1,n), day:day+1, done:false};
+  }
   function buildRangeSel(){
-    const n=sentences().length, opts=['<option value="all">전체</option>'];
+    const n=sentences().length, opts=[];
+    const tr=todayRange();
+    if(tr && !tr.done) opts.push(`<option value="today">📅 오늘 학습 (Day ${tr.day}: #${tr.a}–#${tr.b})</option>`);
+    opts.push('<option value="all">전체</option>');
     for(let a=1;a<=n;a+=50) opts.push(`<option value="${a}-${Math.min(a+49,n)}">${a}–${Math.min(a+49,n)}</option>`);
     $('#rangeSel').innerHTML=opts.join('');
+  }
+
+  // ---------- 학습 플랜 ----------
+  function renderPlan(){
+    const n=sentences().length;
+    const box=$('#planBox');
+    if(!plan){
+      box.innerHTML=`<span class="ptitle">📅 학습 플랜</span>
+        <button class="preset" data-d="14">2주 완성 (하루 ${Math.ceil(n/14)}개)</button>
+        <button class="preset" data-d="30">1달 완성 (하루 ${Math.ceil(n/30)}개)</button>
+        <label>직접: 하루 <input type="number" id="perDayIn" min="1" max="${n}" value="7">개</label>
+        <span class="pinfo" id="planCalc">→ 약 ${Math.ceil(n/7)}일 걸려요</span>
+        <button class="btn primary sm" id="planStart">시작</button>`;
+      const updateCalc=()=>{ const v=Math.max(1,parseInt($('#perDayIn').value)||1); $('#planCalc').textContent=`→ 약 ${Math.ceil(n/v)}일 걸려요`; };
+      $('#perDayIn').oninput=updateCalc;
+      box.querySelectorAll('.preset').forEach(b=>{ b.onclick=()=>{ $('#perDayIn').value=Math.ceil(n/parseInt(b.dataset.d)); updateCalc(); }; });
+      $('#planStart').onclick=()=>{
+        const v=Math.max(1,parseInt($('#perDayIn').value)||1);
+        plan={perDay:v,startDate:new Date().toISOString().slice(0,10)};
+        save(LSP,plan); buildRangeSel(); renderPlan();
+        toast(`플랜 시작! 하루 ${v}개 × 약 ${Math.ceil(n/v)}일`);
+      };
+    } else {
+      const tr=todayRange();
+      const daysTotal=Math.ceil(n/plan.perDay);
+      let prog='';
+      if(tr.done) prog=`<span class="planbadge">🎉 플랜 완주! (${daysTotal}일 과정)</span>`;
+      else{
+        const todayList=sentences().filter(s=>s.n>=tr.a&&s.n<=tr.b);
+        const doneCnt=todayList.filter(isDone).length;
+        prog=`<span class="planbadge">Day ${tr.day}/${daysTotal} · 오늘 #${tr.a}–#${tr.b} (${doneCnt}/${todayList.length} 완료)</span>`;
+      }
+      box.innerHTML=`<span class="ptitle">📅 하루 ${plan.perDay}개 플랜</span> ${prog}
+        <button class="preset" id="goToday">오늘 범위로 연습</button>
+        <button class="preset" id="planReset">플랜 변경</button>`;
+      $('#goToday').onclick=()=>{ if(!tr.done){ $('#rangeSel').value='today'; buildPool(); render(); } };
+      $('#planReset').onclick=()=>{ plan=null; localStorage.removeItem(LSP); buildRangeSel(); renderPlan(); };
+    }
   }
 
   // ---------- 풀 구성 ----------
@@ -143,16 +233,15 @@
     let list=sentences().slice();
     if(mode==='review') list=list.filter(isWrongItem);
     const r=$('#rangeSel').value;
-    if(r!=='all'){const[a,b]=r.split('-').map(Number); list=list.filter(s=>s.n>=a&&s.n<=b);}
+    if(r==='today'){ const tr=todayRange(); if(tr&&!tr.done) list=list.filter(s=>s.n>=tr.a&&s.n<=tr.b); }
+    else if(r&&r!=='all'){const[a,b]=r.split('-').map(Number); list=list.filter(s=>s.n>=a&&s.n<=b);}
     if($('#orderSel').value==='rand'){
       for(let i=list.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[list[i],list[j]]=[list[j],list[i]];}
     }
     pool=list; idx=0; session={done:0,ok:0};
   }
 
-  // ---------- 오디오 ----------
-  let userInteracted=false;
-  ['click','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{userInteracted=true;},{once:true,capture:true}));
+  // ---------- 오디오 (문장 = mp3 전용, TTS 없음) ----------
   function stopAll(){
     if(audio){audio.pause();audio.currentTime=0;}
     if(window.speechSynthesis) speechSynthesis.cancel();
@@ -161,17 +250,79 @@
     stopAll();
     audio=new Audio('audio/'+String(s.n).padStart(3,'0')+'.mp3');
     audio.playbackRate=speed;
-    audio.play().catch(err=>{
-      // 자동재생 차단(NotAllowed)은 무시. 파일이 진짜 없을 때만 TTS 대체.
-      if(err && err.name==='NotAllowedError') return;
-      if(!window.speechSynthesis) return;
-      speechSynthesis.cancel();
-      const u=new SpeechSynthesisUtterance(s.en); u.lang='en-US'; u.rate=speed*0.95;
-      speechSynthesis.speak(u);
-    });
+    audio.onerror=()=>toast('⚠️ 음성 파일을 불러올 수 없어요 (#'+s.n+')');
+    audio.play().catch(()=>{}); // 자동재생 차단 등은 조용히 무시 — 합성음 대체 없음
   }
 
-  // ---------- 채점 (LCS 정렬 diff) ----------
+  // ---------- 단어: 발음(TTS는 단어 전용) + 뜻 + IPA + 저장 ----------
+  const sayWord=window.sayWord=function(w){
+    if(!window.speechSynthesis) return;
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(w); u.lang='en-US'; u.rate=0.9;
+    speechSynthesis.speak(u);
+  };
+  async function getIPA(word){
+    const k=word.toLowerCase();
+    if(ipaCache[k]!==undefined) return ipaCache[k];
+    try{
+      const r=await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+encodeURIComponent(k));
+      if(!r.ok) throw 0;
+      const j=await r.json();
+      let ipa=j[0]&&j[0].phonetic||'';
+      if(!ipa&&j[0]&&j[0].phonetics){ const p=j[0].phonetics.find(x=>x.text); ipa=p?p.text:''; }
+      ipaCache[k]=ipa||''; save(LSI,ipaCache); return ipa;
+    }catch(e){ return ''; }
+  }
+  const wpop=document.createElement('div'); wpop.id='wpop'; document.body.appendChild(wpop);
+  document.addEventListener('click',e=>{ if(!wpop.contains(e.target) && !e.target.classList.contains('wclick')) wpop.style.display='none'; },true);
+  function findVocab(word,s){
+    const nw=norm(word);
+    const cands=[nw,nw.replace(/'s$/,''),nw.replace(/(es|s)$/,''),nw.replace(/(ed|d)$/,''),nw.replace(/ing$/,''),nw.replace(/ies$/,'y')];
+    if(s){ for(const v of s.vocab){ const nv=norm(v.w); if(cands.includes(nv)||nv===nw) return v; } }
+    // 전체 주차에서 탐색 (단어장 저장용)
+    for(const x of sentences()){ for(const v of x.vocab){ const nv=norm(v.w); if(cands.includes(nv)||nv===nw) return v; } }
+    return null;
+  }
+  window.wordInfo=function(ev,word,n){
+    ev.stopPropagation();
+    const s=n?sentences().find(x=>x.n===n):null;
+    const clean=word.replace(/[^A-Za-z'\-]/g,''); if(!clean) return;
+    const v=findVocab(clean,s);
+    const lk=clean.toLowerCase();
+    const already=!!savedWords[lk];
+    wpop.innerHTML=`<button class="wx" onclick="document.getElementById('wpop').style.display='none'">✕</button>
+      <div class="ww">${clean} <span class="wipa" id="wipa"></span><button class="ws" title="발음">🔊</button></div>
+      ${v?`<div class="wm">${v.m}</div><div class="wp">${v.p}</div>`:'<div class="wm" style="color:var(--sub)">단어장에 뜻이 없는 단어예요</div>'}
+      <button class="wsave ${already?'saved':''}" id="wsaveBtn">${already?'✓ 내 단어장에 있음':'⭐ 내 단어장에 저장'}</button>`;
+    wpop.querySelector('.ws').onclick=e=>{e.stopPropagation();sayWord(clean);};
+    $('#wsaveBtn').onclick=e=>{
+      e.stopPropagation();
+      if(savedWords[lk]){ delete savedWords[lk]; save(LSW,savedWords); e.target.className='wsave'; e.target.textContent='⭐ 내 단어장에 저장'; toast('단어장에서 제거했어요'); }
+      else{ savedWords[lk]={m:v?v.m:'', p:v?v.p:'', at:Date.now()}; save(LSW,savedWords); e.target.className='wsave saved'; e.target.textContent='✓ 내 단어장에 있음'; toast('내 단어장에 저장! ('+Object.keys(savedWords).length+'개)'); }
+      if(mode==='words') render();
+    };
+    wpop.style.display='block';
+    const pw=wpop.offsetWidth||280, ph=wpop.offsetHeight||120;
+    let x=Math.min(ev.clientX,innerWidth-pw-12), y=ev.clientY+14;
+    if(y+ph>innerHeight-10) y=ev.clientY-ph-14;
+    wpop.style.left=Math.max(8,x)+'px'; wpop.style.top=Math.max(8,y)+'px';
+    sayWord(clean);
+    getIPA(clean).then(ipa=>{ const el=$('#wipa'); if(el&&ipa) el.textContent=ipa; });
+  };
+  const wArg=w=>w.replace(/[^A-Za-z'\-]/g,'').replace(/'/g,"&#39;");
+  function clickableWords(text,n){
+    return text.split(/\s+/).map(w=>`<span class="wclick" onclick="wordInfo(event,'${wArg(w)}',${n})">${w}</span>`).join(' ');
+  }
+
+  window.reportIssue=function(n){
+    const s=sentences().find(x=>x.n===n); if(!s) return;
+    const subject=encodeURIComponent(`[WFD 오류신고] ${week} #${String(n).padStart(3,'0')}`);
+    const body=encodeURIComponent(`주차: ${week}\n문항: #${String(n).padStart(3,'0')}\n문장: ${s.en}\n\n오류 내용(음성 끊김/오타/번역 오류 등)을 적어주세요:\n`);
+    location.href=`mailto:designer.songji@gmail.com?subject=${subject}&body=${body}`;
+  };
+  window.playN=function(ev,n){ ev&&ev.stopPropagation(); const s=sentences().find(x=>x.n===n); if(s) playAudio(s); };
+
+  // ---------- 채점 ----------
   function grade(typedRaw,s){
     const ans=s.en.split(/\s+/).filter(Boolean);
     const typed=typedRaw.split(/\s+/).filter(Boolean);
@@ -190,19 +341,17 @@
     while(j<n){out.push({t:typed[j],c:'extra'});j++;}
     return {out,okCount,total:m,perfect:okCount===m&&T.length===m};
   }
-
   function record(s,correct){
     const k=keyOf(s);
     const st=stats[k]||{r:0,w:0,streak:0};
     if(correct){st.r++;st.streak++;}else{st.w++;st.streak=0;}
-    st.last=Date.now(); stats[k]=st;
-    localStorage.setItem(LS,JSON.stringify(stats));
+    st.last=Date.now(); stats[k]=st; save(LS,stats);
   }
 
-  // ---------- 렌더 ----------
+  // ---------- 공통 UI ----------
   function vocabHtml(s){
     if(!s.vocab.length) return '';
-    return '<div class="vocab">'+s.vocab.map(v=>`<span class="vw" style="cursor:pointer" title="클릭하면 발음" onclick="event.stopPropagation();sayWord('${wArg(v.w)}')"><b>${v.w}</b> ${v.m} <i>${v.p}</i> 🔊</span>`).join('')+'</div>';
+    return '<div class="vocab">'+s.vocab.map(v=>`<span class="vw" title="클릭하면 발음" onclick="event.stopPropagation();sayWord('${wArg(v.w)}')"><b>${v.w}</b> ${v.m} <i>${v.p}</i> 🔊</span>`).join('')+'</div>';
   }
   function audioRow(s){
     return `<div class="audiorow">
@@ -210,30 +359,63 @@
       <div class="speed">${[0.8,1.0,1.2].map(v=>`<button data-sp="${v}" class="${v===speed?'on':''}">${v}x</button>`).join('')}</div>
     </div>`;
   }
+  function navRow(extra){
+    return `<div class="btnrow">
+      <button class="btn ghost" id="btnPrev" ${idx===0?'disabled style="opacity:.4"':''}>← 이전</button>
+      ${extra||''}
+      <button class="btn ghost" id="btnSkip">다음 →</button>
+    </div>`;
+  }
+  function wireNav(){
+    const p=$('#btnPrev'), sk=$('#btnSkip');
+    if(p) p.onclick=()=>goPrev();
+    if(sk) sk.onclick=()=>advance();
+  }
+  function goPrev(){ if(idx>0){ stopAll(); idx--; revealed=false; document.onkeydown=null; render(); } }
+  function advance(){ stopAll(); idx++; revealed=false; document.onkeydown=null; render(); }
+
   function statHtml(){
     const all=sentences(), wrongN=all.filter(isWrongItem).length;
-    let seen=0; all.forEach(s=>{if(stats[keyOf(s)])seen++;});
+    let seen=0, done=0; all.forEach(s=>{const st=stats[keyOf(s)]; if(st)seen++; if(isDone(s))done++;});
     $('#statBoxes').innerHTML=`
       <div class="box"><div class="v">${all.length}</div><div class="l">이번 주차 문제</div></div>
-      <div class="box"><div class="v">${seen}</div><div class="l">학습한 문장</div></div>
+      <div class="box"><div class="v">${done}</div><div class="l">암기 완료 (2연속 정답)</div></div>
       <div class="box"><div class="v">${wrongN}</div><div class="l">복습 대상</div></div>
+      <div class="box"><div class="v">${Object.keys(savedWords).length}</div><div class="l">저장한 단어</div></div>
       <div class="box"><div class="v">${session.done?Math.round(session.ok/session.done*100)+'%':'–'}</div><div class="l">오늘 정답률 (${session.ok}/${session.done})</div></div>`;
   }
   function chip(){
-    $('#posChip').innerHTML=pool.length?`<b>${idx+1}</b> / ${pool.length}`:'0 / 0';
-    $('#progBar').style.width=pool.length?(idx/pool.length*100)+'%':'0';
+    $('#posChip').innerHTML=pool.length?`<b>${Math.min(idx+1,pool.length)}</b> / ${pool.length}`:'0 / 0';
+    $('#progBar').style.width=pool.length?(Math.min(idx,pool.length)/pool.length*100)+'%':'0';
+  }
+  function wireAudio(s){
+    const b=$('#btnPlay'); if(b) b.onclick=()=>playAudio(s);
+    document.querySelectorAll('[data-sp]').forEach(el=>{
+      el.onclick=()=>{speed=parseFloat(el.dataset.sp);
+        document.querySelectorAll('[data-sp]').forEach(x=>x.classList.toggle('on',x===el));
+        if(audio) audio.playbackRate=speed;};
+    });
   }
 
+  // ---------- 렌더 ----------
   function render(){
-    statHtml(); chip();
+    statHtml();
+    const practice = mode==='wfd'||mode==='flash'||mode==='review';
+    $('#ctrlBar').style.display=practice?'flex':'none';
+    $('#progWrap').style.display=practice?'block':'none';
+    if(!practice){ renderPage(); return; }
+    chip();
     const stage=$('#stage');
     if(!pool.length){
       stage.innerHTML=`<div class="card empty">${mode==='review'?'복습할 오답이 없습니다 🎉<br>받아쓰기에서 틀린 문장이 자동으로 여기에 쌓입니다.':'문제가 없습니다.'}</div>`;
       return;
     }
     if(idx>=pool.length){
-      stage.innerHTML=`<div class="card empty">완료! ${session.done}문제 중 ${session.ok}개 정답 (${Math.round(session.ok/session.done*100)||0}%)<br><br><button class="btn primary" id="btnRestart">다시 시작</button></div>`;
+      stage.innerHTML=`<div class="card empty">완료! ${session.done}문제 중 ${session.ok}개 정답 (${Math.round(session.ok/session.done*100)||0}%)<br><br>
+        <button class="btn ghost" id="btnBack1">← 마지막 문제로</button>
+        <button class="btn primary" id="btnRestart">다시 시작</button></div>`;
       $('#btnRestart').onclick=()=>{buildPool();render();};
+      $('#btnBack1').onclick=()=>{idx=pool.length-1;render();};
       return;
     }
     const s=pool[idx];
@@ -242,25 +424,28 @@
         <div class="qnum"><span>#${String(s.n).padStart(3,'0')}</span><span>${revealed?'뒷면':'앞면'} <button class="report" onclick="event.stopPropagation();reportIssue(${s.n})">오류 신고</button></span></div>
         ${audioRow(s)}
         <div class="en">${clickableWords(s.en,s.n)}</div>
-        ${revealed?`<div class="ko">${s.ko}</div>${vocabHtml(s)}`:'<div class="hint">클릭하면 번역과 단어가 보입니다</div>'}
+        ${revealed?`<div class="ko">${s.ko}</div>${vocabHtml(s)}`:'<div class="hint">카드를 클릭하면 번역·단어가 보여요 (음성은 다시 재생되지 않아요)</div>'}
         <div class="btnrow" onclick="event.stopPropagation()">
+          <button class="btn ghost" id="btnPrev" ${idx===0?'disabled style="opacity:.4"':''}>←</button>
           <button class="btn good" id="btnKnow">알아요 ✓</button>
           <button class="btn badb" id="btnDont">몰라요 ✗</button>
-          <button class="btn ghost" id="btnNext">건너뛰기 →</button>
+          <button class="btn ghost" id="btnSkip">→</button>
         </div>
       </div>`;
-      $('#flashCard').onclick=()=>{revealed=!revealed;render();};
+      $('#flashCard').onclick=e=>{ if(e.target.classList.contains('wclick'))return; revealed=!revealed; render(); };
       $('#btnKnow').onclick=()=>{record(s,true);advance();};
       $('#btnDont').onclick=()=>{record(s,false);advance();};
-      $('#btnNext').onclick=()=>advance();
+      wireNav();
     } else {
       stage.innerHTML=`<div class="card">
         <div class="qnum"><span>#${String(s.n).padStart(3,'0')}</span><span>${mode==='review'?'오답복습':'받아쓰기'} <button class="report" onclick="reportIssue(${s.n})">오류 신고</button></span></div>
         ${audioRow(s)}
         <textarea id="ans" placeholder="들리는 문장을 그대로 입력하세요…" autocomplete="off" spellcheck="false"></textarea>
         <div class="btnrow">
+          <button class="btn ghost" id="btnPrev" ${idx===0?'disabled style="opacity:.4"':''}>← 이전</button>
           <button class="btn primary" id="btnSubmit">제출 (Enter)</button>
           <button class="btn ghost" id="btnShow">정답 보기</button>
+          <button class="btn ghost" id="btnSkip">다음 →</button>
         </div>
         <div id="resultArea"></div>
       </div>`;
@@ -268,11 +453,13 @@
       ta.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit();}};
       $('#btnSubmit').onclick=submit;
       $('#btnShow').onclick=()=>showResult(grade('',s),s,true);
-      function submit(){ if(!$('#resultArea').innerHTML) showResult(grade(ta.value,s),s,false); }
+      wireNav();
+      function submit(){ if(!$('#resultArea').innerHTML) showResult(grade($('#ans').value,s),s,false); }
     }
     wireAudio(s);
-    // 첫 진입(제스처 전)에는 자동재생하지 않음 — 브라우저 차단으로 인한 꼬임 방지
-    if($('#autoPlay').checked && userInteracted) playAudio(s);
+    // 자동재생: 새 문제로 넘어왔을 때 1회만 (카드 뒤집기 등 재렌더에선 재생 안 함)
+    const akey=mode+'|'+week+'|'+(s?s.n:'');
+    if($('#autoPlay').checked && akey!==lastAutoKey){ lastAutoKey=akey; playAudio(s); }
   }
 
   function showResult(g,s,gaveUp){
@@ -286,85 +473,75 @@
       <div class="ko">${s.ko}</div>
       ${vocabHtml(s)}
       <div class="btnrow">
-        <button class="btn primary" id="btnNext2">다음 (Enter) →</button>
+        <button class="btn ghost" id="btnPrev2" ${idx===0?'disabled style="opacity:.4"':''}>← 이전</button>
         <button class="btn ghost" id="btnAgain">다시 듣기</button>
+        <button class="btn primary" id="btnNext2">다음 (Enter) →</button>
       </div></div>`;
     $('#btnNext2').onclick=()=>advance();
+    $('#btnPrev2').onclick=()=>goPrev();
     $('#btnAgain').onclick=()=>playAudio(s);
     document.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();document.onkeydown=null;advance();}};
     statHtml();
   }
 
-  function advance(){ stopAll(); idx++; revealed=false; document.onkeydown=null; render(); }
-
-  // ---------- 단어 팝업 (뜻 + 발음) ----------
-  const wpop=document.createElement('div'); wpop.id='wpop'; document.body.appendChild(wpop);
-  document.addEventListener('click',e=>{ if(!wpop.contains(e.target) && !e.target.classList.contains('wclick')) wpop.style.display='none'; },true);
-  const sayWord=window.sayWord=function(w){
-    if(!window.speechSynthesis) return;
-    speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(w); u.lang='en-US'; u.rate=0.9;
-    speechSynthesis.speak(u);
-  };
-  function findVocab(word,s){
-    const nw=norm(word);
-    const cands=[nw,nw.replace(/'s$/,''),nw.replace(/(es|s)$/,''),nw.replace(/(ed|d)$/,''),nw.replace(/ing$/,''),nw.replace(/ies$/,'y')];
-    for(const v of s.vocab){ const nv=norm(v.w); if(cands.includes(nv)||nv===nw) return v; }
-    return null;
+  // ---------- 전체보기 / 단어장 페이지 ----------
+  function renderPage(){
+    const stage=$('#stage');
+    if(mode==='browse'){
+      const q=(window.__bq||'').toLowerCase();
+      const list=sentences().filter(s=>!q||s.en.toLowerCase().includes(q)||s.ko.includes(q)||String(s.n).includes(q));
+      stage.innerHTML=`<div class="bar">
+          <input type="text" id="bSearch" placeholder="검색 (영어/한글/번호)…" value="${window.__bq||''}" style="flex:1;min-width:200px">
+          <span class="chip">${list.length}문장</span>
+        </div>
+        <div id="bList">${list.map(s=>{
+          const badge=isWrongItem(s)?'<span class="bi-badge b-wrong">복습 필요</span>':(isDone(s)?'<span class="bi-badge b-done">암기 완료</span>':'');
+          return `<div class="browse-item">
+            <div class="bi-top">
+              <button class="playbtn small" onclick="playN(event,${s.n})">▶</button>
+              <span class="bi-num">#${String(s.n).padStart(3,'0')}</span>
+              <div class="bi-en">${clickableWords(s.en,s.n)}${badge}</div>
+            </div>
+            <div class="bi-ko">${s.ko}</div>
+          </div>`;}).join('')}</div>`;
+      const si=$('#bSearch');
+      si.oninput=()=>{ window.__bq=si.value; clearTimeout(window.__bt); window.__bt=setTimeout(()=>{renderPage(); const s2=$('#bSearch'); s2.focus(); s2.setSelectionRange(s2.value.length,s2.value.length);},250); };
+    } else if(mode==='words'){
+      const entries=Object.entries(savedWords).sort((a,b)=>b[1].at-a[1].at);
+      if(!entries.length){ stage.innerHTML='<div class="card empty">저장한 단어가 없어요.<br>문장 속 단어를 클릭한 뒤 "⭐ 내 단어장에 저장"을 눌러보세요.</div>'; return; }
+      stage.innerHTML=`<div class="bar">
+          <span class="chip"><b>${entries.length}</b>개 단어</span>
+          <label><input type="checkbox" id="hideMean" ${window.__hm?'checked':''}> 뜻 가리고 외우기</label>
+        </div>
+        ${entries.map(([w,info])=>`<div class="word-item">
+          <span class="wi-word" onclick="sayWord('${wArg(w)}')" title="클릭하면 발음">${w} 🔊</span>
+          <span class="wi-ipa" data-ipa="${w}"></span>
+          <span class="wi-mean ${window.__hm?'hidden':''}" onclick="this.classList.remove('hidden')">${info.m||'(뜻 정보 없음)'} ${info.p?`<i style="color:var(--sub);font-size:11px">${info.p}</i>`:''}</span>
+          <button class="wi-del" title="삭제" onclick="delWord('${wArg(w)}')">🗑</button>
+        </div>`).join('')}`;
+      $('#hideMean').onchange=e=>{ window.__hm=e.target.checked; renderPage(); };
+      entries.slice(0,30).forEach(([w])=>{ getIPA(w).then(ipa=>{ const el=document.querySelector(`[data-ipa="${w}"]`); if(el&&ipa) el.textContent=ipa; }); });
+    }
   }
-  window.wordInfo=function(ev,word,n){
-    ev.stopPropagation();
-    const s=sentences().find(x=>x.n===n); if(!s) return;
-    const clean=word.replace(/[^A-Za-z'\-]/g,''); if(!clean) return;
-    const v=findVocab(clean,s);
-    wpop.innerHTML=`<button class="wx" onclick="document.getElementById('wpop').style.display='none'">✕</button>
-      <div class="ww">${clean} <button class="ws" title="발음">🔊</button></div>
-      ${v?`<div class="wm">${v.m}</div><div class="wp">${v.p}</div>`:'<div class="wm" style="color:var(--sub)">단어장에 없는 단어예요</div>'}`;
-    wpop.querySelector('.ws').onclick=e=>{e.stopPropagation();sayWord(clean);};
-    wpop.style.display='block';
-    const pw=wpop.offsetWidth||260, ph=wpop.offsetHeight||90;
-    let x=Math.min(ev.clientX,innerWidth-pw-12), y=ev.clientY+14;
-    if(y+ph>innerHeight-10) y=ev.clientY-ph-14;
-    wpop.style.left=Math.max(8,x)+'px'; wpop.style.top=Math.max(8,y)+'px';
-    sayWord(clean);
-  };
-  const wArg=w=>w.replace(/[^A-Za-z'\-]/g,'').replace(/'/g,"&#39;");
-  function clickableWords(text,n){
-    return text.split(/\s+/).map(w=>`<span class="wclick" onclick="wordInfo(event,'${wArg(w)}',${n})">${w}</span>`).join(' ');
-  }
-
-  window.reportIssue=function(n){
-    const s=sentences().find(x=>x.n===n); if(!s) return;
-    const subject=encodeURIComponent(`[WFD 오류신고] ${week} #${String(n).padStart(3,'0')}`);
-    const body=encodeURIComponent(
-`주차: ${week}
-문항: #${String(n).padStart(3,'0')}
-문장: ${s.en}
-
-오류 내용(음성 끊김/오타/번역 오류 등)을 적어주세요:
-`);
-    location.href=`mailto:designer.songji@gmail.com?subject=${subject}&body=${body}`;
-  };
-
-  function wireAudio(s){
-    const b=$('#btnPlay'); if(b) b.onclick=()=>playAudio(s);
-    document.querySelectorAll('[data-sp]').forEach(el=>{
-      el.onclick=()=>{speed=parseFloat(el.dataset.sp);
-        document.querySelectorAll('[data-sp]').forEach(x=>x.classList.toggle('on',x===el));
-        if(audio) audio.playbackRate=speed;};
-    });
-  }
+  window.delWord=function(w){ delete savedWords[w.toLowerCase()]; save(LSW,savedWords); toast('삭제했어요'); render(); };
 
   // ---------- 이벤트 ----------
   document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
-    t.classList.add('on'); mode=t.dataset.mode; revealed=false; buildPool(); render();
+    t.classList.add('on'); mode=t.dataset.mode; revealed=false; stopAll();
+    if(mode==='wfd'||mode==='flash'||mode==='review') buildPool();
+    render();
   });
-  $('#weekSel').onchange=e=>{week=e.target.value;localStorage.setItem('wfd_week',week);buildRangeSel();buildPool();render();};
+  $('#weekSel').onchange=e=>{week=e.target.value;localStorage.setItem('wfd_week',week);buildRangeSel();renderPlan();buildPool();render();};
   $('#rangeSel').onchange=()=>{buildPool();render();};
   $('#orderSel').onchange=()=>{buildPool();render();};
+  document.addEventListener('keydown',e=>{
+    if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT') return;
+    if(e.key==='ArrowLeft') goPrev();
+    if(e.key==='ArrowRight') advance();
+  });
 
-  buildWeekSel(); buildRangeSel(); buildPool(); render();
+  buildWeekSel(); buildRangeSel(); renderPlan(); buildPool(); render();
 })();
 </script>
 </body>
