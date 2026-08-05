@@ -105,6 +105,21 @@
   .word-item .wi-mean.hidden{filter:blur(6px);cursor:pointer}
   .word-item .wi-del{border:none;background:none;color:var(--sub);cursor:pointer;font-size:15px}
   #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:10px;font-size:13.5px;display:none;z-index:100}
+  /* 검색 */
+  .searchwrap{position:relative;flex:1;min-width:180px;max-width:340px}
+  #gSearch{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--line);border-radius:10px;font-size:14px;outline:none}
+  #gSearch:focus{border-color:var(--accent);background:#fff}
+  .searchwrap .sicon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--sub);font-size:13px;pointer-events:none}
+  #sResults{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 34px rgba(20,30,60,.16);max-height:70vh;overflow-y:auto;display:none;z-index:40;min-width:340px}
+  #sResults .sgroup{font-size:11px;font-weight:800;color:var(--sub);padding:9px 14px 5px;letter-spacing:.3px;background:var(--bg);position:sticky;top:0}
+  #sResults .sitem{padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--line)}
+  #sResults .sitem:hover,#sResults .sitem.sel{background:var(--accent-soft)}
+  #sResults .sitem .s-en{font-size:13.5px;font-weight:600;line-height:1.45}
+  #sResults .sitem .s-ko{font-size:12px;color:var(--sub);margin-top:2px}
+  #sResults .sitem .s-n{color:var(--accent);font-weight:800;font-size:11.5px;margin-right:5px}
+  #sResults .sitem mark{background:#fff2a8;color:inherit;border-radius:3px;padding:0 1px}
+  #sResults .sempty{padding:18px 14px;color:var(--sub);font-size:13px;text-align:center}
+  @media(max-width:640px){ #sResults{min-width:unset;position:fixed;left:8px;right:8px;top:64px} }
   @media(max-width:640px){ .tabs{margin-left:0;width:100%} .card{padding:18px} .browse-item .bi-ko{padding-left:0} }
 </style>
 </head>
@@ -112,6 +127,11 @@
 <header>
   <h1>PTE <span>WFD</span> 연습</h1>
   <select id="weekSel"></select>
+  <div class="searchwrap">
+    <span class="sicon">🔍</span>
+    <input type="text" id="gSearch" placeholder="문장·단어·번호 검색 (Ctrl+K)" autocomplete="off">
+    <div id="sResults"></div>
+  </div>
   <nav class="tabs">
     <button class="tab on" data-mode="wfd">받아쓰기</button>
     <button class="tab" data-mode="flash">학습카드</button>
@@ -131,7 +151,7 @@
   </div>
   <div class="prog" id="progWrap"><i id="progBar"></i></div>
   <div id="stage"></div>
-  <p class="foot" id="footTip">단축키: <kbd>Enter</kbd> 제출 → 한 번 더 <kbd>Enter</kbd> 다음 · <kbd>←</kbd><kbd>→</kbd> 이전/다음 문제 · 단어 클릭 = 뜻/발음 · 문제 오류는 "오류 신고"로</p>
+  <p class="foot" id="footTip">단축키: <kbd>Enter</kbd> 제출 → 한 번 더 <kbd>Enter</kbd> 다음 · <kbd>←</kbd><kbd>→</kbd> 이전/다음 문제 · <kbd>Ctrl</kbd>+<kbd>K</kbd> 검색 · 단어 클릭 = 뜻/발음 · 문제 오류는 "오류 신고"로</p>
 </main>
 <div id="toast"></div>
 <script src="data.js"></script>
@@ -500,7 +520,8 @@
             <div class="bi-top">
               <button class="playbtn small" onclick="playN(event,${s.n})">▶</button>
               <span class="bi-num">#${String(s.n).padStart(3,'0')}</span>
-              <div class="bi-en">${clickableWords(s.en,s.n)}${badge}</div>
+              <div class="bi-en">${clickableWords(s.en,s.n)}${badge}
+                <button class="btn ghost sm" style="margin-left:8px;padding:3px 9px;font-size:11.5px" onclick="event.stopPropagation();jumpTo(${s.n})">연습하기</button></div>
             </div>
             <div class="bi-ko">${s.ko}</div>
           </div>`;}).join('')}</div>`;
@@ -539,6 +560,86 @@
     if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT') return;
     if(e.key==='ArrowLeft') goPrev();
     if(e.key==='ArrowRight') advance();
+  });
+
+  // ---------- 전역 검색 ----------
+  const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const hl=(text,q)=>{ if(!q) return esc(text);
+    const i=text.toLowerCase().indexOf(q.toLowerCase());
+    if(i<0) return esc(text);
+    return esc(text.slice(0,i))+'<mark>'+esc(text.slice(i,i+q.length))+'</mark>'+esc(text.slice(i+q.length)); };
+  let sIdx=-1, sHits=[];
+  function runSearch(q){
+    const box=$('#sResults');
+    q=q.trim();
+    if(!q){ box.style.display='none'; sHits=[]; return; }
+    const ql=q.toLowerCase();
+    const all=sentences();
+    const sent=[], words=[];
+    for(const s of all){
+      if(String(s.n)===q||String(s.n).padStart(3,'0')===q){ sent.unshift({s,why:'번호'}); continue; }
+      if(s.en.toLowerCase().includes(ql)||s.ko.includes(q)) sent.push({s,why:null});
+    }
+    const seenW=new Set();
+    for(const s of all) for(const v of s.vocab){
+      const lw=v.w.toLowerCase();
+      if((lw.includes(ql)||v.m.includes(q))&&!seenW.has(lw)){ seenW.add(lw); words.push({v,n:s.n}); }
+    }
+    sHits=sent.slice(0,40).map(x=>({type:'s',...x}));
+    const wHits=words.slice(0,12).map(x=>({type:'w',...x}));
+    let html='';
+    if(sent.length){
+      html+=`<div class="sgroup">문장 ${sent.length}개</div>`;
+      html+=sHits.map((h,i)=>`<div class="sitem" data-i="${i}">
+        <div class="s-en"><span class="s-n">#${String(h.s.n).padStart(3,'0')}</span>${hl(h.s.en,ql)}</div>
+        <div class="s-ko">${hl(h.s.ko,q)}</div></div>`).join('');
+    }
+    if(words.length){
+      html+=`<div class="sgroup">단어 ${words.length}개</div>`;
+      html+=wHits.map((h,i)=>`<div class="sitem" data-i="${sHits.length+i}">
+        <div class="s-en">${hl(h.v.w,ql)} <span style="color:var(--sub);font-weight:400">${hl(h.v.m,q)}</span> 🔊</div>
+        <div class="s-ko">#${String(h.n).padStart(3,'0')} 문장에 등장 · ${h.v.p}</div></div>`).join('');
+    }
+    sHits=sHits.concat(wHits);
+    box.innerHTML=html||'<div class="sempty">검색 결과가 없어요</div>';
+    box.style.display='block'; sIdx=-1;
+    box.querySelectorAll('.sitem').forEach(el=>el.onclick=()=>pickHit(parseInt(el.dataset.i)));
+  }
+  function pickHit(i){
+    const h=sHits[i]; if(!h) return;
+    if(h.type==='w'){ sayWord(h.v.w); toast(`${h.v.w} — ${h.v.m}`); return; }
+    jumpTo(h.s.n);
+    $('#sResults').style.display='none'; $('#gSearch').value=''; $('#gSearch').blur();
+  }
+  function jumpTo(n){
+    if(mode!=='wfd'&&mode!=='flash'){
+      document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.mode==='wfd'));
+      mode='wfd';
+    }
+    $('#rangeSel').value='all'; $('#orderSel').value='seq';
+    buildPool();
+    const at=pool.findIndex(s=>s.n===n);
+    idx=at>=0?at:0; revealed=false; lastAutoKey=''; stopAll(); render();
+    toast(`#${String(n).padStart(3,'0')} 문장으로 이동했어요`);
+  }
+  window.jumpTo=jumpTo;
+  const gs=$('#gSearch');
+  let sTm;
+  gs.oninput=()=>{ clearTimeout(sTm); sTm=setTimeout(()=>runSearch(gs.value),180); };
+  gs.onfocus=()=>{ if(gs.value.trim()) runSearch(gs.value); };
+  gs.onkeydown=e=>{
+    const items=[...document.querySelectorAll('#sResults .sitem')];
+    if(e.key==='ArrowDown'&&items.length){ e.preventDefault(); sIdx=Math.min(sIdx+1,items.length-1); }
+    else if(e.key==='ArrowUp'&&items.length){ e.preventDefault(); sIdx=Math.max(sIdx-1,0); }
+    else if(e.key==='Enter'){ e.preventDefault(); pickHit(sIdx>=0?sIdx:0); return; }
+    else if(e.key==='Escape'){ gs.value=''; $('#sResults').style.display='none'; gs.blur(); return; }
+    else return;
+    items.forEach((el,i)=>el.classList.toggle('sel',i===sIdx));
+    if(items[sIdx]) items[sIdx].scrollIntoView({block:'nearest'});
+  };
+  document.addEventListener('click',e=>{ if(!e.target.closest('.searchwrap')) $('#sResults').style.display='none'; });
+  document.addEventListener('keydown',e=>{
+    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); gs.focus(); gs.select(); }
   });
 
   buildWeekSel(); buildRangeSel(); renderPlan(); buildPool(); render();
