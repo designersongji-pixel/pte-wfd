@@ -98,12 +98,28 @@
   .b-wrong{background:var(--bad-soft);color:var(--bad)}
   .b-done{background:var(--ok-soft);color:var(--ok)}
   /* 단어장 */
-  .word-item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
-  .word-item .wi-word{font-weight:800;font-size:16px;color:var(--accent);min-width:110px;cursor:pointer}
-  .word-item .wi-ipa{color:var(--sub);font-size:12px}
+  .word-item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+  .word-item .wi-word{font-weight:800;font-size:16px;color:var(--accent);min-width:120px;cursor:pointer}
+  .word-item .wi-ipa{color:var(--sub);font-size:12px;min-width:70px}
   .word-item .wi-mean{flex:1;font-size:14px}
   .word-item .wi-mean.hidden{filter:blur(6px);cursor:pointer}
   .word-item .wi-del{border:none;background:none;color:var(--sub);cursor:pointer;font-size:15px}
+  .word-item .wi-stat{font-size:11px;color:var(--sub);min-width:52px;text-align:right}
+  .daygroup{margin:18px 0 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .daygroup h3{font-size:14.5px;font-weight:800}
+  .daygroup .dcount{font-size:12px;color:var(--sub)}
+  /* 단어 시험 */
+  .quizcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:30px 26px;text-align:center}
+  .quizcard .qmean{font-size:22px;font-weight:800;margin-bottom:6px}
+  .quizcard .qpos{font-size:12.5px;color:var(--sub);margin-bottom:18px}
+  .quizcard input[type=text]{width:100%;max-width:420px;font-size:22px;padding:12px 14px;text-align:center;letter-spacing:.5px;border:1.5px solid var(--line);border-radius:12px;outline:none}
+  .quizcard input:focus{border-color:var(--accent)}
+  .qfeed{margin-top:16px;font-size:26px;letter-spacing:2px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .qfeed .c-ok{color:var(--ok)}
+  .qfeed .c-bad{color:var(--bad);text-decoration:underline;text-underline-offset:4px}
+  .qfeed .c-miss{color:var(--bad);opacity:.45}
+  .qanswer{margin-top:10px;font-size:15px;color:var(--sub)}
+  .qanswer b{color:var(--ink);font-size:19px}
   #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:10px;font-size:13.5px;display:none;z-index:100}
   /* 검색 */
   .searchwrap{position:relative;flex:1;min-width:180px;max-width:340px}
@@ -138,6 +154,7 @@
     <button class="tab" data-mode="review">오답복습</button>
     <button class="tab" data-mode="browse">전체보기</button>
     <button class="tab" data-mode="words">내 단어장</button>
+    <button class="tab" data-mode="wordquiz">단어 시험</button>
   </nav>
 </header>
 <main>
@@ -155,15 +172,31 @@
 </main>
 <div id="toast"></div>
 <script src="data.js"></script>
+<script src="words.js"></script>
 <script>
 (function(){
   const D = window.WFD_DATA;
   if(!D || !D.weeks){ document.getElementById('stage').innerHTML='<div class="card empty">data.js를 찾을 수 없습니다.</div>'; return; }
 
   // ---------- 상태/저장 ----------
-  const LS='wfd_stats_v2', LSW='wfd_words_v1', LSP='wfd_plan_v1', LSI='wfd_ipa_v1';
+  const LS='wfd_stats_v2', LSW='wfd_words_v2', LSP='wfd_plan_v1', LSI='wfd_ipa_v1';
+  localStorage.removeItem('wfd_words_v1');   // 예전 단어장 초기화
   let stats = JSON.parse(localStorage.getItem(LS)||'{}');
   let savedWords = JSON.parse(localStorage.getItem(LSW)||'{}');
+  // 기본 제공 단어 시드 반영 (한 번만)
+  (function seedWords(){
+    const SEEDED='wfd_seeded_v2';
+    if(!window.WFD_SEED_WORDS || localStorage.getItem(SEEDED)) return;
+    Object.entries(window.WFD_SEED_WORDS).forEach(([date,g])=>{
+      const t=new Date(date+'T09:00:00').getTime();
+      g.words.forEach((x,i)=>{
+        const k=x.w.toLowerCase();
+        if(!savedWords[k]) savedWords[k]={w:x.w,m:x.m,p:x.p,at:t+i,src:g.label,r:0,wrong:0};
+      });
+    });
+    localStorage.setItem(LSW,JSON.stringify(savedWords));
+    localStorage.setItem(SEEDED,'1');
+  })();
   let plan = JSON.parse(localStorage.getItem(LSP)||'null'); // {perDay, startDate}
   let ipaCache = JSON.parse(localStorage.getItem(LSI)||'{}');
   let week = localStorage.getItem('wfd_week') || D.latest;
@@ -270,7 +303,7 @@
     stopAll();
     audio=new Audio('audio/'+String(s.n).padStart(3,'0')+'.mp3');
     audio.playbackRate=speed;
-    audio.onerror=()=>toast('⚠️ 음성 파일을 불러올 수 없어요 (#'+s.n+')');
+    audio.onerror=()=>toast('⚠️ 이 문장은 음성 파일이 없어요 (#'+s.n+')');
     audio.play().catch(()=>{}); // 자동재생 차단 등은 조용히 무시 — 합성음 대체 없음
   }
 
@@ -318,7 +351,7 @@
     $('#wsaveBtn').onclick=e=>{
       e.stopPropagation();
       if(savedWords[lk]){ delete savedWords[lk]; save(LSW,savedWords); e.target.className='wsave'; e.target.textContent='⭐ 내 단어장에 저장'; toast('단어장에서 제거했어요'); }
-      else{ savedWords[lk]={m:v?v.m:'', p:v?v.p:'', at:Date.now()}; save(LSW,savedWords); e.target.className='wsave saved'; e.target.textContent='✓ 내 단어장에 있음'; toast('내 단어장에 저장! ('+Object.keys(savedWords).length+'개)'); }
+      else{ savedWords[lk]={w:clean, m:v?v.m:'', p:v?v.p:'', at:Date.now(), r:0, wrong:0}; save(LSW,savedWords); e.target.className='wsave saved'; e.target.textContent='✓ 내 단어장에 있음'; toast('내 단어장에 저장! ('+Object.keys(savedWords).length+'개)'); }
       if(mode==='words') render();
     };
     wpop.style.display='block';
@@ -421,6 +454,7 @@
   function render(){
     statHtml();
     const practice = mode==='wfd'||mode==='flash'||mode==='review';
+    document.querySelector('#planBox').style.display=(mode==='words'||mode==='wordquiz')?'none':'flex';
     $('#ctrlBar').style.display=practice?'flex':'none';
     $('#progWrap').style.display=practice?'block':'none';
     if(!practice){ renderPage(); return; }
@@ -530,19 +564,132 @@
     } else if(mode==='words'){
       const entries=Object.entries(savedWords).sort((a,b)=>b[1].at-a[1].at);
       if(!entries.length){ stage.innerHTML='<div class="card empty">저장한 단어가 없어요.<br>문장 속 단어를 클릭한 뒤 "⭐ 내 단어장에 저장"을 눌러보세요.</div>'; return; }
+      // 날짜별 그룹
+      const byDay={};
+      entries.forEach(([w,info])=>{
+        const day=new Date(info.at).toISOString().slice(0,10);
+        (byDay[day]=byDay[day]||[]).push([w,info]);
+      });
+      const days=Object.keys(byDay).sort().reverse();
       stage.innerHTML=`<div class="bar">
-          <span class="chip"><b>${entries.length}</b>개 단어</span>
+          <span class="chip"><b>${entries.length}</b>개 단어 · ${days.length}일치</span>
           <label><input type="checkbox" id="hideMean" ${window.__hm?'checked':''}> 뜻 가리고 외우기</label>
+          <button class="btn primary sm" id="quizAll">전체 시험 시작 →</button>
         </div>
-        ${entries.map(([w,info])=>`<div class="word-item">
-          <span class="wi-word" onclick="sayWord('${wArg(w)}')" title="클릭하면 발음">${w} 🔊</span>
-          <span class="wi-ipa" data-ipa="${w}"></span>
-          <span class="wi-mean ${window.__hm?'hidden':''}" onclick="this.classList.remove('hidden')">${info.m||'(뜻 정보 없음)'} ${info.p?`<i style="color:var(--sub);font-size:11px">${info.p}</i>`:''}</span>
-          <button class="wi-del" title="삭제" onclick="delWord('${wArg(w)}')">🗑</button>
-        </div>`).join('')}`;
+        ${days.map(day=>{
+          const list=byDay[day];
+          const label=list[0][1].src?` · ${list[0][1].src}`:'';
+          return `<div class="daygroup">
+              <h3>📅 ${day}${label}</h3><span class="dcount">${list.length}개</span>
+              <button class="btn ghost sm" onclick="startQuiz('${day}')">이 날짜만 시험</button>
+            </div>
+            ${list.map(([w,info])=>`<div class="word-item">
+              <span class="wi-word" onclick="sayWord('${wArg(info.w||w)}')" title="클릭하면 발음">${info.w||w} 🔊</span>
+              <span class="wi-ipa" data-ipa="${w}"></span>
+              <span class="wi-mean ${window.__hm?'hidden':''}" onclick="this.classList.remove('hidden')">${info.m||'(뜻 정보 없음)'} ${info.p?`<i style="color:var(--sub);font-size:11px">${info.p}</i>`:''}</span>
+              <span class="wi-stat">${info.wrong?`✗${info.wrong}`:''} ${info.r?`✓${info.r}`:''}</span>
+              <button class="wi-del" title="삭제" onclick="delWord('${wArg(w)}')">🗑</button>
+            </div>`).join('')}`;
+        }).join('')}`;
       $('#hideMean').onchange=e=>{ window.__hm=e.target.checked; renderPage(); };
-      entries.slice(0,30).forEach(([w])=>{ getIPA(w).then(ipa=>{ const el=document.querySelector(`[data-ipa="${w}"]`); if(el&&ipa) el.textContent=ipa; }); });
+      $('#quizAll').onclick=()=>startQuiz(null);
+      entries.slice(0,40).forEach(([w])=>{ getIPA(w).then(ipa=>{ const el=document.querySelector(`[data-ipa="${w}"]`); if(el&&ipa) el.textContent=ipa; }); });
+    } else if(mode==='wordquiz'){
+      renderQuiz();
     }
+  }
+
+  // ---------- 단어 시험 ----------
+  let quiz={list:[],i:0,day:null,done:0,ok:0,wrongList:[]};
+  window.startQuiz=function(day){
+    let e=Object.entries(savedWords);
+    if(day) e=e.filter(([w,i])=>new Date(i.at).toISOString().slice(0,10)===day);
+    if(!e.length){ toast('시험 볼 단어가 없어요'); return; }
+    for(let i=e.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[e[i],e[j]]=[e[j],e[i]];}
+    quiz={list:e,i:0,day,done:0,ok:0,wrongList:[]};
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.mode==='wordquiz'));
+    mode='wordquiz'; render();
+  };
+  function charDiff(typed,ans){
+    const T=typed, A=ans;
+    const m=A.length,n=T.length;
+    const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));
+    for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)
+      dp[i][j]=A[i].toLowerCase()===T[j].toLowerCase()?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+    const out=[];let i=0,j=0;
+    while(i<m&&j<n){
+      if(A[i].toLowerCase()===T[j].toLowerCase()){out.push({c:A[i],k:'ok'});i++;j++;}
+      else if(dp[i+1][j]>=dp[i][j+1]){out.push({c:A[i],k:'miss'});i++;}
+      else{out.push({c:T[j],k:'bad'});j++;}
+    }
+    while(i<m){out.push({c:A[i],k:'miss'});i++;}
+    while(j<n){out.push({c:T[j],k:'bad'});j++;}
+    return out;
+  }
+  function renderQuiz(){
+    const stage=$('#stage');
+    if(!quiz.list.length){
+      stage.innerHTML=`<div class="card empty">단어 시험을 시작하려면 <b>내 단어장</b>에서 "전체 시험 시작" 또는 날짜별 시험을 눌러주세요.<br><br>
+        <button class="btn primary" onclick="startQuiz(null)">전체 단어로 바로 시작</button></div>`;
+      return;
+    }
+    if(quiz.i>=quiz.list.length){
+      const rate=quiz.done?Math.round(quiz.ok/quiz.done*100):0;
+      stage.innerHTML=`<div class="card empty">시험 완료! ${quiz.done}개 중 ${quiz.ok}개 정답 (${rate}%)
+        ${quiz.wrongList.length?`<div style="margin-top:14px;font-size:14px">틀린 단어: <b>${quiz.wrongList.join(', ')}</b></div>`:''}
+        <div class="btnrow" style="justify-content:center;margin-top:18px">
+          ${quiz.wrongList.length?'<button class="btn badb" id="qRetry">틀린 단어만 다시</button>':''}
+          <button class="btn primary" id="qAgain">처음부터 다시</button>
+        </div></div>`;
+      const rt=$('#qRetry'); if(rt) rt.onclick=()=>{
+        const set=new Set(quiz.wrongList.map(x=>x.toLowerCase()));
+        quiz={list:Object.entries(savedWords).filter(([w])=>set.has(w)),i:0,day:quiz.day,done:0,ok:0,wrongList:[]};
+        render();
+      };
+      $('#qAgain').onclick=()=>startQuiz(quiz.day);
+      return;
+    }
+    const [key,info]=quiz.list[quiz.i];
+    const word=info.w||key;
+    stage.innerHTML=`<div class="quizcard">
+      <div class="qnum" style="justify-content:space-between"><span>${quiz.i+1} / ${quiz.list.length}</span><span>${quiz.day?quiz.day+' 단어':'전체 단어'} 시험</span></div>
+      <div class="qmean">${info.m||'(뜻 없음)'}</div>
+      <div class="qpos">${info.p||''} · ${word.length}글자</div>
+      <div class="audiorow" style="justify-content:center">
+        <button class="playbtn" id="qSay" title="발음 듣기">🔊</button>
+      </div>
+      <input type="text" id="qIn" placeholder="영어 단어를 입력하세요" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div id="qRes"></div>
+      <div class="btnrow" style="justify-content:center">
+        <button class="btn ghost" id="qPrev" ${quiz.i===0?'disabled style="opacity:.4"':''}>← 이전</button>
+        <button class="btn primary" id="qSubmit">확인 (Enter)</button>
+        <button class="btn ghost" id="qSkip">모르겠어요</button>
+      </div>
+    </div>`;
+    const inp=$('#qIn'); inp.focus();
+    $('#qSay').onclick=()=>sayWord(word);
+    sayWord(word);
+    const submit=(giveUp)=>{
+      if($('#qRes').innerHTML) return;
+      const typed=inp.value.trim();
+      const correct=!giveUp && typed.toLowerCase()===word.toLowerCase();
+      const rec=savedWords[key]||{};
+      if(correct){rec.r=(rec.r||0)+1;} else {rec.wrong=(rec.wrong||0)+1; quiz.wrongList.push(word);}
+      savedWords[key]=rec; save(LSW,savedWords);
+      quiz.done++; if(correct) quiz.ok++;
+      const diff=charDiff(typed,word);
+      $('#qRes').innerHTML=`<div class="qfeed">${diff.map(d=>`<span class="c-${d.k}">${d.c}</span>`).join('')}</div>
+        <div class="qanswer">${correct?'✅ 정답!':'정답: <b>'+word+'</b>'} <span style="margin-left:8px" id="qipa"></span></div>`;
+      getIPA(word).then(ipa=>{const el=$('#qipa'); if(el&&ipa) el.textContent=ipa;});
+      inp.disabled=true; $('#qSubmit').textContent='다음 (Enter) →';
+      $('#qSubmit').onclick=next;
+      document.onkeydown=e=>{ if(e.key==='Enter'){e.preventDefault();document.onkeydown=null;next();} };
+    };
+    function next(){ document.onkeydown=null; quiz.i++; render(); }
+    inp.onkeydown=e=>{ if(e.key==='Enter'){e.preventDefault(); $('#qRes').innerHTML?next():submit(false);} };
+    $('#qSubmit').onclick=()=>submit(false);
+    $('#qSkip').onclick=()=>submit(true);
+    $('#qPrev').onclick=()=>{ if(quiz.i>0){quiz.i--; render();} };
   }
   window.delWord=function(w){ delete savedWords[w.toLowerCase()]; save(LSW,savedWords); toast('삭제했어요'); render(); };
 
