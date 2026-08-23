@@ -1128,7 +1128,7 @@
   let weState=Object.assign({
     topic:'', benefit:'', bexample:'', problem:'', pexample:'',
     specialType:'', specialText:'',
-    scope:'intro', wmode:'trace'
+    scope:'line', lineIdx:0, wmode:'trace'
   }, JSON.parse(localStorage.getItem(WE_LSKEY)||'{}'));
   function saveWEState(){ save(WE_LSKEY,weState); }
 
@@ -1199,6 +1199,21 @@
       <div class="wordCount" id="weWordCountBox">${weWcBadgeHtml()}</div>
       <div class="btnrow"><button class="btn ghost" id="wePlay">🔊 읽어주기</button></div>
 
+      <div class="sectionhead">✍️ 암기 &amp; 타이핑 연습 — 서론/장점/단점/특별요구사항/결론 + 한 줄씩 + 전체 이어서</div>
+      <div class="bar" style="margin-bottom:10px">
+        <label>범위 <select id="weScope">
+          <option value="line">한 줄 (1~20)</option>
+          ${we.sections.map(s=>`<option value="${s.key}">${s.num} ${s.label}</option>`).join('')}
+          <option value="all">전체 이어서 (20문장)</option>
+        </select></label>
+        <label>모드 <select id="weMode">
+          <option value="trace">따라치기</option>
+          <option value="cloze">빈칸채우기</option>
+          <option value="recall">안보고 암기테스트</option>
+        </select></label>
+      </div>
+      <div id="weStage"></div>
+
       <div class="sectionhead">④ SPECIAL SLOT — 문제에서 요구할 때만 사용</div>
       <div class="weSpecialCtrl"><label>질문 유형 <select id="weSpecialType">${specialOptions}</select></label></div>
       <div id="weSpecialInputWrap"></div>
@@ -1213,13 +1228,6 @@
       <table class="vtable"><tr><th>동사원형(O)</th><th>잘못된 형태(X)</th><th>의미</th><th>템플릿 예문</th></tr>
         ${we.verbTable.map(v=>`<tr><td><b>${v.base}</b></td><td>${v.wrong}</td><td>${v.mean}</td><td>${v.ex}</td></tr>`).join('')}
       </table>
-
-      <div class="sectionhead">이 단락 암기 연습</div>
-      <div class="bar" style="margin-bottom:10px">
-        <label>범위 <select id="weScope">${we.sections.map(s=>`<option value="${s.key}">${s.label}</option>`).join('')}<option value="all">전체</option></select></label>
-        <label>모드 <select id="weMode"><option value="trace">따라치기</option><option value="recall">안보고 암기테스트</option></select></label>
-      </div>
-      <div id="weStage"></div>
 
       <div class="tipbox"><b>💡 문제 풀이 순서</b><ul>${we.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
     </div>`;
@@ -1270,23 +1278,87 @@
     renderWESpecialInput();
     renderWEStage();
   }
+  // 암기/타이핑 연습 — DI/RL/SGD/RTS와 동일한 패턴(한 줄 스텝바 / 단락별 / 전체 이어서 × 따라치기/빈칸채우기/암기테스트).
+  // 원문 템플릿(weTpl)의 문장을 그대로 사용 — [TOPIC] 같은 자리표시자 토큰은 문자 그대로 남겨둠(DI의 (subject)와 동일한 방식).
   function renderWEStage(){
     const box=$('#weStage'); if(!box) return;
-    const text=weState.scope==='all' ? weFullText() : weSectionText(weState.scope);
-    if(!text.trim()){ box.innerHTML='<div class="empty">이 구간에 내용이 없어요 (SPECIAL SLOT을 아직 안 채운 경우일 수 있어요).</div>'; return; }
-    box.innerHTML=weState.wmode==='trace'
-      ? `<div class="tplTarget" id="weTargetBox">${esc(text)}</div>
-         <textarea id="weAns" placeholder="위 단락을 그대로 입력해보세요…" spellcheck="false"></textarea>
-         <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 읽어주기</button><button class="btn primary" id="weGrade">채점</button></div>
-         <div id="weResult"></div>`
-      : `<div class="card" style="background:var(--bg);text-align:center;padding:18px;margin-bottom:14px">안 보고 이 단락을 기억나는 대로 입력해보세요.</div>
-         <textarea id="weAns" placeholder="기억나는 대로 입력…" spellcheck="false"></textarea>
-         <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 정답 듣기</button><button class="btn primary" id="weGrade">채점</button></div>
-         <div id="weResult"></div>`;
-    $('#weStagePlay').onclick=()=>sayText(text);
-    $('#weGrade').onclick=()=>{
+    const we=PTE_TEMPLATES.structures.we;
+    if(weState.lineIdx==null || weState.lineIdx<0 || weState.lineIdx>=weTpl.length) weState.lineIdx=0;
+
+    let text, sectionLabel='';
+    if(weState.scope==='line'){
+      const l=weTpl[weState.lineIdx];
+      text=l.text;
+      const sec=we.sections.find(s=>s.key===l.section);
+      sectionLabel=sec?`${sec.num} ${sec.label} · ${l.n}번 문장`:`${l.n}번 문장`;
+    } else if(weState.scope==='all'){
+      text=weTpl.map(s=>s.text).join('\n');
+    } else {
+      const sec=we.sections.find(s=>s.key===weState.scope);
+      sectionLabel=sec?`${sec.num} ${sec.label}`:'';
+      text=weTpl.filter(s=>s.section===weState.scope).map(s=>s.text).join('\n');
+    }
+    if(!text || !text.trim()){ box.innerHTML='<div class="empty">이 구간에 내용이 없어요.</div>'; return; }
+
+    let stepbarHtml='';
+    if(weState.scope==='line'){
+      stepbarHtml=`<div class="stepbar">`+weTpl.map((s,i)=>{
+        const sec=we.sections.find(x=>x.key===s.section);
+        return `<div class="step ${i===weState.lineIdx?'on':''}" data-i="${i}" title="${esc(sec?sec.label:'')}"><span class="si">${sec?sec.num:'▫️'}</span>${s.n}</div>`;
+      }).join('')+`</div>`;
+    }
+
+    const hasFill=FILLRE.test(text); FILLRE.lastIndex=0;
+    const legendHtml=hasFill?`<div class="colorLegend"><span class="lg"><span class="sw" style="background:var(--accent-soft);border:1px solid var(--accent)"></span>직접 채워 넣는 부분</span><span class="lg">그 외 = 그대로 외워야 하는 고정 문구</span></div>`:'';
+
+    let bodyHtml='';
+    if(weState.wmode==='trace'){
+      bodyHtml=`${sectionLabel?`<div class="sectionhead">${esc(sectionLabel)}</div>`:''}
+        ${legendHtml}
+        <div class="tplTarget">${markPlaceholders(esc(text))}</div>
+        <textarea id="weAns" placeholder="위 문장을 그대로 입력해보세요…" spellcheck="false"></textarea>
+        <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 읽어주기</button><button class="btn primary" id="weGrade">채점</button></div>
+        <div id="weResult"></div>`;
+    } else if(weState.wmode==='cloze'){
+      bodyHtml=`${sectionLabel?`<div class="sectionhead">${esc(sectionLabel)}</div>`:''}
+        <div class="tplTarget" id="weClozeBox">${clozify(text)}</div>
+        <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 읽어주기</button><button class="btn primary" id="weClozeCheck">채점</button><button class="btn ghost" id="weClozeFill">정답 채우기</button></div>
+        <div id="weClozeResult"></div>`;
+    } else {
+      bodyHtml=`${sectionLabel?`<div class="sectionhead">${esc(sectionLabel)}</div>`:''}
+        <div class="card" style="background:var(--bg);text-align:center;padding:18px;margin-bottom:14px">안 보고 기억나는 대로 입력해보세요.</div>
+        <textarea id="weAns" placeholder="기억나는 대로 입력…" spellcheck="false"></textarea>
+        <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 정답 듣기</button><button class="btn primary" id="weGrade">채점</button></div>
+        <div id="weResult"></div>`;
+    }
+
+    box.innerHTML=`${stepbarHtml}
+      ${bodyHtml}
+      ${weState.scope==='line'?`<div class="btnrow"><button class="btn ghost" id="weLinePrev" ${weState.lineIdx===0?'disabled style="opacity:.4"':''}>← 이전</button><span class="chip">${weState.lineIdx+1} / ${weTpl.length}</span><button class="btn ghost" id="weLineNext" ${weState.lineIdx>=weTpl.length-1?'disabled style="opacity:.4"':''}>다음 →</button></div>`:''}`;
+
+    document.querySelectorAll('#weStage .step').forEach(el=>el.onclick=()=>{weState.lineIdx=parseInt(el.dataset.i); saveWEState(); renderWEStage();});
+    const pv=$('#weLinePrev'); if(pv) pv.onclick=()=>{weState.lineIdx--; saveWEState(); renderWEStage();};
+    const nx=$('#weLineNext'); if(nx) nx.onclick=()=>{weState.lineIdx++; saveWEState(); renderWEStage();};
+
+    const play=$('#weStagePlay'); if(play) play.onclick=()=>sayText(text);
+    const gr=$('#weGrade'); if(gr) gr.onclick=()=>{
       const g=grade($('#weAns').value, {en:text});
       $('#weResult').innerHTML=`<div class="result"><div class="score ${g.perfect?'allok':'miss'}">${g.perfect?'✓ 만점! ':'✗ '}${g.okCount}/${g.total} 단어 일치</div><div class="diff">${g.out.map(w=>`<span class="w-${w.c==='ok'?'ok':w.c==='miss'?'miss':'extra'}">${esc(w.t)}</span>`).join(' ')}</div></div>`;
+    };
+    const chk=$('#weClozeCheck'); if(chk) chk.onclick=()=>{
+      let ok=0, inputs=document.querySelectorAll('#weClozeBox .blankInput');
+      const norm=v=>v.trim().toLowerCase().replace(/\s+/g,' ');
+      inputs.forEach(inp=>{
+        const good=inp.value.trim()!=='' && norm(inp.value)===norm(inp.dataset.ans);
+        inp.classList.toggle('ok',good);
+        inp.classList.toggle('bad',!good && inp.value.trim()!=='');
+        if(good) ok++;
+      });
+      const total=inputs.length;
+      $('#weClozeResult').innerHTML=`<div class="result"><div class="score ${ok===total?'allok':'miss'}">${ok===total?'✓ 만점! ':'✗ '}${ok}/${total} 빈칸 일치</div></div>`;
+    };
+    const fl=$('#weClozeFill'); if(fl) fl.onclick=()=>{
+      document.querySelectorAll('#weClozeBox .blankInput').forEach(inp=>{ inp.value=inp.dataset.ans; inp.classList.add('ok'); inp.classList.remove('bad'); });
     };
   }
 
