@@ -182,6 +182,7 @@
   .weInputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:16px}
   .weField label{display:block;font-size:12px;font-weight:800;color:var(--accent);margin-bottom:4px}
   .weField input{width:100%}
+  .weFallbackBtn{margin-top:6px;width:100%;font-size:11.5px;padding:6px 8px;white-space:normal;text-align:center;line-height:1.3}
   .weSection{border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px;background:var(--card)}
   .weSection .wsTitle{font-size:13px;font-weight:800;color:var(--sub);margin-bottom:8px;display:flex;align-items:center;gap:8px}
   .weSection .wsHint{font-weight:500;font-size:11.5px;color:var(--sub)}
@@ -1109,8 +1110,10 @@
   const WE_LSKEY='wfd_we_v2';
   const WE_TPL_LSKEY='wfd_we_template_v1';
   const WE_FIELDS=[
-    {key:'topic',label:'TOPIC'},{key:'benefit',label:'BENEFIT'},{key:'bexample',label:'BENEFIT EXAMPLE'},
-    {key:'problem',label:'PROBLEM'},{key:'pexample',label:'PROBLEM EXAMPLE'}
+    {key:'topic',label:'TOPIC'},{key:'benefit',label:'BENEFIT'},
+    {key:'bexample',label:'BENEFIT EXAMPLE', fallback:'this can help many people in their daily lives'},
+    {key:'problem',label:'PROBLEM'},
+    {key:'pexample',label:'PROBLEM EXAMPLE', fallback:'this problem can affect many people in different situations'}
   ];
   function weDefaultSentences(){ return PTE_TEMPLATES.structures.we.sentences.map(s=>({n:s.n, section:s.section, text:s.text})); }
   function weLoadTemplate(){
@@ -1191,7 +1194,7 @@
       <div class="sectionhead">기본적으로 사용자가 바꾸는 5개 빈칸</div>
       <div class="colorLegend"><span class="lg"><span class="sw" style="background:var(--warn-soft);border:1px solid var(--warn)"></span>채워진 빈칸</span><span class="lg"><span class="sw" style="background:var(--accent-soft);border:1px solid var(--accent)"></span>아직 안 채운 자리표시자</span></div>
       <div class="weInputs">
-        ${WE_FIELDS.map(f=>`<div class="weField"><label>${f.label}</label><input type="text" id="weIn_${f.key}" value="${esc(weState[f.key])}" placeholder="${f.label} 입력…" autocomplete="off"></div>`).join('')}
+        ${WE_FIELDS.map(f=>`<div class="weField"><label>${f.label}</label><input type="text" id="weIn_${f.key}" value="${esc(weState[f.key])}" placeholder="${f.label} 입력…" autocomplete="off">${f.fallback?`<button type="button" class="btn ghost sm weFallbackBtn" data-key="${f.key}" data-fallback="${esc(f.fallback)}">💡 예시가 안 떠오르면 — 기본 문장 넣기</button>`:''}</div>`).join('')}
       </div>
 
       <div class="sectionhead">Essay Template (입력하면 실시간 반영)</div>
@@ -1262,6 +1265,15 @@
     WE_FIELDS.forEach(f=>{
       const el=$('#weIn_'+f.key);
       el.oninput=()=>{ weState[f.key]=el.value; saveWEState(); renderWEEssay(); renderWEStage(); };
+    });
+    document.querySelectorAll('.weFallbackBtn').forEach(btn=>{
+      btn.onclick=()=>{
+        const key=btn.dataset.key, val=btn.dataset.fallback;
+        weState[key]=val;
+        const el=$('#weIn_'+key); if(el) el.value=val;
+        saveWEState(); renderWEEssay(); renderWEStage();
+        toast('기본 예시 문장을 넣었어요 — 필요하면 직접 다듬어도 좋아요');
+      };
     });
     $('#weEditBtn').onclick=()=>{ weEditing=true; weEditDraft=null; renderTpl(); };
     $('#wePlay').onclick=()=>sayText(weFullText()||'The essay is still empty.');
