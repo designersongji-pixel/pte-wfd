@@ -1,6 +1,6 @@
 // PTE 템플릿 암기 트레이너 데이터 (구조 암기 / 토픽뱅크 / SWT 체크에서 공용으로 사용)
 window.PTE_TEMPLATES = {
-  order: ['di_basic','di_chart','rl','sgd','rts','sst','we'],
+  order: ['di_basic','di_chart','rl','sgd','rts','rts_min','sst','we'],
   structures: {
     di_basic: {
       id:'di_basic', cat:'DI', title:'DI · 기본 템플릿 (Picture / Diagram)', goalSec:40,
@@ -75,6 +75,13 @@ window.PTE_TEMPLATES = {
       ],
       tips:['유창성이 매우 중요함','문제가 화면에 떠 있으니 확인하며 읽어도 됨','늘 상대가 있으니 인사가 자연스러움','답변 시 지문의 She/He→you, you→I로 바꾸기','문제에서 말이 되는 문장을 그대로 가져올 것']
     },
+    rts_min: {
+      id:'rts_min', cat:'RTS', title:'RTS · 최소 방어 전략 (Backup)', goalSec:40,
+      lines: [
+        {icon:'🛟', tag:'최소 방어 문장', text:'Hi, how are you? I think this situation about [핵심문장] is very important, so I will talk to you to solve the problem.'}
+      ],
+      tips:['기본 RTS 템플릿이 항상 우선 — 이건 상황을 전혀 이해 못했을 때만 쓰는 최후의 안전 문장','[핵심문장] 자리에는 들린 단어를 최대한 그대로 넣기 — 완벽한 문장이 아니어도 됨','침묵보다 이 한 문장이라도 말하는 게 유창성 점수에 훨씬 유리함','시간이 남으면 이 문장 뒤에 아는 만큼 더 덧붙이기']
+    },
     sst: {
       id:'sst', cat:'SST', title:'SST · Summarize Spoken Text', writingOnly:true, charRange:[50,70],
       lines: [
@@ -89,29 +96,31 @@ window.PTE_TEMPLATES = {
     we: {
       id:'we', cat:'WE', title:'WE · Write Essay', writingOnly:true,
       wordRange:[200,300], wordRecommended:[220,250], timeGoalLabel:'20분 목표', timeGoalDetail:'권장 작성 시간: 15분 작성 + 5분 검토',
-      // 20문장 고정 스켈레톤 — 5단계(서론/장점 단락/단점 단락/특별 요구사항/결론). 이 배열이 "기본 템플릿"의 기본값이며,
+      // 21문장 고정 스켈레톤 — 5단계(서론/장점 단락/단점 단락/특별 요구사항/결론). 이 배열이 "기본 템플릿"의 기본값이며,
       // 사용자가 앱에서 "템플릿 수정"으로 편집하면 localStorage(wfd_we_template_v1)에 오버라이드가 저장됩니다.
+      // 2026-08 개편: 21문장(장점/단점 각 +1문장) + 서론 4번 문장을 질문 유형별 [INTRO OPINION] 토큰으로 + A/B/C/D 내용 세트 + 제출 전 체크리스트.
       sentences: [
         {n:1,  section:'intro',      text:'Nowadays, there are different opinions about [TOPIC].'},
-        {n:2,  section:'intro',      text:'This issue is important in our society, and many people talk about it in daily life and in the news.'},
-        {n:3,  section:'intro',      text:'It can be seen from different points of view.'},
-        {n:4,  section:'intro',      text:'In my opinion, it has more advantages than disadvantages.'},
-        {n:5,  section:'intro',      text:'For this reason, it is worth discussing this issue carefully.'},
-        {n:6,  section:'benefit',    text:'To begin with, this issue can bring several benefits.'},
-        {n:7,  section:'benefit',    text:'One important benefit is that [BENEFIT].'},
-        {n:8,  section:'benefit',    text:"This can make people's lives better and bring positive changes to society."},
-        {n:9,  section:'benefit',    text:'For example, [BENEFIT EXAMPLE].'},
-        {n:10, section:'benefit',    text:'This example shows that the issue can be useful in real life.'},
+        {n:2,  section:'intro',      text:'This issue is important in our society, and people have different opinions about it.'},
+        {n:3,  section:'intro',      text:'It can affect many people in different ways, so it is worth discussing carefully.'},
+        {n:4,  section:'intro',      text:'[INTRO OPINION]'},
+        {n:5,  section:'benefit',    text:'First of all, there are several benefits.'},
+        {n:6,  section:'benefit',    text:'One important benefit is that [BENEFIT].'},
+        {n:7,  section:'benefit',    text:"This can make people's lives better and bring positive changes to society."},
+        {n:8,  section:'benefit',    text:'For example, [BENEFIT EXAMPLE].'},
+        {n:9,  section:'benefit',    text:"This shows that this issue can have a positive effect on people's lives."},
+        {n:10, section:'benefit',    text:'In many cases, this benefit can also influence both individuals and communities in useful ways.'},
         {n:11, section:'problem',    text:'However, there are also some disadvantages.'},
         {n:12, section:'problem',    text:'One possible problem is that [PROBLEM].'},
         {n:13, section:'problem',    text:'In some cases, this problem can become serious and affect many people.'},
         {n:14, section:'problem',    text:'For example, [PROBLEM EXAMPLE].'},
-        {n:15, section:'problem',    text:'Therefore, people should understand both the positive and negative sides.'},
-        {n:16, section:'special',    text:'[SPECIAL SLOT]', optional:true},
-        {n:17, section:'conclusion', text:'In conclusion, I believe the advantages are greater than the disadvantages.'},
-        {n:18, section:'conclusion', text:'Although this issue has both positive and negative sides, its benefits can be more important when it is managed carefully.'},
-        {n:19, section:'conclusion', text:'People should think about both sides before making decisions.'},
-        {n:20, section:'conclusion', text:'These decisions can affect both individuals and society as a whole.'}
+        {n:15, section:'problem',    text:'This shows that this issue can also have negative effects.'},
+        {n:16, section:'problem',    text:'Therefore, it is important to understand the risks and think about how they can be reduced.'},
+        {n:17, section:'special',    text:'[SPECIAL SLOT]', optional:true},
+        {n:18, section:'conclusion', text:'In conclusion, I believe the advantages are greater than the disadvantages.'},
+        {n:19, section:'conclusion', text:'Although there are some problems, the positive effects can be more important when the issue is managed carefully.'},
+        {n:20, section:'conclusion', text:'People should consider both the positive and negative sides before making decisions.'},
+        {n:21, section:'conclusion', text:'These decisions can affect both individuals and society as a whole.'}
       ],
       sections: [
         {key:'intro', num:'①', label:'서론'},
@@ -120,7 +129,14 @@ window.PTE_TEMPLATES = {
         {key:'special', num:'④', label:'특별 요구사항', hint:'문제에서 요구할 때만 사용'},
         {key:'conclusion', num:'⑤', label:'결론'}
       ],
-      placeholders: ['[TOPIC]','[BENEFIT]','[BENEFIT EXAMPLE]','[PROBLEM]','[PROBLEM EXAMPLE]'],
+      placeholders: ['[TOPIC]','[INTRO OPINION]','[BENEFIT]','[BENEFIT EXAMPLE]','[PROBLEM]','[PROBLEM EXAMPLE]'],
+      // 서론 4번 문장 — 질문 유형에 따라 교체 (SPECIAL SLOT과 같은 방식: 유형 선택 → 자동입력 → 직접 수정)
+      introGuide: [
+        {key:'advdis', label:'advantages / disadvantages', sentence:'In my opinion, it has more advantages than disadvantages.'},
+        {key:'should', label:'Should A ...?', sentence:'In my opinion, A should ...', note:'A와 행동을 문제에 맞게 바꾸세요. 반대 의견이면 "A should not ..."으로 씁니다.'},
+        {key:'agree', label:'Do you agree that X?', sentence:'', note:'지문의 핵심 표현을 평서문으로 바꿔 직접 답하세요. (예: In my opinion, ...)'},
+        {key:'who', label:'Who should ...?', sentence:'In my opinion, ... should ...', note:'선택한 주체를 넣어 직접 답하세요.'}
+      ],
       specialSlotGuide: [
         {key:'experience', label:'share your own experience', sentence:'In my own experience, this issue has affected my daily life in a positive way.'},
         {key:'solution', label:'give a solution', sentence:'One possible solution is for governments and individuals to work together to solve this problem.'},
@@ -128,25 +144,59 @@ window.PTE_TEMPLATES = {
         {key:'minage', label:'minimum age / state which age', sentence:'Therefore, I believe 18 is a suitable minimum age for driving.', note:'숫자와 대상은 문제에 맞게 바꿔서 사용하세요.'},
         {key:'example', label:'give an example only', sentence:'', skip:true, note:'SPECIAL SLOT 추가 X — 이미 [BENEFIT EXAMPLE] / [PROBLEM EXAMPLE]에서 예시를 처리합니다.'}
       ],
+      // A/B/C/D 만능 내용 세트 — 새 템플릿이 아니라 BENEFIT/BENEFIT EXAMPLE/PROBLEM/PROBLEM EXAMPLE 4칸을 한번에 채우는 카테고리
+      contentSets: [
+        {key:'A', label:'A · 기술/인터넷/미디어/편리함', keywords:'시간 → 정보 → 집중',
+          benefit:'it can save time and make life more convenient',
+          bexample:'people can get information more easily and quickly',
+          problem:'it can provide inaccurate information or distract people',
+          pexample:'people may have difficulty focusing on their studies or work'},
+        {key:'B', label:'B · 교육/직업/학습/기회', keywords:'학습 → 미래 → 어려움',
+          benefit:'people can learn new things and gain useful experience',
+          bexample:'people can develop their skills and improve their future',
+          problem:'people may face difficulties or have fewer opportunities',
+          pexample:'some people may fall behind in their studies or work'},
+        {key:'C', label:'C · 건강/환경/지속가능성', keywords:'건강 → 깨끗함 → 오염',
+          benefit:"it can improve people's health and protect the environment",
+          bexample:'it can create a cleaner and healthier environment',
+          problem:'it can cause health or environmental problems',
+          pexample:"pollution can seriously affect people's daily lives"},
+        {key:'D', label:'D · 사회/법/규칙/책임', keywords:'책임 → 관심 → 불공정',
+          benefit:'it can encourage people to act more responsibly',
+          bexample:"parents may pay more attention to their children's behavior",
+          problem:'it can be unfair to people who cannot control every situation',
+          pexample:"parents may be blamed even when they did not know about their children's actions"}
+      ],
+      categoryGuide: [
+        {match:'technology / internet / social media / AI / online', cat:'A'},
+        {match:'education / work / skills / jobs / learning', cat:'B'},
+        {match:'health / environment / pollution / climate', cat:'C'},
+        {match:'law / rules / responsibility / parents / government', cat:'D'}
+      ],
       principles: [
-        '기본 템플릿 5개 빈칸 + 필요 시 SPECIAL SLOT 1~2문장만 추가',
-        '명사/명사구를 여러 번 바꿔 쓸 필요 없음',
-        'TOPIC은 첫 문장에만 입력하고, 이후에는 this issue / it 등으로 연결',
+        '가장 중요: 질문에 직접 답하기 — 새로운 영어를 만들기보다 지문의 핵심 표현을 최대한 그대로 재사용',
+        '기본 순서: TOPIC → 장점 → 장점 예시 → 단점 → 단점 예시 → SPECIAL SLOT(필요할 때만) → 결론',
+        '문제마다 기본적으로 바꾸는 것은 TOPIC / BENEFIT / BENEFIT EXAMPLE / PROBLEM / PROBLEM EXAMPLE 5개 + 서론 4번 문장',
+        'A/B/C/D 카테고리에 억지로 끼우지 말고, 가장 가까운 것을 고르고 나머지는 SPECIAL SLOT으로 처리',
         '기본 문장은 그대로 암기',
-        '문제마다 5개 빈칸의 내용만 변경',
         'SPECIAL SLOT은 질문에서 요구할 때만 사용'
       ],
       steps: [
-        'Question 입력 → 문제 지문을 읽고 TOPIC이 될 핵심 단어를 정합니다.',
-        'TOPIC 작성 → 1번 문장의 [TOPIC]에 채워 넣습니다.',
-        'BENEFIT 작성 → 7번 문장의 [BENEFIT]에 이 주제의 장점을 채웁니다.',
-        'BENEFIT EXAMPLE 작성 → 9번 문장의 [BENEFIT EXAMPLE]에 구체적인 예시를 채웁니다.',
-        'PROBLEM 작성 → 12번 문장의 [PROBLEM]에 이 주제의 단점을 채웁니다.',
-        'PROBLEM EXAMPLE 작성 → 14번 문장의 [PROBLEM EXAMPLE]에 구체적인 예시를 채웁니다.',
-        '특별 요구사항이 있는지 확인 → 문제 지문에 특별한 요구(경험/해결책/정부 역할/나이 등)가 있는지 확인합니다.',
-        '필요하면 SPECIAL SLOT 추가 → 16번 자리에 유형에 맞는 문장을 1~2개 추가합니다 (없으면 비워둠).',
-        '최종 Essay 확인 → 전체 문장을 처음부터 끝까지 읽으며 자연스러운지 확인합니다.',
-        'Word Count 확인 → 200~300 단어(권장 220~250) 범위인지 확인합니다.'
+        '문제에서 핵심 TOPIC 찾기',
+        'Should / Do you agree / Who should라면 서론 4번 문장을 지문 표현으로 직접 답하기',
+        'A / B / C / D 중 가장 가까운 카테고리 선택',
+        'BENEFIT / BENEFIT EXAMPLE / PROBLEM / PROBLEM EXAMPLE 넣기',
+        'own experience / solution / government action / minimum age 등 특별 요구 확인',
+        '필요할 때만 SPECIAL SLOT 1~2문장 추가',
+        'Word Count 220~250 확인 → 마지막 5분 검토'
+      ],
+      finalCheck: [
+        '200~300 words 범위인가? (권장 220~250)',
+        '[TOPIC] / [BENEFIT] 같은 빈칸이 남아 있지 않은가?',
+        '서론 의견 문장이 질문에 직접 답하고 있는가?',
+        '장점·단점·예시가 TOPIC과 관련 있는가?',
+        '특별 요구사항을 놓치지 않았는가?',
+        '철자 / 단수·복수 / 마침표를 빠르게 확인했는가?'
       ],
       verbTable: [
         {base:'save', wrong:'saved, saves, saving', mean:'절약하다 / 아끼다', ex:'people can save time'},

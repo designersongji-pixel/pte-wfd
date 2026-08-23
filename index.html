@@ -182,7 +182,8 @@
   .weInputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:16px}
   .weField label{display:block;font-size:12px;font-weight:800;color:var(--accent);margin-bottom:4px}
   .weField input{width:100%}
-  .weFallbackBtn{margin-top:6px;width:100%;font-size:11.5px;padding:6px 8px;white-space:normal;text-align:center;line-height:1.3}
+  .weCatRow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px}
+  .weCatBtn{white-space:normal;text-align:center;line-height:1.35;padding:8px 10px}
   .weSection{border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px;background:var(--card)}
   .weSection .wsTitle{font-size:13px;font-weight:800;color:var(--sub);margin-bottom:8px;display:flex;align-items:center;gap:8px}
   .weSection .wsHint{font-weight:500;font-size:11.5px;color:var(--sub)}
@@ -1110,10 +1111,8 @@
   const WE_LSKEY='wfd_we_v2';
   const WE_TPL_LSKEY='wfd_we_template_v1';
   const WE_FIELDS=[
-    {key:'topic',label:'TOPIC'},{key:'benefit',label:'BENEFIT'},
-    {key:'bexample',label:'BENEFIT EXAMPLE', fallback:'this can help many people in their daily lives'},
-    {key:'problem',label:'PROBLEM'},
-    {key:'pexample',label:'PROBLEM EXAMPLE', fallback:'this problem can affect many people in different situations'}
+    {key:'topic',label:'TOPIC'},{key:'benefit',label:'BENEFIT'},{key:'bexample',label:'BENEFIT EXAMPLE'},
+    {key:'problem',label:'PROBLEM'},{key:'pexample',label:'PROBLEM EXAMPLE'}
   ];
   function weDefaultSentences(){ return PTE_TEMPLATES.structures.we.sentences.map(s=>({n:s.n, section:s.section, text:s.text})); }
   function weLoadTemplate(){
@@ -1131,17 +1130,18 @@
   let weState=Object.assign({
     topic:'', benefit:'', bexample:'', problem:'', pexample:'',
     specialType:'', specialText:'',
+    introType:'advdis', introText:((PTE_TEMPLATES.structures.we.introGuide||[])[0]||{}).sentence||'',
     scope:'line', lineIdx:0, wmode:'trace'
   }, JSON.parse(localStorage.getItem(WE_LSKEY)||'{}'));
   function saveWEState(){ save(WE_LSKEY,weState); }
 
   function weTokenMap(){
     return {
-      '[TOPIC]': weState.topic.trim(), '[BENEFIT]': weState.benefit.trim(), '[BENEFIT EXAMPLE]': weState.bexample.trim(),
+      '[TOPIC]': weState.topic.trim(), '[INTRO OPINION]': weState.introText.trim(), '[BENEFIT]': weState.benefit.trim(), '[BENEFIT EXAMPLE]': weState.bexample.trim(),
       '[PROBLEM]': weState.problem.trim(), '[PROBLEM EXAMPLE]': weState.pexample.trim(), '[SPECIAL SLOT]': weState.specialText.trim()
     };
   }
-  // 최종 Essay 문장 배열 — SPECIAL SLOT을 안 채웠으면 16번 문장은 통째로 빠짐. 안 채운 나머지 빈칸은 토큰 그대로 남김.
+  // 최종 Essay 문장 배열 — SPECIAL SLOT을 안 채웠으면 17번 문장은 통째로 빠짐. 안 채운 나머지 빈칸은 토큰 그대로 남김.
   function weAssembledSentences(){
     const vals=weTokenMap();
     return weTpl.filter(s=> s.section!=='special' || vals['[SPECIAL SLOT]']).map(s=>{
@@ -1181,6 +1181,10 @@
     const we=PTE_TEMPLATES.structures.we;
     const guideRows=we.specialSlotGuide.map(g=>`<tr><td>${esc(g.label)}</td><td>${g.skip?'<i>'+esc(g.note)+'</i>':esc(g.sentence)+(g.note?'<br><span style="color:var(--sub);font-size:11.5px">'+esc(g.note)+'</span>':'')}</td></tr>`).join('');
     const specialOptions='<option value="">사용 안 함</option>'+we.specialSlotGuide.map(g=>`<option value="${g.key}" ${weState.specialType===g.key?'selected':''}>${esc(g.label)}</option>`).join('');
+    const introOptions=we.introGuide.map(g=>`<option value="${g.key}" ${weState.introType===g.key?'selected':''}>${esc(g.label)}</option>`).join('');
+    const introGuideRows=we.introGuide.map(g=>`<tr><td>${esc(g.label)}</td><td>${g.sentence?esc(g.sentence):'<i>지문에 맞게 직접 작성</i>'}${g.note?'<br><span style="color:var(--sub);font-size:11.5px">'+esc(g.note)+'</span>':''}</td></tr>`).join('');
+    const catBtns=we.contentSets.map(c=>`<button type="button" class="btn ghost sm weCatBtn" data-key="${c.key}">${esc(c.label)}<br><span style="font-size:10.5px;color:var(--sub);font-weight:400">암기: ${esc(c.keywords)}</span></button>`).join('');
+    const catGuideRows=we.categoryGuide.map(c=>`<tr><td>${esc(c.match)}</td><td><b>${esc(c.cat)}</b></td></tr>`).join('');
     return `<div class="card">
       <div class="weTop">
         <h2>PTE Write Essay</h2>
@@ -1191,10 +1195,20 @@
       </div>
       <div class="wePrincipleBanner">${esc(we.principles[0])}</div>
 
+      <div class="sectionhead">① 서론 4번 문장 — 질문 유형에 따라 답하기</div>
+      <div class="weSpecialCtrl"><label>질문 유형 <select id="weIntroType">${introOptions}</select></label></div>
+      <div id="weIntroInputWrap"></div>
+      <div style="overflow-x:auto;margin-bottom:16px"><table class="weGuideTable"><tr><th>질문 유형</th><th>서론 4번 문장</th></tr>${introGuideRows}</table></div>
+
+      <div class="sectionhead">② BENEFIT/PROBLEM 카테고리 선택 (A/B/C/D)</div>
+      <p style="font-size:13px;color:var(--sub);margin-bottom:8px">누르면 BENEFIT / BENEFIT EXAMPLE / PROBLEM / PROBLEM EXAMPLE 4칸이 한번에 채워져요. 억지로 끼우지 말고 가장 가까운 걸 고르세요 — 나머지는 SPECIAL SLOT으로 처리.</p>
+      <div class="weCatRow">${catBtns}</div>
+      <div style="overflow-x:auto;margin-bottom:16px"><table class="weGuideTable"><tr><th>보이면</th><th>선택</th></tr>${catGuideRows}</table></div>
+
       <div class="sectionhead">기본적으로 사용자가 바꾸는 5개 빈칸</div>
       <div class="colorLegend"><span class="lg"><span class="sw" style="background:var(--warn-soft);border:1px solid var(--warn)"></span>채워진 빈칸</span><span class="lg"><span class="sw" style="background:var(--accent-soft);border:1px solid var(--accent)"></span>아직 안 채운 자리표시자</span></div>
       <div class="weInputs">
-        ${WE_FIELDS.map(f=>`<div class="weField"><label>${f.label}</label><input type="text" id="weIn_${f.key}" value="${esc(weState[f.key])}" placeholder="${f.label} 입력…" autocomplete="off">${f.fallback?`<button type="button" class="btn ghost sm weFallbackBtn" data-key="${f.key}" data-fallback="${esc(f.fallback)}">💡 예시가 안 떠오르면 — 기본 문장 넣기</button>`:''}</div>`).join('')}
+        ${WE_FIELDS.map(f=>`<div class="weField"><label>${f.label}</label><input type="text" id="weIn_${f.key}" value="${esc(weState[f.key])}" placeholder="${f.label} 입력…" autocomplete="off"></div>`).join('')}
       </div>
 
       <div class="sectionhead">Essay Template (입력하면 실시간 반영)</div>
@@ -1205,9 +1219,9 @@
       <div class="sectionhead">✍️ 암기 &amp; 타이핑 연습 — 서론/장점/단점/특별요구사항/결론 + 한 줄씩 + 전체 이어서</div>
       <div class="bar" style="margin-bottom:10px">
         <label>범위 <select id="weScope">
-          <option value="line">한 줄 (1~20)</option>
+          <option value="line">한 줄 (1~${weTpl.length})</option>
           ${we.sections.map(s=>`<option value="${s.key}">${s.num} ${s.label}</option>`).join('')}
-          <option value="all">전체 이어서 (20문장)</option>
+          <option value="all">전체 이어서 (${weTpl.length}문장)</option>
         </select></label>
         <label>모드 <select id="weMode">
           <option value="trace">따라치기</option>
@@ -1225,6 +1239,8 @@
       <div style="overflow-x:auto"><table class="weGuideTable"><tr><th>문제에서 이런 표현이 나오면</th><th>이 문장을 넣으세요</th></tr>${guideRows}</table></div>
 
       <div class="tipbox"><b>💡 학습 원칙</b><ul>${we.principles.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>
+
+      <div class="tipbox"><b>✅ 제출 전 5분 체크</b><ul>${we.finalCheck.map(c=>`<li>${esc(c)}</li>`).join('')}</ul></div>
 
       <div class="sectionhead">동사원형 (조동사 뒤엔 항상 동사원형)</div>
       <p style="font-size:13px;color:var(--sub);margin-bottom:6px">${we.grammarNote}</p>
@@ -1257,26 +1273,42 @@
     if(!weState.specialType){ wrap.innerHTML=''; return; }
     const g=we.specialSlotGuide.find(x=>x.key===weState.specialType);
     if(g && g.skip){ wrap.innerHTML=`<div class="weSpecialNote">${esc(g.note)}</div>`; return; }
-    wrap.innerHTML=`<textarea id="weSpecialText" placeholder="16번 SPECIAL SLOT 문장…" spellcheck="false">${esc(weState.specialText)}</textarea>
+    wrap.innerHTML=`<textarea id="weSpecialText" placeholder="17번 SPECIAL SLOT 문장…" spellcheck="false">${esc(weState.specialText)}</textarea>
       ${g&&g.note?`<div class="weSpecialNote">${esc(g.note)}</div>`:''}`;
     $('#weSpecialText').oninput=e=>{ weState.specialText=e.target.value; saveWEState(); renderWEEssay(); renderWEStage(); };
+  }
+  // 서론 4번 문장 — SPECIAL SLOT과 동일한 패턴(유형 선택 → 가이드 문장 자동입력 → 직접 수정 가능)
+  function renderWEIntroInput(){
+    const we=PTE_TEMPLATES.structures.we;
+    const wrap=$('#weIntroInputWrap'); if(!wrap) return;
+    const g=we.introGuide.find(x=>x.key===weState.introType) || we.introGuide[0];
+    wrap.innerHTML=`<textarea id="weIntroText" placeholder="서론 4번 문장…" spellcheck="false">${esc(weState.introText)}</textarea>
+      ${g&&g.note?`<div class="weSpecialNote">${esc(g.note)}</div>`:''}`;
+    $('#weIntroText').oninput=e=>{ weState.introText=e.target.value; saveWEState(); renderWEEssay(); renderWEStage(); };
   }
   function wireWE(){
     WE_FIELDS.forEach(f=>{
       const el=$('#weIn_'+f.key);
       el.oninput=()=>{ weState[f.key]=el.value; saveWEState(); renderWEEssay(); renderWEStage(); };
     });
-    document.querySelectorAll('.weFallbackBtn').forEach(btn=>{
+    document.querySelectorAll('.weCatBtn').forEach(btn=>{
       btn.onclick=()=>{
-        const key=btn.dataset.key, val=btn.dataset.fallback;
-        weState[key]=val;
-        const el=$('#weIn_'+key); if(el) el.value=val;
+        const c=PTE_TEMPLATES.structures.we.contentSets.find(x=>x.key===btn.dataset.key);
+        if(!c) return;
+        weState.benefit=c.benefit; weState.bexample=c.bexample; weState.problem=c.problem; weState.pexample=c.pexample;
+        ['benefit','bexample','problem','pexample'].forEach(k=>{ const el=$('#weIn_'+k); if(el) el.value=weState[k]; });
         saveWEState(); renderWEEssay(); renderWEStage();
-        toast('기본 예시 문장을 넣었어요 — 필요하면 직접 다듬어도 좋아요');
+        toast(c.key+' 카테고리 내용을 넣었어요 — 필요하면 직접 다듬어도 좋아요');
       };
     });
     $('#weEditBtn').onclick=()=>{ weEditing=true; weEditDraft=null; renderTpl(); };
     $('#wePlay').onclick=()=>sayText(weFullText()||'The essay is still empty.');
+    $('#weIntroType').onchange=e=>{
+      weState.introType=e.target.value;
+      const g=PTE_TEMPLATES.structures.we.introGuide.find(x=>x.key===weState.introType);
+      weState.introText=g ? g.sentence : '';
+      saveWEState(); renderWEIntroInput(); renderWEEssay(); renderWEStage();
+    };
     $('#weSpecialType').onchange=e=>{
       weState.specialType=e.target.value;
       const g=PTE_TEMPLATES.structures.we.specialSlotGuide.find(x=>x.key===weState.specialType);
@@ -1286,6 +1318,7 @@
     $('#weScope').value=weState.scope; $('#weMode').value=weState.wmode;
     $('#weScope').onchange=e=>{weState.scope=e.target.value; saveWEState(); renderWEStage();};
     $('#weMode').onchange=e=>{weState.wmode=e.target.value; saveWEState(); renderWEStage();};
+    renderWEIntroInput();
     renderWEEssay();
     renderWESpecialInput();
     renderWEStage();
