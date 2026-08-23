@@ -170,6 +170,44 @@
   .colorLegend{font-size:12px;color:var(--sub);margin:-6px 0 12px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
   .colorLegend .lg{display:inline-flex;align-items:center;gap:5px}
   .colorLegend .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+  /* WE (Write Essay) 전용 */
+  .weTop{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}
+  .weTop h2{font-size:18px;font-weight:800}
+  .weBadge{border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:700}
+  .weBadge.words{background:var(--accent-soft);color:var(--accent)}
+  .weBadge.time{background:var(--warn-soft);color:var(--warn)}
+  .weTimeDetail{font-size:12.5px;color:var(--sub)}
+  .wePrincipleBanner{background:var(--accent);color:#fff;border-radius:12px;padding:12px 16px;font-weight:800;font-size:14.5px;margin-bottom:16px;text-align:center}
+  .weInputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:16px}
+  .weField label{display:block;font-size:12px;font-weight:800;color:var(--accent);margin-bottom:4px}
+  .weField input{width:100%}
+  .weSection{border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px;background:var(--card)}
+  .weSection .wsTitle{font-size:13px;font-weight:800;color:var(--sub);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .weSection .wsHint{font-weight:500;font-size:11.5px;color:var(--sub)}
+  .weSentLine{display:flex;gap:10px;padding:4px 0;font-size:16px;line-height:1.6}
+  .weSentLine .wsNum{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--bg);color:var(--sub);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:3px}
+  .weSection.special{background:var(--warn-soft);border-color:var(--warn);border-style:dashed}
+  .weSection.special .wsTitle{color:var(--warn)}
+  .weSection.special.empty .weSentLine{color:var(--sub);font-style:italic}
+  .wordCount{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0}
+  .wcBadge{border-radius:10px;padding:8px 14px;font-weight:800;font-size:14.5px}
+  .wcBadge.short{background:var(--bad-soft);color:var(--bad)}
+  .wcBadge.valid{background:var(--ok-soft);color:var(--ok)}
+  .wcBadge.long{background:var(--bad-soft);color:var(--bad)}
+  .wcRec{font-size:12.5px;color:var(--sub)}
+  .weSpecialCtrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+  .weSpecialCtrl select{min-width:220px}
+  .weSpecialNote{font-size:12.5px;color:var(--warn);background:var(--warn-soft);border-radius:8px;padding:8px 12px;margin-top:6px}
+  .weGuideTable{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  .weGuideTable th,.weGuideTable td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  .weGuideTable th{background:var(--bg);font-size:12px;color:var(--sub)}
+  .weEditBar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .weEditLine{display:flex;gap:8px;align-items:flex-start;padding:5px 0}
+  .weEditLine .wsNum{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--bg);color:var(--sub);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:6px}
+  .weEditLine input{flex:1}
+  .weEditLine input.tokenmissing{border-color:var(--bad);background:var(--bad-soft)}
+  .weTokenWarn{font-size:12px;color:var(--bad);margin-top:4px}
   .tag{display:inline-block;background:var(--accent-soft);color:var(--accent);font-size:11.5px;font-weight:700;border-radius:6px;padding:2px 8px;margin-right:8px}
   .sectionhead{font-size:12.5px;font-weight:800;color:var(--sub);margin:16px 0 6px;padding-top:10px;border-top:1px dashed var(--line)}
   .sectionhead:first-child{margin-top:0;border-top:none;padding-top:0}
@@ -194,10 +232,6 @@
   .critcol h4{margin-bottom:6px;font-size:13px}
   .critcol ul{margin-left:16px}
   .critcol li{margin-bottom:3px}
-  .we-bank{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0 16px}
-  .we-cat{border:1.5px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;font-size:12.5px}
-  .we-cat.on{border-color:var(--accent);background:var(--accent-soft)}
-  .we-cat b{color:var(--accent);display:block;margin-bottom:4px;font-size:13px}
   .vtable{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
   .vtable th,.vtable td{border:1px solid var(--line);padding:6px 9px;text-align:left}
   .vtable th{background:var(--bg);font-size:12px}
@@ -974,9 +1008,15 @@
     const struct=structs[tpl.id];
 
     if(struct.id==='we'){
-      stage.innerHTML=`<div class="structSel">${selHtml}</div>${weHtml()}`;
-      $('#tplSel').onchange=e=>{tpl.id=e.target.value; renderTpl();};
-      wireWE();
+      if(weEditing){
+        stage.innerHTML=`<div class="structSel">${selHtml}</div>${weEditHtml()}`;
+        $('#tplSel').onchange=e=>{tpl.id=e.target.value; weEditing=false; weEditDraft=null; renderTpl();};
+        wireWEEdit();
+      } else {
+        stage.innerHTML=`<div class="structSel">${selHtml}</div>${weHtml()}`;
+        $('#tplSel').onchange=e=>{tpl.id=e.target.value; renderTpl();};
+        wireWE();
+      }
       return;
     }
 
@@ -1065,60 +1105,108 @@
     };
   }
 
-  // ---------- WE (Write Essay) ----------
-  let weState=Object.assign({topic:'', bankIdx:0, scope:'intro', wmode:'trace'}, JSON.parse(localStorage.getItem('wfd_we_v1')||'{}'));
-  function weBankApplied(){
-    const b=PTE_TEMPLATES.structures.we.bank3[weState.bankIdx];
-    const topic=weState.topic.trim()||'[TOPIC]';
-    return t=>t.replace(/\[TOPIC\]/g,topic).replace(/\[BENEFIT\]/g,b.benefit).replace(/\[EXAMPLE\]/g,b.example).replace(/\[PROBLEM\]/g,b.problem);
+  // ---------- WE (Write Essay) — 2026-08 개편: 카테고리 뱅크 제거 → 5개 자유입력 + SPECIAL SLOT + 템플릿 수정 ----------
+  const WE_LSKEY='wfd_we_v2';
+  const WE_TPL_LSKEY='wfd_we_template_v1';
+  const WE_FIELDS=[
+    {key:'topic',label:'TOPIC'},{key:'benefit',label:'BENEFIT'},{key:'bexample',label:'BENEFIT EXAMPLE'},
+    {key:'problem',label:'PROBLEM'},{key:'pexample',label:'PROBLEM EXAMPLE'}
+  ];
+  function weDefaultSentences(){ return PTE_TEMPLATES.structures.we.sentences.map(s=>({n:s.n, section:s.section, text:s.text})); }
+  function weLoadTemplate(){
+    try{
+      const saved=JSON.parse(localStorage.getItem(WE_TPL_LSKEY)||'null');
+      if(saved && Array.isArray(saved) && saved.length===PTE_TEMPLATES.structures.we.sentences.length) return saved;
+    }catch(e){}
+    return weDefaultSentences();
   }
-  function weFullText(){
-    const we=PTE_TEMPLATES.structures.we, sub=weBankApplied();
-    return [we.skeleton.intro,we.skeleton.body1,we.skeleton.body2,we.skeleton.conclusion].map(sub).join('\n\n');
+  let weTpl=weLoadTemplate();       // 현재 사용 중인 템플릿(저장된 커스텀 버전 또는 기본값)
+  let weEditDraft=null;             // "템플릿 수정" 모드에서만 쓰는 임시 값 (취소하면 버려짐)
+  let weEditing=false;
+  let weResetArmed=false;
+
+  let weState=Object.assign({
+    topic:'', benefit:'', bexample:'', problem:'', pexample:'',
+    specialType:'', specialText:'',
+    scope:'intro', wmode:'trace'
+  }, JSON.parse(localStorage.getItem(WE_LSKEY)||'{}'));
+  function saveWEState(){ save(WE_LSKEY,weState); }
+
+  function weTokenMap(){
+    return {
+      '[TOPIC]': weState.topic.trim(), '[BENEFIT]': weState.benefit.trim(), '[BENEFIT EXAMPLE]': weState.bexample.trim(),
+      '[PROBLEM]': weState.problem.trim(), '[PROBLEM EXAMPLE]': weState.pexample.trim(), '[SPECIAL SLOT]': weState.specialText.trim()
+    };
   }
-  // 토픽/카테고리에 따라 바뀌는 부분(주황)과 고정 템플릿 문구(기본색)를 색으로 구분해서 보여주는 버전
-  function weSubHtml(t){
-    const b=PTE_TEMPLATES.structures.we.bank3[weState.bankIdx];
-    const topic=weState.topic.trim()||'[TOPIC]';
-    const mark=s=>'<span class="we-var">'+esc(s)+'</span>';
-    return esc(t)
-      .replace(/\[TOPIC\]/g,mark(topic))
-      .replace(/\[BENEFIT\]/g,mark(b.benefit))
-      .replace(/\[EXAMPLE\]/g,mark(b.example))
-      .replace(/\[PROBLEM\]/g,mark(b.problem));
+  // 최종 Essay 문장 배열 — SPECIAL SLOT을 안 채웠으면 16번 문장은 통째로 빠짐. 안 채운 나머지 빈칸은 토큰 그대로 남김.
+  function weAssembledSentences(){
+    const vals=weTokenMap();
+    return weTpl.filter(s=> s.section!=='special' || vals['[SPECIAL SLOT]']).map(s=>{
+      let t=s.text;
+      Object.keys(vals).forEach(tok=>{ if(t.indexOf(tok)>-1) t=t.split(tok).join(vals[tok]||tok); });
+      return {n:s.n, section:s.section, text:t};
+    });
   }
-  function weFullHtml(){
+  function weFullText(){ return weAssembledSentences().map(s=>s.text).join(' '); }
+  function weSectionText(key){ return weAssembledSentences().filter(s=>s.section===key).map(s=>s.text).join(' '); }
+  function weWordCount(){ const t=weFullText().trim(); return t?t.split(/\s+/).filter(Boolean).length:0; }
+  function weWordStatus(wc){
     const we=PTE_TEMPLATES.structures.we;
-    return [we.skeleton.intro,we.skeleton.body1,we.skeleton.body2,we.skeleton.conclusion].map(weSubHtml).join('\n\n');
+    if(wc<we.wordRange[0]) return 'short';
+    if(wc>we.wordRange[1]) return 'long';
+    return 'valid';
   }
-  function weSectionHtml(scope){
-    const we=PTE_TEMPLATES.structures.we;
-    return scope==='all' ? weFullHtml() : weSubHtml(we.skeleton[scope]);
+  // 문장 하나를 HTML로: 채워진 빈칸=주황(we-var), 안 채운 자리표시자 토큰=파랑 안내(fillmark)
+  function weSentHtml(s){
+    const vals=weTokenMap();
+    let out=esc(s.text);
+    Object.keys(vals).forEach(tok=>{
+      if(out.indexOf(tok)===-1) return;
+      const v=vals[tok];
+      const html=v ? '<span class="we-var">'+esc(v)+'</span>' : '<span class="fillmark">'+esc(tok)+'</span>';
+      out=out.split(tok).join(html);
+    });
+    return out;
   }
-  const WE_LEGEND='<div class="colorLegend"><span class="lg"><span class="sw" style="background:var(--warn-soft);border:1px solid var(--warn)"></span>토픽·카테고리에 따라 바뀌는 부분</span><span class="lg">그 외 = 그대로 외워야 하는 고정 템플릿 문구</span></div>';
+  function weWcBadgeHtml(){
+    const we=PTE_TEMPLATES.structures.we, wc=weWordCount(), status=weWordStatus(wc);
+    const label={short:'Too Short',valid:'Valid',long:'Too Long'}[status];
+    return `<span class="wcBadge ${status}">Word Count: ${wc} / ${we.wordRange[1]} · ${label}</span><span class="wcRec">권장: ${we.wordRecommended[0]}–${we.wordRecommended[1]} words</span>`;
+  }
+
   function weHtml(){
     const we=PTE_TEMPLATES.structures.we;
-    const full=weFullText();
-    const wc=full.split(/\s+/).filter(Boolean).length;
+    const guideRows=we.specialSlotGuide.map(g=>`<tr><td>${esc(g.label)}</td><td>${g.skip?'<i>'+esc(g.note)+'</i>':esc(g.sentence)+(g.note?'<br><span style="color:var(--sub);font-size:11.5px">'+esc(g.note)+'</span>':'')}</td></tr>`).join('');
+    const specialOptions='<option value="">사용 안 함</option>'+we.specialSlotGuide.map(g=>`<option value="${g.key}" ${weState.specialType===g.key?'selected':''}>${esc(g.label)}</option>`).join('');
     return `<div class="card">
-      <div class="bar" style="margin-bottom:12px">
-        <label>토픽 입력 <input type="text" id="weTopic" placeholder="예: online learning" value="${esc(weState.topic)}" style="width:190px"></label>
-        <span class="chip" id="weWordCount">목표 단어수 ${we.wordRange[0]}~${we.wordRange[1]} · 현재 ${wc}</span>
+      <div class="weTop">
+        <h2>PTE Write Essay</h2>
+        <span class="weBadge words">${we.wordRange[0]}–${we.wordRange[1]} words</span>
+        <span class="weBadge time">⏱ ${we.timeGoalLabel}</span>
+        <span class="weTimeDetail">${we.timeGoalDetail}</span>
+        <button class="btn ghost sm" id="weEditBtn" style="margin-left:auto">✏️ 템플릿 수정</button>
       </div>
-      <div class="we-bank">${we.bank3.map((b,i)=>`<div class="we-cat ${i===weState.bankIdx?'on':''}" data-i="${i}"><b>Category ${b.cat}</b>${b.label}</div>`).join('')}</div>
-      <div class="sectionhead">미리보기 (자동 완성)</div>
-      ${WE_LEGEND}
-      <div class="tplTarget" id="wePreviewBox">${weFullHtml()}</div>
+      <div class="wePrincipleBanner">${esc(we.principles[0])}</div>
+
+      <div class="sectionhead">기본적으로 사용자가 바꾸는 5개 빈칸</div>
+      <div class="colorLegend"><span class="lg"><span class="sw" style="background:var(--warn-soft);border:1px solid var(--warn)"></span>채워진 빈칸</span><span class="lg"><span class="sw" style="background:var(--accent-soft);border:1px solid var(--accent)"></span>아직 안 채운 자리표시자</span></div>
+      <div class="weInputs">
+        ${WE_FIELDS.map(f=>`<div class="weField"><label>${f.label}</label><input type="text" id="weIn_${f.key}" value="${esc(weState[f.key])}" placeholder="${f.label} 입력…" autocomplete="off"></div>`).join('')}
+      </div>
+
+      <div class="sectionhead">Essay Template (입력하면 실시간 반영)</div>
+      <div id="weEssayBox"></div>
+      <div class="wordCount" id="weWordCountBox">${weWcBadgeHtml()}</div>
       <div class="btnrow"><button class="btn ghost" id="wePlay">🔊 읽어주기</button></div>
 
-      <div class="sectionhead">이 문단 암기 연습</div>
-      <div class="bar" style="margin-bottom:10px">
-        <label>범위 <select id="weScope">
-          <option value="intro">서론</option><option value="body1">본론1 (장점)</option><option value="body2">본론2 (단점)</option><option value="conclusion">결론</option><option value="all">전체</option>
-        </select></label>
-        <label>모드 <select id="weMode"><option value="trace">따라치기</option><option value="recall">안보고 암기테스트</option></select></label>
-      </div>
-      <div id="weStage"></div>
+      <div class="sectionhead">④ SPECIAL SLOT — 문제에서 요구할 때만 사용</div>
+      <div class="weSpecialCtrl"><label>질문 유형 <select id="weSpecialType">${specialOptions}</select></label></div>
+      <div id="weSpecialInputWrap"></div>
+
+      <div class="sectionhead">SPECIAL SLOT GUIDE</div>
+      <div style="overflow-x:auto"><table class="weGuideTable"><tr><th>문제에서 이런 표현이 나오면</th><th>이 문장을 넣으세요</th></tr>${guideRows}</table></div>
+
+      <div class="tipbox"><b>💡 학습 원칙</b><ul>${we.principles.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>
 
       <div class="sectionhead">동사원형 (조동사 뒤엔 항상 동사원형)</div>
       <p style="font-size:13px;color:var(--sub);margin-bottom:6px">${we.grammarNote}</p>
@@ -1126,40 +1214,72 @@
         ${we.verbTable.map(v=>`<tr><td><b>${v.base}</b></td><td>${v.wrong}</td><td>${v.mean}</td><td>${v.ex}</td></tr>`).join('')}
       </table>
 
-      <div class="tipbox"><b>💡 시험장 3단계 실전 적용</b><ul>${we.steps.map(s=>`<li>${s}</li>`).join('')}</ul></div>
+      <div class="sectionhead">이 단락 암기 연습</div>
+      <div class="bar" style="margin-bottom:10px">
+        <label>범위 <select id="weScope">${we.sections.map(s=>`<option value="${s.key}">${s.label}</option>`).join('')}<option value="all">전체</option></select></label>
+        <label>모드 <select id="weMode"><option value="trace">따라치기</option><option value="recall">안보고 암기테스트</option></select></label>
+      </div>
+      <div id="weStage"></div>
+
+      <div class="tipbox"><b>💡 문제 풀이 순서</b><ul>${we.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
     </div>`;
   }
-  function updateWEPreview(){
-    const full=weFullText(); const we=PTE_TEMPLATES.structures.we;
-    const wc=full.split(/\s+/).filter(Boolean).length;
-    $('#wePreviewBox').innerHTML=weFullHtml();
-    $('#weWordCount').textContent=`목표 단어수 ${we.wordRange[0]}~${we.wordRange[1]} · 현재 ${wc}`;
+  function renderWEEssay(){
+    const we=PTE_TEMPLATES.structures.we;
+    const box=$('#weEssayBox'); if(!box) return;
+    box.innerHTML=we.sections.map(sec=>{
+      const lines=weTpl.filter(s=>s.section===sec.key);
+      const isSpecialEmpty=sec.key==='special' && !weState.specialText.trim();
+      return `<div class="weSection ${sec.key==='special'?'special':''} ${isSpecialEmpty?'empty':''}">
+        <div class="wsTitle">${sec.num} ${esc(sec.label)}${sec.hint?`<span class="wsHint"> — ${esc(sec.hint)}</span>`:''}</div>
+        ${lines.map(l=>isSpecialEmpty
+          ? `<div class="weSentLine"><span class="wsNum">${l.n}</span><span>[SPECIAL SLOT] (선택사항 — 필요할 때만 입력)</span></div>`
+          : `<div class="weSentLine"><span class="wsNum">${l.n}</span><span>${weSentHtml(l)}</span></div>`
+        ).join('')}
+      </div>`;
+    }).join('');
+    const wcBox=$('#weWordCountBox'); if(wcBox) wcBox.innerHTML=weWcBadgeHtml();
+  }
+  function renderWESpecialInput(){
+    const we=PTE_TEMPLATES.structures.we;
+    const wrap=$('#weSpecialInputWrap'); if(!wrap) return;
+    if(!weState.specialType){ wrap.innerHTML=''; return; }
+    const g=we.specialSlotGuide.find(x=>x.key===weState.specialType);
+    if(g && g.skip){ wrap.innerHTML=`<div class="weSpecialNote">${esc(g.note)}</div>`; return; }
+    wrap.innerHTML=`<textarea id="weSpecialText" placeholder="16번 SPECIAL SLOT 문장…" spellcheck="false">${esc(weState.specialText)}</textarea>
+      ${g&&g.note?`<div class="weSpecialNote">${esc(g.note)}</div>`:''}`;
+    $('#weSpecialText').oninput=e=>{ weState.specialText=e.target.value; saveWEState(); renderWEEssay(); renderWEStage(); };
   }
   function wireWE(){
-    const topicInput=$('#weTopic');
-    topicInput.oninput=()=>{ weState.topic=topicInput.value; save('wfd_we_v1',weState); updateWEPreview(); renderWEStage(); };
-    document.querySelectorAll('.we-cat').forEach(el=>el.onclick=()=>{
-      weState.bankIdx=parseInt(el.dataset.i); save('wfd_we_v1',weState);
-      document.querySelectorAll('.we-cat').forEach(x=>x.classList.toggle('on',x===el));
-      updateWEPreview(); renderWEStage();
+    WE_FIELDS.forEach(f=>{
+      const el=$('#weIn_'+f.key);
+      el.oninput=()=>{ weState[f.key]=el.value; saveWEState(); renderWEEssay(); renderWEStage(); };
     });
-    $('#wePlay').onclick=()=>sayText($('#wePreviewBox').textContent);
+    $('#weEditBtn').onclick=()=>{ weEditing=true; weEditDraft=null; renderTpl(); };
+    $('#wePlay').onclick=()=>sayText(weFullText()||'The essay is still empty.');
+    $('#weSpecialType').onchange=e=>{
+      weState.specialType=e.target.value;
+      const g=PTE_TEMPLATES.structures.we.specialSlotGuide.find(x=>x.key===weState.specialType);
+      weState.specialText=(g && !g.skip) ? g.sentence : '';
+      saveWEState(); renderWESpecialInput(); renderWEEssay(); renderWEStage();
+    };
     $('#weScope').value=weState.scope; $('#weMode').value=weState.wmode;
-    $('#weScope').onchange=e=>{weState.scope=e.target.value; save('wfd_we_v1',weState); renderWEStage();};
-    $('#weMode').onchange=e=>{weState.wmode=e.target.value; save('wfd_we_v1',weState); renderWEStage();};
+    $('#weScope').onchange=e=>{weState.scope=e.target.value; saveWEState(); renderWEStage();};
+    $('#weMode').onchange=e=>{weState.wmode=e.target.value; saveWEState(); renderWEStage();};
+    renderWEEssay();
+    renderWESpecialInput();
     renderWEStage();
   }
   function renderWEStage(){
-    const we=PTE_TEMPLATES.structures.we, sub=weBankApplied();
-    const text = weState.scope==='all' ? weFullText() : sub(we.skeleton[weState.scope]);
-    const box=$('#weStage');
-    box.innerHTML = weState.wmode==='trace'
-      ? `${WE_LEGEND}
-         <div class="tplTarget" id="weTargetBox">${weSectionHtml(weState.scope)}</div>
-         <textarea id="weAns" placeholder="위 문단을 그대로 입력해보세요…" spellcheck="false"></textarea>
+    const box=$('#weStage'); if(!box) return;
+    const text=weState.scope==='all' ? weFullText() : weSectionText(weState.scope);
+    if(!text.trim()){ box.innerHTML='<div class="empty">이 구간에 내용이 없어요 (SPECIAL SLOT을 아직 안 채운 경우일 수 있어요).</div>'; return; }
+    box.innerHTML=weState.wmode==='trace'
+      ? `<div class="tplTarget" id="weTargetBox">${esc(text)}</div>
+         <textarea id="weAns" placeholder="위 단락을 그대로 입력해보세요…" spellcheck="false"></textarea>
          <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 읽어주기</button><button class="btn primary" id="weGrade">채점</button></div>
          <div id="weResult"></div>`
-      : `<div class="card" style="background:var(--bg);text-align:center;padding:18px;margin-bottom:14px">안 보고 이 문단을 기억나는 대로 입력해보세요.</div>
+      : `<div class="card" style="background:var(--bg);text-align:center;padding:18px;margin-bottom:14px">안 보고 이 단락을 기억나는 대로 입력해보세요.</div>
          <textarea id="weAns" placeholder="기억나는 대로 입력…" spellcheck="false"></textarea>
          <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 정답 듣기</button><button class="btn primary" id="weGrade">채점</button></div>
          <div id="weResult"></div>`;
@@ -1167,6 +1287,60 @@
     $('#weGrade').onclick=()=>{
       const g=grade($('#weAns').value, {en:text});
       $('#weResult').innerHTML=`<div class="result"><div class="score ${g.perfect?'allok':'miss'}">${g.perfect?'✓ 만점! ':'✗ '}${g.okCount}/${g.total} 단어 일치</div><div class="diff">${g.out.map(w=>`<span class="w-${w.c==='ok'?'ok':w.c==='miss'?'miss':'extra'}">${esc(w.t)}</span>`).join(' ')}</div></div>`;
+    };
+  }
+
+  // ---------- WE 템플릿 수정 모드 ----------
+  function weRequiredTokensFor(n){
+    const orig=PTE_TEMPLATES.structures.we.sentences.find(s=>s.n===n);
+    if(!orig) return [];
+    return PTE_TEMPLATES.structures.we.placeholders.filter(tok=>orig.text.indexOf(tok)>-1);
+  }
+  function weEditHtml(){
+    const we=PTE_TEMPLATES.structures.we;
+    if(!weEditDraft) weEditDraft=weTpl.map(s=>Object.assign({},s));
+    return `<div class="card">
+      <div class="weTop"><h2>템플릿 수정</h2></div>
+      <p style="font-size:13px;color:var(--sub);margin-bottom:14px">고정 문구는 자유롭게 수정할 수 있어요. 단, <b>[TOPIC]</b> 같은 자리표시자 토큰은 지우면 안 돼요 — 지우면 그 문장에서 실시간 반영·워드카운트가 멈춰요.</p>
+      <div class="weEditBar">
+        <button class="btn primary" id="weTplSave">Save</button>
+        <button class="btn ghost" id="weTplCancel">Cancel</button>
+        <button class="btn ghost" id="weTplReset">Reset to Default</button>
+      </div>
+      ${we.sections.map(sec=>`<div class="weSection ${sec.key==='special'?'special':''}">
+        <div class="wsTitle">${sec.num} ${esc(sec.label)}</div>
+        ${weEditDraft.filter(s=>s.section===sec.key).map(s=>`<div class="weEditLine"><span class="wsNum">${s.n}</span><input type="text" data-n="${s.n}" class="weEditInput" value="${esc(s.text)}"></div>`).join('')}
+      </div>`).join('')}
+      <div id="weEditWarn"></div>
+    </div>`;
+  }
+  function wireWEEdit(){
+    document.querySelectorAll('.weEditInput').forEach(inp=>{
+      inp.oninput=()=>{
+        const n=parseInt(inp.dataset.n);
+        const req=weRequiredTokensFor(n);
+        const ok=req.every(tok=>inp.value.indexOf(tok)>-1);
+        inp.classList.toggle('tokenmissing',!ok);
+        const line=weEditDraft.find(s=>s.n===n);
+        if(line) line.text=inp.value;
+      };
+    });
+    $('#weTplCancel').onclick=()=>{ weEditDraft=null; weEditing=false; renderTpl(); };
+    $('#weTplReset').onclick=()=>{
+      if(!weResetArmed){ weResetArmed=true; toast('한 번 더 누르면 기본 템플릿으로 초기화돼요'); setTimeout(()=>weResetArmed=false,4000); return; }
+      localStorage.removeItem(WE_TPL_LSKEY);
+      weTpl=weDefaultSentences(); weEditDraft=null; weEditing=false; weResetArmed=false; renderTpl(); toast('기본 템플릿으로 초기화했어요');
+    };
+    $('#weTplSave').onclick=()=>{
+      const bad=[];
+      weEditDraft.forEach(s=>{
+        const missing=weRequiredTokensFor(s.n).filter(tok=>s.text.indexOf(tok)===-1);
+        if(missing.length) bad.push(s.n+'번: '+missing.join(', ')+' 빠짐');
+      });
+      if(bad.length){ $('#weEditWarn').innerHTML=`<div class="weTokenWarn">저장 못 했어요 — ${esc(bad.join(' · '))}</div>`; return; }
+      weTpl=weEditDraft.map(s=>({n:s.n, section:s.section, text:s.text}));
+      localStorage.setItem(WE_TPL_LSKEY, JSON.stringify(weTpl));
+      weEditDraft=null; weEditing=false; renderTpl(); toast('템플릿을 저장했어요');
     };
   }
 

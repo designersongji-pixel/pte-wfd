@@ -87,22 +87,66 @@ window.PTE_TEMPLATES = {
       tips:['RL과 같은 소스 문장을 쓰지만, 50~70자 내외 한 문장으로 압축','직접 타이핑해야 하는 라이팅 문제(스피킹 아님)']
     },
     we: {
-      id:'we', cat:'WE', title:'WE · Write Essay', writingOnly:true, wordRange:[210,230],
-      skeleton:{
-        intro:'Nowadays, there are different opinions about [TOPIC]. This issue is important in our society, and many people talk about it in daily life and in the news. This topic can be seen from many different points of view. In my opinion, there are more advantages than disadvantages.',
-        body1:'First, there are several benefits of [TOPIC]. One important benefit is that [BENEFIT]. For example, [EXAMPLE]. This example shows that [TOPIC] can be useful for many people in different ways. Many experts also agree that this can bring positive changes to society.',
-        body2:'However, there are also some problems with [TOPIC]. One possible problem is that [PROBLEM]. In some cases, this problem can become very serious and affect many people. Some experts also warn that this can create serious risks for society. Therefore, it is important to think about this carefully.',
-        conclusion:'In my opinion, the advantages are greater than the disadvantages. Overall, [TOPIC] has both benefits and problems, and people should think about both sides carefully before making decisions. This kind of decision can affect both individuals and society as a whole.'
-      },
-      bank3: [
-        {cat:'A', label:'기술 / 인터넷 / 미디어 / 편리함', benefit:'people can save time and enjoy more convenience in daily life', example:'it can help people finish daily tasks faster', problem:'people can spend too much time online and feel more stressed'},
-        {cat:'B', label:'교육 / 직장 / 정부 / 사회적 발전', benefit:'people can learn new skills and get better job opportunities', example:'it can help people study or work at their own pace', problem:'people can face high costs or limited opportunities'},
-        {cat:'C', label:'환경 / 건강 / 여행 / 자연', benefit:'people can improve their physical and mental health', example:'it can reduce pollution and protect the environment', problem:'this can damage the environment if not managed carefully'}
+      id:'we', cat:'WE', title:'WE · Write Essay', writingOnly:true,
+      wordRange:[200,300], wordRecommended:[220,250], timeGoalLabel:'20분 목표', timeGoalDetail:'권장 작성 시간: 15분 작성 + 5분 검토',
+      // 20문장 고정 스켈레톤 — 5단계(서론/장점 단락/단점 단락/특별 요구사항/결론). 이 배열이 "기본 템플릿"의 기본값이며,
+      // 사용자가 앱에서 "템플릿 수정"으로 편집하면 localStorage(wfd_we_template_v1)에 오버라이드가 저장됩니다.
+      sentences: [
+        {n:1,  section:'intro',      text:'Nowadays, there are different opinions about [TOPIC].'},
+        {n:2,  section:'intro',      text:'This issue is important in our society, and many people talk about it in daily life and in the news.'},
+        {n:3,  section:'intro',      text:'It can be seen from different points of view.'},
+        {n:4,  section:'intro',      text:'In my opinion, it has more advantages than disadvantages.'},
+        {n:5,  section:'intro',      text:'For this reason, it is worth discussing this issue carefully.'},
+        {n:6,  section:'benefit',    text:'To begin with, this issue can bring several benefits.'},
+        {n:7,  section:'benefit',    text:'One important benefit is that [BENEFIT].'},
+        {n:8,  section:'benefit',    text:"This can make people's lives better and bring positive changes to society."},
+        {n:9,  section:'benefit',    text:'For example, [BENEFIT EXAMPLE].'},
+        {n:10, section:'benefit',    text:'This example shows that the issue can be useful in real life.'},
+        {n:11, section:'problem',    text:'However, there are also some disadvantages.'},
+        {n:12, section:'problem',    text:'One possible problem is that [PROBLEM].'},
+        {n:13, section:'problem',    text:'In some cases, this problem can become serious and affect many people.'},
+        {n:14, section:'problem',    text:'For example, [PROBLEM EXAMPLE].'},
+        {n:15, section:'problem',    text:'Therefore, people should understand both the positive and negative sides.'},
+        {n:16, section:'special',    text:'[SPECIAL SLOT]', optional:true},
+        {n:17, section:'conclusion', text:'In conclusion, I believe the advantages are greater than the disadvantages.'},
+        {n:18, section:'conclusion', text:'Although this issue has both positive and negative sides, its benefits can be more important when it is managed carefully.'},
+        {n:19, section:'conclusion', text:'People should think about both sides before making decisions.'},
+        {n:20, section:'conclusion', text:'These decisions can affect both individuals and society as a whole.'}
+      ],
+      sections: [
+        {key:'intro', num:'①', label:'서론'},
+        {key:'benefit', num:'②', label:'장점 단락'},
+        {key:'problem', num:'③', label:'단점 단락'},
+        {key:'special', num:'④', label:'특별 요구사항', hint:'문제에서 요구할 때만 사용'},
+        {key:'conclusion', num:'⑤', label:'결론'}
+      ],
+      placeholders: ['[TOPIC]','[BENEFIT]','[BENEFIT EXAMPLE]','[PROBLEM]','[PROBLEM EXAMPLE]'],
+      specialSlotGuide: [
+        {key:'experience', label:'share your own experience', sentence:'In my own experience, this issue has affected my daily life in a positive way.'},
+        {key:'solution', label:'give a solution', sentence:'One possible solution is for governments and individuals to work together to solve this problem.'},
+        {key:'government', label:'what should governments do?', sentence:'In my opinion, governments should create clear rules and provide proper support.'},
+        {key:'minage', label:'minimum age / state which age', sentence:'Therefore, I believe 18 is a suitable minimum age for driving.', note:'숫자와 대상은 문제에 맞게 바꿔서 사용하세요.'},
+        {key:'example', label:'give an example only', sentence:'', skip:true, note:'SPECIAL SLOT 추가 X — 이미 [BENEFIT EXAMPLE] / [PROBLEM EXAMPLE]에서 예시를 처리합니다.'}
+      ],
+      principles: [
+        '기본 템플릿 5개 빈칸 + 필요 시 SPECIAL SLOT 1~2문장만 추가',
+        '명사/명사구를 여러 번 바꿔 쓸 필요 없음',
+        'TOPIC은 첫 문장에만 입력하고, 이후에는 this issue / it 등으로 연결',
+        '기본 문장은 그대로 암기',
+        '문제마다 5개 빈칸의 내용만 변경',
+        'SPECIAL SLOT은 질문에서 요구할 때만 사용'
       ],
       steps: [
-        '1단계: TOPIC 단어 추출 — 문제 지문에서 가장 자주 나오거나 핵심이 되는 단어 선택 (예: online learning)',
-        '2단계: 만능 문장 뱅크 선택 — 3개 카테고리 중 문제 주제와 가장 가까운 카테고리의 3문장 그대로 복사',
-        '3단계: 템플릿에 대입 및 검토 — [TOPIC]과 3문장을 빈칸에 채우고 is/are, has/have, 철자 오타를 2분간 검토'
+        'Question 입력 → 문제 지문을 읽고 TOPIC이 될 핵심 단어를 정합니다.',
+        'TOPIC 작성 → 1번 문장의 [TOPIC]에 채워 넣습니다.',
+        'BENEFIT 작성 → 7번 문장의 [BENEFIT]에 이 주제의 장점을 채웁니다.',
+        'BENEFIT EXAMPLE 작성 → 9번 문장의 [BENEFIT EXAMPLE]에 구체적인 예시를 채웁니다.',
+        'PROBLEM 작성 → 12번 문장의 [PROBLEM]에 이 주제의 단점을 채웁니다.',
+        'PROBLEM EXAMPLE 작성 → 14번 문장의 [PROBLEM EXAMPLE]에 구체적인 예시를 채웁니다.',
+        '특별 요구사항이 있는지 확인 → 문제 지문에 특별한 요구(경험/해결책/정부 역할/나이 등)가 있는지 확인합니다.',
+        '필요하면 SPECIAL SLOT 추가 → 16번 자리에 유형에 맞는 문장을 1~2개 추가합니다 (없으면 비워둠).',
+        '최종 Essay 확인 → 전체 문장을 처음부터 끝까지 읽으며 자연스러운지 확인합니다.',
+        'Word Count 확인 → 200~300 단어(권장 220~250) 범위인지 확인합니다.'
       ],
       verbTable: [
         {base:'save', wrong:'saved, saves, saving', mean:'절약하다 / 아끼다', ex:'people can save time'},
