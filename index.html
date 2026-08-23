@@ -160,8 +160,16 @@
   .step.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:800}
   .step.done{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
   .tplTarget{font-size:17px;line-height:1.7;padding:16px;background:var(--bg);border-radius:12px;margin-bottom:14px;white-space:pre-wrap}
-  .tplTarget .blank{display:inline-block;min-width:38px;border-bottom:2px solid var(--accent);color:transparent}
-  .tplTarget.show .blank{color:inherit;border-bottom:none;background:var(--accent-soft);border-radius:4px}
+  .tplTarget .fillmark{color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:0 3px;font-weight:700}
+  .tplTarget .we-var{color:var(--warn);background:var(--warn-soft);border-radius:4px;padding:0 3px;font-weight:700}
+  .blankWrap{display:inline-block}
+  .blankInput{border:none;border-bottom:2px solid var(--accent);background:var(--accent-soft);border-radius:4px 4px 0 0;padding:1px 5px;font:inherit;font-size:16px;color:var(--ink);text-align:center;outline:none}
+  .blankInput:focus{background:#fff;box-shadow:0 0 0 2px var(--accent-soft)}
+  .blankInput.ok{border-bottom-color:var(--ok);background:var(--ok-soft);color:var(--ok);font-weight:700}
+  .blankInput.bad{border-bottom-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+  .colorLegend{font-size:12px;color:var(--sub);margin:-6px 0 12px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .colorLegend .lg{display:inline-flex;align-items:center;gap:5px}
+  .colorLegend .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
   .tag{display:inline-block;background:var(--accent-soft);color:var(--accent);font-size:11.5px;font-weight:700;border-radius:6px;padding:2px 8px;margin-right:8px}
   .sectionhead{font-size:12.5px;font-weight:800;color:var(--sub);margin:16px 0 6px;padding-top:10px;border-top:1px dashed var(--line)}
   .sectionhead:first-child{margin-top:0;border-top:none;padding-top:0}
@@ -209,6 +217,7 @@
 <header>
   <h1>PTE <span>WFD</span> 연습</h1>
   <select id="weekSel"></select>
+  <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--sub)" title="읽어주기(TTS) 목소리 선택 — 목소리 품질/종류는 브라우저·기기에 따라 달라요">🔊<select id="voiceSel" style="max-width:150px"><option>목소리 불러오는 중…</option></select></label>
   <div class="searchwrap">
     <span class="sicon">🔍</span>
     <input type="text" id="gSearch" placeholder="문장·단어·번호 검색 (Ctrl+K)" autocomplete="off">
@@ -380,11 +389,46 @@
     audio.play().catch(()=>{}); // 자동재생 차단 등은 조용히 무시 — 합성음 대체 없음
   }
 
+  // ---------- TTS 목소리 선택 (기본 목소리가 어색하면 여기서 바꿀 수 있음) ----------
+  let ttsVoices=[];
+  let voiceURI=localStorage.getItem('wfd_voice_uri')||'';
+  function scoreVoice(v){
+    const n=v.name.toLowerCase();
+    let s=0;
+    if(n.includes('google')) s+=5;
+    if(/natural|neural|online|premium|enhanced/.test(n)) s+=6;
+    if(/samantha|ava|zoe|jenny|aria|zira|susan|karen|moira|tessa|female/.test(n)) s+=3;
+    if(v.lang==='en-US') s+=2; else if(v.lang.startsWith('en')) s+=1;
+    if(/david|fred|albert|bahh|bad news|bells|boing|bubbles|junior|organ|trinoids|whisper|zarvox|hysterical|compact/.test(n)) s-=8;
+    return s;
+  }
+  function bestVoice(){
+    if(!ttsVoices.length) return null;
+    if(voiceURI){ const v=ttsVoices.find(x=>x.voiceURI===voiceURI); if(v) return v; }
+    return ttsVoices.slice().sort((a,b)=>scoreVoice(b)-scoreVoice(a))[0];
+  }
+  function buildVoiceSel(){
+    const sel=document.getElementById('voiceSel'); if(!sel) return;
+    if(!ttsVoices.length){ sel.innerHTML='<option>사용 가능한 영어 목소리 없음</option>'; return; }
+    const cur=bestVoice();
+    sel.innerHTML=ttsVoices.map(v=>`<option value="${v.voiceURI}" ${cur&&v.voiceURI===cur.voiceURI?'selected':''}>${v.name}${v.lang!=='en-US'?' ('+v.lang+')':''}</option>`).join('');
+  }
+  function refreshVoices(){
+    if(!window.speechSynthesis) return;
+    ttsVoices=speechSynthesis.getVoices().filter(v=>v.lang && v.lang.toLowerCase().startsWith('en'));
+    buildVoiceSel();
+  }
+  function applyVoice(u){ const v=bestVoice(); if(v) u.voice=v; }
+  if(window.speechSynthesis){
+    refreshVoices();
+    speechSynthesis.onvoiceschanged=refreshVoices;
+  }
+
   // ---------- 단어: 발음(TTS는 단어 전용) + 뜻 + IPA + 저장 ----------
   const sayWord=window.sayWord=function(w){
     if(!window.speechSynthesis) return;
     speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(w); u.lang='en-US'; u.rate=0.9;
+    const u=new SpeechSynthesisUtterance(w); u.lang='en-US'; u.rate=0.9; applyVoice(u);
     speechSynthesis.speak(u);
   };
   async function getIPA(word){
@@ -798,6 +842,7 @@
     setMode(t.dataset.mode);
   });
   $('#weekSel').onchange=e=>{week=e.target.value;localStorage.setItem('wfd_week',week);buildRangeSel();renderPlan();buildPool();render();};
+  $('#voiceSel').onchange=e=>{ voiceURI=e.target.value; localStorage.setItem('wfd_voice_uri',voiceURI); sayText('This is a preview of this voice.'); };
   $('#rangeSel').onchange=()=>{buildPool();render();};
   $('#orderSel').onchange=()=>{buildPool();render();};
   document.addEventListener('keydown',e=>{
@@ -891,15 +936,31 @@
     if(!window.speechSynthesis){ toast('이 브라우저는 음성 합성을 지원하지 않아요'); return; }
     speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text.replace(/\n+/g,'. '));
-    u.lang='en-US'; u.rate=0.92;
+    u.lang='en-US'; u.rate=0.92; applyVoice(u);
     speechSynthesis.speak(u);
   }
   window.sayText=sayText;
 
   // ---------- PTE 템플릿 ----------
   let tpl={id:'di_basic', scope:'line', pmode:'trace', idx:0, includeOpt:false};
-  function clozify(escapedText){
-    return escapedText.replace(/\(([^)]*)\)|\[([^\]]*)\]|명사/g, m=>'<span class="blank">'+m+'</span>');
+  const FILLRE=/\(([^)]*)\)|\[([^\]]*)\]|명사/g;
+  // 따라치기 모드: (subject)/[word1,word2]/명사 같은 "직접 채워 넣는 부분"을 색으로 표시만 (고정 문구와 구분)
+  function markPlaceholders(escapedText){
+    return escapedText.replace(FILLRE, m=>'<span class="fillmark">'+m+'</span>');
+  }
+  // 빈칸채우기 모드: 같은 부분을 실제 타이핑 가능한 입력칸으로 만들어서 직접 채워보게 함
+  function clozify(rawText){
+    let out='', last=0, m, bi=0;
+    FILLRE.lastIndex=0;
+    while((m=FILLRE.exec(rawText))){
+      out+=esc(rawText.slice(last,m.index));
+      const ans=m[0];
+      const w=Math.max(3,Math.min(22,[...ans].length));
+      out+=`<span class="blankWrap"><input type="text" class="blankInput" data-ans="${esc(ans)}" style="width:${w}ch" spellcheck="false" autocomplete="off" autocapitalize="off"></span>`;
+      bi++; last=FILLRE.lastIndex;
+    }
+    out+=esc(rawText.slice(last));
+    return out;
   }
   function tplGradeBlock(target){
     return `<textarea id="tplAns" placeholder="위 문장을 그대로 입력해보세요…" spellcheck="false"></textarea>
@@ -938,15 +999,19 @@
       targetText=SPEAKING_ORDER.map(k=>structs[k].lines.filter(l=>!l.optional).map(l=>l.text).join('\n')).join('\n\n');
     }
 
+    const hasFill=FILLRE.test(targetText); FILLRE.lastIndex=0;
+    const legendHtml=hasFill?`<div class="colorLegend"><span class="lg"><span class="sw" style="background:var(--accent-soft);border:1px solid var(--accent)"></span>직접 채워 넣는 부분</span><span class="lg">그 외 = 그대로 외워야 하는 고정 문구</span></div>`:'';
     let bodyHtml='';
     if(tpl.pmode==='trace'){
       bodyHtml=`${sectionLabel?`<div class="sectionhead">${sectionLabel}</div>`:''}
-        <div class="tplTarget">${esc(targetText)}</div>
+        ${legendHtml}
+        <div class="tplTarget">${markPlaceholders(esc(targetText))}</div>
         ${tplGradeBlock(targetText)}`;
     } else if(tpl.pmode==='cloze'){
       bodyHtml=`${sectionLabel?`<div class="sectionhead">${sectionLabel}</div>`:''}
-        <div class="tplTarget" id="clozeBox">${clozify(esc(targetText))}</div>
-        <div class="btnrow"><button class="btn ghost" id="tplPlay">🔊 읽어주기</button><button class="btn primary" id="tplReveal">정답 보기</button></div>`;
+        <div class="tplTarget" id="clozeBox">${clozify(targetText)}</div>
+        <div class="btnrow"><button class="btn ghost" id="tplPlay">🔊 읽어주기</button><button class="btn primary" id="tplCheck">채점</button><button class="btn ghost" id="tplFill">정답 채우기</button></div>
+        <div id="clozeResult"></div>`;
     } else {
       bodyHtml=`${sectionLabel?`<div class="sectionhead">${sectionLabel}</div>`:''}
         <div class="card" style="background:var(--bg);text-align:center;padding:18px;margin-bottom:14px">안 보고 기억나는 대로 입력해보세요. (${struct.cat})</div>
@@ -983,7 +1048,21 @@
       const g=grade($('#tplAns').value, {en:targetText});
       $('#tplResult').innerHTML=`<div class="result"><div class="score ${g.perfect?'allok':'miss'}">${g.perfect?'✓ 만점! ':'✗ '}${g.okCount}/${g.total} 단어 일치</div><div class="diff">${g.out.map(w=>`<span class="w-${w.c==='ok'?'ok':w.c==='miss'?'miss':'extra'}">${esc(w.t)}</span>`).join(' ')}</div></div>`;
     };
-    const rv=$('#tplReveal'); if(rv) rv.onclick=()=>{ const box=$('#clozeBox'); box.classList.toggle('show'); rv.textContent=box.classList.contains('show')?'가리기':'정답 보기'; };
+    const chk=$('#tplCheck'); if(chk) chk.onclick=()=>{
+      let ok=0, inputs=document.querySelectorAll('#clozeBox .blankInput');
+      const norm=v=>v.trim().toLowerCase().replace(/\s+/g,' ');
+      inputs.forEach(inp=>{
+        const good=inp.value.trim()!=='' && norm(inp.value)===norm(inp.dataset.ans);
+        inp.classList.toggle('ok',good);
+        inp.classList.toggle('bad',!good && inp.value.trim()!=='');
+        if(good) ok++;
+      });
+      const total=inputs.length;
+      $('#clozeResult').innerHTML=`<div class="result"><div class="score ${ok===total?'allok':'miss'}">${ok===total?'✓ 만점! ':'✗ '}${ok}/${total} 빈칸 일치</div></div>`;
+    };
+    const fl=$('#tplFill'); if(fl) fl.onclick=()=>{
+      document.querySelectorAll('#clozeBox .blankInput').forEach(inp=>{ inp.value=inp.dataset.ans; inp.classList.add('ok'); inp.classList.remove('bad'); });
+    };
   }
 
   // ---------- WE (Write Essay) ----------
@@ -997,6 +1076,26 @@
     const we=PTE_TEMPLATES.structures.we, sub=weBankApplied();
     return [we.skeleton.intro,we.skeleton.body1,we.skeleton.body2,we.skeleton.conclusion].map(sub).join('\n\n');
   }
+  // 토픽/카테고리에 따라 바뀌는 부분(주황)과 고정 템플릿 문구(기본색)를 색으로 구분해서 보여주는 버전
+  function weSubHtml(t){
+    const b=PTE_TEMPLATES.structures.we.bank3[weState.bankIdx];
+    const topic=weState.topic.trim()||'[TOPIC]';
+    const mark=s=>'<span class="we-var">'+esc(s)+'</span>';
+    return esc(t)
+      .replace(/\[TOPIC\]/g,mark(topic))
+      .replace(/\[BENEFIT\]/g,mark(b.benefit))
+      .replace(/\[EXAMPLE\]/g,mark(b.example))
+      .replace(/\[PROBLEM\]/g,mark(b.problem));
+  }
+  function weFullHtml(){
+    const we=PTE_TEMPLATES.structures.we;
+    return [we.skeleton.intro,we.skeleton.body1,we.skeleton.body2,we.skeleton.conclusion].map(weSubHtml).join('\n\n');
+  }
+  function weSectionHtml(scope){
+    const we=PTE_TEMPLATES.structures.we;
+    return scope==='all' ? weFullHtml() : weSubHtml(we.skeleton[scope]);
+  }
+  const WE_LEGEND='<div class="colorLegend"><span class="lg"><span class="sw" style="background:var(--warn-soft);border:1px solid var(--warn)"></span>토픽·카테고리에 따라 바뀌는 부분</span><span class="lg">그 외 = 그대로 외워야 하는 고정 템플릿 문구</span></div>';
   function weHtml(){
     const we=PTE_TEMPLATES.structures.we;
     const full=weFullText();
@@ -1008,7 +1107,8 @@
       </div>
       <div class="we-bank">${we.bank3.map((b,i)=>`<div class="we-cat ${i===weState.bankIdx?'on':''}" data-i="${i}"><b>Category ${b.cat}</b>${b.label}</div>`).join('')}</div>
       <div class="sectionhead">미리보기 (자동 완성)</div>
-      <div class="tplTarget" id="wePreviewBox">${esc(full)}</div>
+      ${WE_LEGEND}
+      <div class="tplTarget" id="wePreviewBox">${weFullHtml()}</div>
       <div class="btnrow"><button class="btn ghost" id="wePlay">🔊 읽어주기</button></div>
 
       <div class="sectionhead">이 문단 암기 연습</div>
@@ -1032,7 +1132,7 @@
   function updateWEPreview(){
     const full=weFullText(); const we=PTE_TEMPLATES.structures.we;
     const wc=full.split(/\s+/).filter(Boolean).length;
-    $('#wePreviewBox').textContent=full;
+    $('#wePreviewBox').innerHTML=weFullHtml();
     $('#weWordCount').textContent=`목표 단어수 ${we.wordRange[0]}~${we.wordRange[1]} · 현재 ${wc}`;
   }
   function wireWE(){
@@ -1054,7 +1154,8 @@
     const text = weState.scope==='all' ? weFullText() : sub(we.skeleton[weState.scope]);
     const box=$('#weStage');
     box.innerHTML = weState.wmode==='trace'
-      ? `<div class="tplTarget" id="weTargetBox">${esc(text)}</div>
+      ? `${WE_LEGEND}
+         <div class="tplTarget" id="weTargetBox">${weSectionHtml(weState.scope)}</div>
          <textarea id="weAns" placeholder="위 문단을 그대로 입력해보세요…" spellcheck="false"></textarea>
          <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 읽어주기</button><button class="btn primary" id="weGrade">채점</button></div>
          <div id="weResult"></div>`
