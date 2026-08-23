@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PTE WFD 연습</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#3b5bfd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="PTE WFD">
 <style>
   :root{
     --bg:#f4f6fa; --card:#ffffff; --ink:#151b2c; --sub:#6b7280; --line:#e5e8ef;
@@ -137,6 +145,64 @@
   #sResults .sempty{padding:18px 14px;color:var(--sub);font-size:13px;text-align:center}
   @media(max-width:640px){ #sResults{min-width:unset;position:fixed;left:8px;right:8px;top:64px} }
   @media(max-width:640px){ .tabs{margin-left:0;width:100%} .card{padding:18px} .browse-item .bi-ko{padding-left:0} }
+
+  /* 서브탭 (WFD 내부) */
+  .subtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .subtabs .tab{font-size:12.5px;padding:6px 12px;background:var(--bg)}
+  .subtabs .tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  /* PTE 템플릿 */
+  .structSel{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .goalBadge{background:var(--warn-soft);color:var(--warn);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:700}
+  .stepbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .step{flex:1;min-width:64px;text-align:center;background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:8px 4px;font-size:11px;color:var(--sub);cursor:pointer}
+  .step .si{font-size:17px;display:block;margin-bottom:2px}
+  .step.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:800}
+  .step.done{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+  .tplTarget{font-size:17px;line-height:1.7;padding:16px;background:var(--bg);border-radius:12px;margin-bottom:14px;white-space:pre-wrap}
+  .tplTarget .blank{display:inline-block;min-width:38px;border-bottom:2px solid var(--accent);color:transparent}
+  .tplTarget.show .blank{color:inherit;border-bottom:none;background:var(--accent-soft);border-radius:4px}
+  .tag{display:inline-block;background:var(--accent-soft);color:var(--accent);font-size:11.5px;font-weight:700;border-radius:6px;padding:2px 8px;margin-right:8px}
+  .sectionhead{font-size:12.5px;font-weight:800;color:var(--sub);margin:16px 0 6px;padding-top:10px;border-top:1px dashed var(--line)}
+  .sectionhead:first-child{margin-top:0;border-top:none;padding-top:0}
+  .tipbox{background:var(--accent-soft);border-radius:12px;padding:14px 16px;margin-top:18px;font-size:13.5px;color:var(--ink)}
+  .tipbox b{color:var(--accent)}
+  .tipbox ul{margin:6px 0 0 18px}
+  .tipbox li{margin-bottom:3px}
+  .timerBig{font-size:34px;font-weight:800;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;color:var(--accent)}
+  .phaserow{display:flex;gap:6px;margin:14px 0;flex-wrap:wrap}
+  .phasechip{flex:1;min-width:100px;background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:8px;text-align:center;font-size:12px;color:var(--sub)}
+  .phasechip.on{background:var(--warn-soft);border-color:var(--warn);color:var(--warn);font-weight:800}
+  .phasechip.past{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+  .checklist{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+  .checkitem{display:flex;align-items:center;gap:8px;font-size:14px;padding:8px 12px;border-radius:9px;background:var(--bg)}
+  .checkitem.pass{background:var(--ok-soft);color:var(--ok)}
+  .checkitem.fail{background:var(--bad-soft);color:var(--bad)}
+  .critgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  @media(max-width:640px){ .critgrid{grid-template-columns:1fr} }
+  .critcol{border-radius:12px;padding:12px 14px;font-size:13px}
+  .critcol.good{background:var(--ok-soft)}
+  .critcol.bad{background:var(--bad-soft)}
+  .critcol h4{margin-bottom:6px;font-size:13px}
+  .critcol ul{margin-left:16px}
+  .critcol li{margin-bottom:3px}
+  .we-bank{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0 16px}
+  .we-cat{border:1.5px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;font-size:12.5px}
+  .we-cat.on{border-color:var(--accent);background:var(--accent-soft)}
+  .we-cat b{color:var(--accent);display:block;margin-bottom:4px;font-size:13px}
+  .vtable{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  .vtable th,.vtable td{border:1px solid var(--line);padding:6px 9px;text-align:left}
+  .vtable th{background:var(--bg);font-size:12px}
+  /* 토픽뱅크 */
+  .bankform{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+  .bankform .row2{display:flex;gap:8px;flex-wrap:wrap}
+  .bankform .row2>*{flex:1;min-width:140px}
+  .bankcard{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;background:var(--card)}
+  .bankcard .bc-top{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  .bankcard .bc-en{font-size:15.5px;line-height:1.6;font-weight:600}
+  .bankcard .bc-ko{font-size:13px;color:var(--sub);margin-top:5px}
+  .bankcard .bc-note{font-size:11.5px;color:var(--sub);margin-top:5px}
+  .bankcard .bc-actions{display:flex;gap:6px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -148,16 +214,22 @@
     <input type="text" id="gSearch" placeholder="문장·단어·번호 검색 (Ctrl+K)" autocomplete="off">
     <div id="sResults"></div>
   </div>
-  <nav class="tabs">
+  <nav class="tabs" id="topTabs">
+    <button class="tab on" data-top="wfd">WFD</button>
+    <button class="tab" data-top="tpl">PTE 템플릿</button>
+    <button class="tab" data-top="bank">토픽뱅크</button>
+    <button class="tab" data-top="swt">SWT 체크</button>
+    <button class="tab" data-top="words">내 단어장</button>
+    <button class="tab" data-top="wordquiz">단어 시험</button>
+  </nav>
+</header>
+<main>
+  <nav class="subtabs" id="wfdSub">
     <button class="tab on" data-mode="wfd">받아쓰기</button>
     <button class="tab" data-mode="flash">학습카드</button>
     <button class="tab" data-mode="review">오답복습</button>
     <button class="tab" data-mode="browse">전체보기</button>
-    <button class="tab" data-mode="words">내 단어장</button>
-    <button class="tab" data-mode="wordquiz">단어 시험</button>
   </nav>
-</header>
-<main>
   <div class="plan" id="planBox"></div>
   <div class="stat" id="statBoxes"></div>
   <div class="bar" id="ctrlBar">
@@ -173,6 +245,7 @@
 <div id="toast"></div>
 <script src="data.js"></script>
 <script src="words.js"></script>
+<script src="templates.js"></script>
 <script>
 (function(){
   const D = window.WFD_DATA;
@@ -454,7 +527,7 @@
   function render(){
     statHtml();
     const practice = mode==='wfd'||mode==='flash'||mode==='review';
-    document.querySelector('#planBox').style.display=(mode==='words'||mode==='wordquiz')?'none':'flex';
+    document.querySelector('#planBox').style.display=(mode==='words'||mode==='wordquiz'||mode==='tpl'||mode==='bank'||mode==='swt')?'none':'flex';
     $('#ctrlBar').style.display=practice?'flex':'none';
     $('#progWrap').style.display=practice?'block':'none';
     if(!practice){ renderPage(); return; }
@@ -596,6 +669,12 @@
       entries.slice(0,40).forEach(([w])=>{ getIPA(w).then(ipa=>{ const el=document.querySelector(`[data-ipa="${w}"]`); if(el&&ipa) el.textContent=ipa; }); });
     } else if(mode==='wordquiz'){
       renderQuiz();
+    } else if(mode==='tpl'){
+      renderTpl();
+    } else if(mode==='bank'){
+      renderBank();
+    } else if(mode==='swt'){
+      renderSWT();
     }
   }
 
@@ -694,11 +773,29 @@
   window.delWord=function(w){ delete savedWords[w.toLowerCase()]; save(LSW,savedWords); toast('삭제했어요'); render(); };
 
   // ---------- 이벤트 ----------
-  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
-    t.classList.add('on'); mode=t.dataset.mode; revealed=false; stopAll();
+  let lastWfdMode='wfd';
+  const WFD_FAMILY=['wfd','flash','review','browse'];
+  function topOf(m){ return WFD_FAMILY.includes(m)?'wfd':m; }
+  function syncTabsUI(){
+    const top=topOf(mode);
+    document.querySelectorAll('#topTabs .tab').forEach(x=>x.classList.toggle('on',x.dataset.top===top));
+    $('#wfdSub').style.display = top==='wfd' ? 'flex' : 'none';
+    document.querySelectorAll('#wfdSub .tab').forEach(x=>x.classList.toggle('on',x.dataset.mode===mode));
+  }
+  window.syncTabsUI=syncTabsUI;
+  function setMode(m){
+    mode=m; revealed=false; stopAll();
     if(mode==='wfd'||mode==='flash'||mode==='review') buildPool();
-    render();
+    syncTabsUI(); render();
+  }
+  window.setMode=setMode;
+  document.querySelectorAll('#topTabs .tab').forEach(t=>t.onclick=()=>{
+    const top=t.dataset.top;
+    setMode(top==='wfd' ? lastWfdMode : top);
+  });
+  document.querySelectorAll('#wfdSub .tab').forEach(t=>t.onclick=()=>{
+    lastWfdMode=t.dataset.mode;
+    setMode(t.dataset.mode);
   });
   $('#weekSel').onchange=e=>{week=e.target.value;localStorage.setItem('wfd_week',week);buildRangeSel();renderPlan();buildPool();render();};
   $('#rangeSel').onchange=()=>{buildPool();render();};
@@ -760,8 +857,7 @@
   }
   function jumpTo(n){
     if(mode!=='wfd'&&mode!=='flash'){
-      document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.mode==='wfd'));
-      mode='wfd';
+      mode='wfd'; lastWfdMode='wfd'; syncTabsUI();
     }
     $('#rangeSel').value='all'; $('#orderSel').value='seq';
     buildPool();
@@ -789,7 +885,357 @@
     if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); gs.focus(); gs.select(); }
   });
 
-  buildWeekSel(); buildRangeSel(); renderPlan(); buildPool(); render();
+  // ================= PTE 템플릿 / 토픽뱅크 / SWT 체크 =================
+  const SPEAKING_ORDER=['di_basic','rl','sgd','rts'];
+  function sayText(text){
+    if(!window.speechSynthesis){ toast('이 브라우저는 음성 합성을 지원하지 않아요'); return; }
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text.replace(/\n+/g,'. '));
+    u.lang='en-US'; u.rate=0.92;
+    speechSynthesis.speak(u);
+  }
+  window.sayText=sayText;
+
+  // ---------- PTE 템플릿 ----------
+  let tpl={id:'di_basic', scope:'line', pmode:'trace', idx:0, includeOpt:false};
+  function clozify(escapedText){
+    return escapedText.replace(/\(([^)]*)\)|\[([^\]]*)\]|명사/g, m=>'<span class="blank">'+m+'</span>');
+  }
+  function tplGradeBlock(target){
+    return `<textarea id="tplAns" placeholder="위 문장을 그대로 입력해보세요…" spellcheck="false"></textarea>
+      <div class="btnrow"><button class="btn ghost" id="tplPlay">🔊 읽어주기</button><button class="btn primary" id="tplGrade">채점</button></div>
+      <div id="tplResult"></div>`;
+  }
+  function renderTpl(){
+    const stage=$('#stage');
+    const structs=PTE_TEMPLATES.structures;
+    const selHtml=`<select id="tplSel">${PTE_TEMPLATES.order.map(k=>`<option value="${k}" ${k===tpl.id?'selected':''}>${structs[k].title}</option>`).join('')}</select>`;
+    const struct=structs[tpl.id];
+
+    if(struct.id==='we'){
+      stage.innerHTML=`<div class="structSel">${selHtml}</div>${weHtml()}`;
+      $('#tplSel').onchange=e=>{tpl.id=e.target.value; renderTpl();};
+      wireWE();
+      return;
+    }
+
+    const hasOptional=struct.lines.some(l=>l.optional);
+    const goal=struct.goalSecLabel || (struct.goalSec+'초');
+    const lines=struct.lines.filter(l=>tpl.includeOpt || !l.optional);
+    if(tpl.idx>=lines.length) tpl.idx=0;
+
+    let stepbarHtml='';
+    if(tpl.scope==='line'){
+      stepbarHtml=`<div class="stepbar">`+lines.map((l,i)=>`<div class="step ${i===tpl.idx?'on':''}" data-i="${i}"><span class="si">${l.icon||'▫️'}</span>${l.tag}</div>`).join('')+`</div>`;
+    }
+
+    let targetText, sectionLabel='';
+    if(tpl.scope==='line'){
+      const l=lines[tpl.idx]; targetText=l.text; sectionLabel=l.section||'';
+    } else if(tpl.scope==='para'){
+      targetText=lines.map(l=>l.text).join('\n');
+    } else {
+      targetText=SPEAKING_ORDER.map(k=>structs[k].lines.filter(l=>!l.optional).map(l=>l.text).join('\n')).join('\n\n');
+    }
+
+    let bodyHtml='';
+    if(tpl.pmode==='trace'){
+      bodyHtml=`${sectionLabel?`<div class="sectionhead">${sectionLabel}</div>`:''}
+        <div class="tplTarget">${esc(targetText)}</div>
+        ${tplGradeBlock(targetText)}`;
+    } else if(tpl.pmode==='cloze'){
+      bodyHtml=`${sectionLabel?`<div class="sectionhead">${sectionLabel}</div>`:''}
+        <div class="tplTarget" id="clozeBox">${clozify(esc(targetText))}</div>
+        <div class="btnrow"><button class="btn ghost" id="tplPlay">🔊 읽어주기</button><button class="btn primary" id="tplReveal">정답 보기</button></div>`;
+    } else {
+      bodyHtml=`${sectionLabel?`<div class="sectionhead">${sectionLabel}</div>`:''}
+        <div class="card" style="background:var(--bg);text-align:center;padding:18px;margin-bottom:14px">안 보고 기억나는 대로 입력해보세요. (${struct.cat})</div>
+        ${tplGradeBlock(targetText)}`;
+    }
+
+    stage.innerHTML=`
+      <div class="structSel">${selHtml}<span class="goalBadge">⏱ 목표 ${goal}</span></div>
+      <div class="card">
+        <div class="bar" style="margin-bottom:10px">
+          <label>범위 <select id="tplScope">
+            <option value="line">한 줄</option><option value="para">${struct.cat} 전체</option><option value="all">전체 구조 이어서</option>
+          </select></label>
+          <label>모드 <select id="tplMode">
+            <option value="trace">따라치기</option><option value="cloze">빈칸채우기</option><option value="recall">안보고 암기테스트</option>
+          </select></label>
+          ${hasOptional?`<label><input type="checkbox" id="tplOpt" ${tpl.includeOpt?'checked':''}> 선택 표현 포함</label>`:''}
+        </div>
+        ${stepbarHtml}
+        ${bodyHtml}
+        ${tpl.scope==='line'?`<div class="btnrow"><button class="btn ghost" id="tplPrev" ${tpl.idx===0?'disabled style="opacity:.4"':''}>← 이전</button><span class="chip">${tpl.idx+1} / ${lines.length}</span><button class="btn ghost" id="tplNext" ${tpl.idx>=lines.length-1?'disabled style="opacity:.4"':''}>다음 →</button></div>`:''}
+        <div class="tipbox"><b>💡 TIP</b><ul>${struct.tips.map(t=>`<li>${t}</li>`).join('')}</ul></div>
+      </div>`;
+
+    $('#tplSel').onchange=e=>{tpl.id=e.target.value; tpl.idx=0; renderTpl();};
+    $('#tplScope').value=tpl.scope; $('#tplScope').onchange=e=>{tpl.scope=e.target.value; tpl.idx=0; renderTpl();};
+    $('#tplMode').value=tpl.pmode; $('#tplMode').onchange=e=>{tpl.pmode=e.target.value; renderTpl();};
+    const optEl=$('#tplOpt'); if(optEl) optEl.onchange=e=>{tpl.includeOpt=e.target.checked; tpl.idx=0; renderTpl();};
+    document.querySelectorAll('.step').forEach(el=>el.onclick=()=>{tpl.idx=parseInt(el.dataset.i); renderTpl();});
+    const pv=$('#tplPrev'); if(pv) pv.onclick=()=>{tpl.idx--; renderTpl();};
+    const nx=$('#tplNext'); if(nx) nx.onclick=()=>{tpl.idx++; renderTpl();};
+    const play=$('#tplPlay'); if(play) play.onclick=()=>sayText(targetText);
+    const gr=$('#tplGrade'); if(gr) gr.onclick=()=>{
+      const g=grade($('#tplAns').value, {en:targetText});
+      $('#tplResult').innerHTML=`<div class="result"><div class="score ${g.perfect?'allok':'miss'}">${g.perfect?'✓ 만점! ':'✗ '}${g.okCount}/${g.total} 단어 일치</div><div class="diff">${g.out.map(w=>`<span class="w-${w.c==='ok'?'ok':w.c==='miss'?'miss':'extra'}">${esc(w.t)}</span>`).join(' ')}</div></div>`;
+    };
+    const rv=$('#tplReveal'); if(rv) rv.onclick=()=>{ const box=$('#clozeBox'); box.classList.toggle('show'); rv.textContent=box.classList.contains('show')?'가리기':'정답 보기'; };
+  }
+
+  // ---------- WE (Write Essay) ----------
+  let weState=Object.assign({topic:'', bankIdx:0, scope:'intro', wmode:'trace'}, JSON.parse(localStorage.getItem('wfd_we_v1')||'{}'));
+  function weBankApplied(){
+    const b=PTE_TEMPLATES.structures.we.bank3[weState.bankIdx];
+    const topic=weState.topic.trim()||'[TOPIC]';
+    return t=>t.replace(/\[TOPIC\]/g,topic).replace(/\[BENEFIT\]/g,b.benefit).replace(/\[EXAMPLE\]/g,b.example).replace(/\[PROBLEM\]/g,b.problem);
+  }
+  function weFullText(){
+    const we=PTE_TEMPLATES.structures.we, sub=weBankApplied();
+    return [we.skeleton.intro,we.skeleton.body1,we.skeleton.body2,we.skeleton.conclusion].map(sub).join('\n\n');
+  }
+  function weHtml(){
+    const we=PTE_TEMPLATES.structures.we;
+    const full=weFullText();
+    const wc=full.split(/\s+/).filter(Boolean).length;
+    return `<div class="card">
+      <div class="bar" style="margin-bottom:12px">
+        <label>토픽 입력 <input type="text" id="weTopic" placeholder="예: online learning" value="${esc(weState.topic)}" style="width:190px"></label>
+        <span class="chip" id="weWordCount">목표 단어수 ${we.wordRange[0]}~${we.wordRange[1]} · 현재 ${wc}</span>
+      </div>
+      <div class="we-bank">${we.bank3.map((b,i)=>`<div class="we-cat ${i===weState.bankIdx?'on':''}" data-i="${i}"><b>Category ${b.cat}</b>${b.label}</div>`).join('')}</div>
+      <div class="sectionhead">미리보기 (자동 완성)</div>
+      <div class="tplTarget" id="wePreviewBox">${esc(full)}</div>
+      <div class="btnrow"><button class="btn ghost" id="wePlay">🔊 읽어주기</button></div>
+
+      <div class="sectionhead">이 문단 암기 연습</div>
+      <div class="bar" style="margin-bottom:10px">
+        <label>범위 <select id="weScope">
+          <option value="intro">서론</option><option value="body1">본론1 (장점)</option><option value="body2">본론2 (단점)</option><option value="conclusion">결론</option><option value="all">전체</option>
+        </select></label>
+        <label>모드 <select id="weMode"><option value="trace">따라치기</option><option value="recall">안보고 암기테스트</option></select></label>
+      </div>
+      <div id="weStage"></div>
+
+      <div class="sectionhead">동사원형 (조동사 뒤엔 항상 동사원형)</div>
+      <p style="font-size:13px;color:var(--sub);margin-bottom:6px">${we.grammarNote}</p>
+      <table class="vtable"><tr><th>동사원형(O)</th><th>잘못된 형태(X)</th><th>의미</th><th>템플릿 예문</th></tr>
+        ${we.verbTable.map(v=>`<tr><td><b>${v.base}</b></td><td>${v.wrong}</td><td>${v.mean}</td><td>${v.ex}</td></tr>`).join('')}
+      </table>
+
+      <div class="tipbox"><b>💡 시험장 3단계 실전 적용</b><ul>${we.steps.map(s=>`<li>${s}</li>`).join('')}</ul></div>
+    </div>`;
+  }
+  function updateWEPreview(){
+    const full=weFullText(); const we=PTE_TEMPLATES.structures.we;
+    const wc=full.split(/\s+/).filter(Boolean).length;
+    $('#wePreviewBox').textContent=full;
+    $('#weWordCount').textContent=`목표 단어수 ${we.wordRange[0]}~${we.wordRange[1]} · 현재 ${wc}`;
+  }
+  function wireWE(){
+    const topicInput=$('#weTopic');
+    topicInput.oninput=()=>{ weState.topic=topicInput.value; save('wfd_we_v1',weState); updateWEPreview(); renderWEStage(); };
+    document.querySelectorAll('.we-cat').forEach(el=>el.onclick=()=>{
+      weState.bankIdx=parseInt(el.dataset.i); save('wfd_we_v1',weState);
+      document.querySelectorAll('.we-cat').forEach(x=>x.classList.toggle('on',x===el));
+      updateWEPreview(); renderWEStage();
+    });
+    $('#wePlay').onclick=()=>sayText($('#wePreviewBox').textContent);
+    $('#weScope').value=weState.scope; $('#weMode').value=weState.wmode;
+    $('#weScope').onchange=e=>{weState.scope=e.target.value; save('wfd_we_v1',weState); renderWEStage();};
+    $('#weMode').onchange=e=>{weState.wmode=e.target.value; save('wfd_we_v1',weState); renderWEStage();};
+    renderWEStage();
+  }
+  function renderWEStage(){
+    const we=PTE_TEMPLATES.structures.we, sub=weBankApplied();
+    const text = weState.scope==='all' ? weFullText() : sub(we.skeleton[weState.scope]);
+    const box=$('#weStage');
+    box.innerHTML = weState.wmode==='trace'
+      ? `<div class="tplTarget" id="weTargetBox">${esc(text)}</div>
+         <textarea id="weAns" placeholder="위 문단을 그대로 입력해보세요…" spellcheck="false"></textarea>
+         <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 읽어주기</button><button class="btn primary" id="weGrade">채점</button></div>
+         <div id="weResult"></div>`
+      : `<div class="card" style="background:var(--bg);text-align:center;padding:18px;margin-bottom:14px">안 보고 이 문단을 기억나는 대로 입력해보세요.</div>
+         <textarea id="weAns" placeholder="기억나는 대로 입력…" spellcheck="false"></textarea>
+         <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 정답 듣기</button><button class="btn primary" id="weGrade">채점</button></div>
+         <div id="weResult"></div>`;
+    $('#weStagePlay').onclick=()=>sayText(text);
+    $('#weGrade').onclick=()=>{
+      const g=grade($('#weAns').value, {en:text});
+      $('#weResult').innerHTML=`<div class="result"><div class="score ${g.perfect?'allok':'miss'}">${g.perfect?'✓ 만점! ':'✗ '}${g.okCount}/${g.total} 단어 일치</div><div class="diff">${g.out.map(w=>`<span class="w-${w.c==='ok'?'ok':w.c==='miss'?'miss':'extra'}">${esc(w.t)}</span>`).join(' ')}</div></div>`;
+    };
+  }
+
+  // ---------- 토픽뱅크 ----------
+  const LSBANK='wfd_bank_v1';
+  let bankItems=JSON.parse(localStorage.getItem(LSBANK)||'[]');
+  let bankFilter={struct:'', q:''};
+  function saveBank(){ save(LSBANK,bankItems); }
+  function filteredBank(){
+    const q=bankFilter.q.toLowerCase();
+    return bankItems.filter(it=>(!bankFilter.struct||it.struct===bankFilter.struct) &&
+      (!q || it.en.toLowerCase().includes(q) || (it.ko||'').includes(bankFilter.q) || (it.topic||'').toLowerCase().includes(q)));
+  }
+  function renderBank(){
+    const stage=$('#stage');
+    const structOpts=['DI','RL','SGD','RTS','SST','WE','기타'];
+    stage.innerHTML=`
+      <div class="card" style="margin-bottom:16px">
+        <div class="sectionhead">새 예문 추가</div>
+        <div class="bankform">
+          <div class="row2">
+            <select id="bkStruct">${structOpts.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+            <input type="text" id="bkType" placeholder="유형 (예: Benefit / Problem / 적용예시)">
+            <input type="text" id="bkTopic" placeholder="토픽 (예: online education)">
+          </div>
+          <textarea id="bkEn" placeholder="영어 문장…" style="min-height:56px"></textarea>
+          <textarea id="bkKo" placeholder="한글 뜻 (선택)" style="min-height:40px"></textarea>
+          <input type="text" id="bkNote" placeholder="출처/메모 (선택, 예: APEUni #123)">
+          <button class="btn primary" id="bkAdd" style="align-self:flex-start">+ 추가</button>
+        </div>
+      </div>
+      <div class="bar">
+        <select id="bkFilterStruct"><option value="">전체 구조</option>${structOpts.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+        <input type="text" id="bkSearch" placeholder="검색 (영어/한글/토픽)…" style="flex:1;min-width:180px" value="${esc(bankFilter.q)}">
+        <span class="chip" id="bkCount">${filteredBank().length}개</span>
+      </div>
+      <div id="bkList"></div>`;
+    $('#bkFilterStruct').value=bankFilter.struct;
+    $('#bkAdd').onclick=()=>{
+      const en=$('#bkEn').value.trim(); if(!en){toast('영어 문장을 입력해주세요');return;}
+      bankItems.unshift({id:'b'+Date.now()+Math.random().toString(36).slice(2,7), struct:$('#bkStruct').value, type:$('#bkType').value.trim(), topic:$('#bkTopic').value.trim(), en, ko:$('#bkKo').value.trim(), note:$('#bkNote').value.trim(), at:Date.now()});
+      saveBank(); toast('토픽뱅크에 추가했어요! ('+bankItems.length+'개)');
+      $('#bkType').value='';$('#bkTopic').value='';$('#bkEn').value='';$('#bkKo').value='';$('#bkNote').value='';
+      renderBankList();
+    };
+    $('#bkFilterStruct').onchange=e=>{bankFilter.struct=e.target.value; renderBankList();};
+    const si=$('#bkSearch');
+    si.oninput=()=>{ bankFilter.q=si.value; clearTimeout(window.__bkt); window.__bkt=setTimeout(renderBankList,200); };
+    renderBankList();
+  }
+  function renderBankList(){
+    const list=filteredBank();
+    const wrap=$('#bkList'); if(!wrap) return;
+    const cnt=$('#bkCount'); if(cnt) cnt.textContent=list.length+'개';
+    if(!list.length){ wrap.innerHTML='<div class="card empty">저장된 예문이 없어요. 위에서 추가해보세요.</div>'; return; }
+    wrap.innerHTML=list.map(it=>`
+      <div class="bankcard" data-id="${it.id}">
+        <div class="bc-top">${it.struct?`<span class="tag">${it.struct}</span>`:''}${it.type?`<span class="tag" style="background:var(--ok-soft);color:var(--ok)">${esc(it.type)}</span>`:''}${it.topic?`<span class="tag" style="background:var(--warn-soft);color:var(--warn)">${esc(it.topic)}</span>`:''}</div>
+        <div class="bc-en">${clickableWords(it.en,null)}</div>
+        ${it.ko?`<div class="bc-ko">${esc(it.ko)}</div>`:''}
+        ${it.note?`<div class="bc-note">📎 ${esc(it.note)}</div>`:''}
+        <div class="bc-actions">
+          <button class="btn ghost sm" data-act="play">🔊 듣기</button>
+          <button class="btn ghost sm" data-act="practice">✏️ 연습</button>
+          <button class="btn ghost sm" data-act="del">🗑 삭제</button>
+        </div>
+        <div class="bc-practice" style="display:none;margin-top:10px"></div>
+      </div>`).join('');
+    wrap.querySelectorAll('.bankcard').forEach(card=>{
+      const id=card.dataset.id, it=bankItems.find(x=>x.id===id); if(!it) return;
+      card.querySelector('[data-act="play"]').onclick=()=>sayText(it.en);
+      card.querySelector('[data-act="del"]').onclick=()=>{ if(confirm('이 예문을 삭제할까요?')){ bankItems=bankItems.filter(x=>x.id!==id); saveBank(); renderBankList(); } };
+      card.querySelector('[data-act="practice"]').onclick=()=>{
+        const pbox=card.querySelector('.bc-practice');
+        const show=pbox.style.display==='none';
+        pbox.style.display=show?'block':'none';
+        if(show){
+          pbox.innerHTML=`<textarea placeholder="안 보고 입력해보세요…" style="min-height:50px" spellcheck="false"></textarea><div class="btnrow"><button class="btn primary sm" data-act="grade">채점</button></div><div class="bc-result"></div>`;
+          pbox.querySelector('[data-act="grade"]').onclick=()=>{
+            const typed=pbox.querySelector('textarea').value;
+            const g=grade(typed,{en:it.en});
+            pbox.querySelector('.bc-result').innerHTML=`<div class="diff" style="margin-top:8px">${g.out.map(w=>`<span class="w-${w.c==='ok'?'ok':w.c==='miss'?'miss':'extra'}">${esc(w.t)}</span>`).join(' ')}</div>`;
+          };
+        }
+      };
+    });
+  }
+
+  // ---------- SWT 체크 ----------
+  let swtTimerState={elapsed:0, running:false, _int:null};
+  function renderSwtPhaseRow(){
+    const S=PTE_TEMPLATES.swt, row=$('#swtPhaseRow'); if(!row) return;
+    row.innerHTML=S.phases.map(p=>{
+      const cls=swtTimerState.elapsed>=p.to?'past':(swtTimerState.elapsed>=p.from&&swtTimerState.elapsed<p.to?'on':'');
+      return `<div class="phasechip ${cls}"><b>${p.label}</b><br>${p.desc}</div>`;
+    }).join('');
+  }
+  function updateSwtClock(){
+    const rem=Math.max(0,600-swtTimerState.elapsed), m=Math.floor(rem/60), s=rem%60;
+    const el=$('#swtClock'); if(el) el.textContent=`${m}:${String(s).padStart(2,'0')}`;
+    renderSwtPhaseRow();
+  }
+  function renderSWT(){
+    const S=PTE_TEMPLATES.swt, stage=$('#stage');
+    stage.innerHTML=`
+      <div class="card" style="margin-bottom:16px">
+        <div class="sectionhead">기준표</div>
+        <table class="vtable"><tr><th>지문</th><th>시간</th><th>답변</th><th>단어 수</th><th>채점</th></tr>
+          <tr><td>${S.table.passage}</td><td>${S.table.time}</td><td>${S.table.answer}</td><td>${S.table.words}</td><td>${S.table.grading}</td></tr>
+        </table>
+        <div class="tipbox" style="margin-top:14px"><b>⚠️ FORM 0점 방지</b><ul>${S.formRule.map(r=>`<li>${r}</li>`).join('')}</ul></div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="sectionhead">90초 안에 복사할 문장 찾기</div>
+        <div class="checklist">${S.findSteps.map(f=>`<div class="checkitem" style="background:var(--bg)"><b>${f.sec}초</b>&nbsp; ${f.text}</div>`).join('')}</div>
+        <div class="sectionhead">문장 선별 O/X 기준</div>
+        <div class="critgrid">
+          <div class="critcol good"><h4>✅ 고를 문장</h4><ul>${S.good.map(g=>`<li>${g}</li>`).join('')}</ul></div>
+          <div class="critcol bad"><h4>❌ 버릴 문장</h4><ul>${S.bad.map(b=>`<li>${b}</li>`).join('')}</ul></div>
+        </div>
+        <p style="font-size:13px;color:var(--sub);margin-top:12px">${S.selectRule}</p>
+        <div class="tipbox"><b>✏️ 최소 수정 규칙</b><ul>${S.minEdit.map(m=>`<li>${m}</li>`).join('')}</ul></div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="sectionhead">⏱ 10분 실전 타이머</div>
+        <div class="timerBig" id="swtClock">10:00</div>
+        <div class="phaserow" id="swtPhaseRow"></div>
+        <div class="btnrow" style="justify-content:center">
+          <button class="btn primary" id="swtStart" ${swtTimerState.running?'disabled':''}>시작</button>
+          <button class="btn ghost" id="swtPause" ${swtTimerState.running?'':'disabled'}>일시정지</button>
+          <button class="btn ghost" id="swtReset">초기화</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sectionhead">내 초안 자동 검사</div>
+        <textarea id="swtDraft" placeholder="작성한 요약 문장을 붙여넣으세요…" style="min-height:90px"></textarea>
+        <div class="btnrow"><button class="btn primary" id="swtCheck">검사</button></div>
+        <div id="swtCheckResult"></div>
+        <div class="tipbox" style="margin-top:14px"><b>✅ 최종 체크리스트</b><ul>${S.finalChecklist.map(c=>`<li>${c}</li>`).join('')}</ul></div>
+      </div>`;
+    updateSwtClock();
+    $('#swtStart').onclick=()=>{
+      if(swtTimerState.running) return;
+      swtTimerState.running=true; $('#swtStart').disabled=true; $('#swtPause').disabled=false;
+      swtTimerState._int=setInterval(()=>{
+        swtTimerState.elapsed++; updateSwtClock();
+        if(swtTimerState.elapsed>=600){ clearInterval(swtTimerState._int); swtTimerState.running=false; toast('⏰ 10분 종료!'); }
+      },1000);
+    };
+    $('#swtPause').onclick=()=>{ clearInterval(swtTimerState._int); swtTimerState.running=false; $('#swtStart').disabled=false; $('#swtPause').disabled=true; };
+    $('#swtReset').onclick=()=>{ clearInterval(swtTimerState._int); swtTimerState={elapsed:0,running:false,_int:null}; $('#swtStart').disabled=false; $('#swtPause').disabled=true; updateSwtClock(); };
+    $('#swtCheck').onclick=()=>{
+      const t=$('#swtDraft').value.trim();
+      const words=t.split(/\s+/).filter(Boolean).length;
+      const periods=(t.match(/\./g)||[]).length;
+      const endsWithPeriod=/\.\s*$/.test(t);
+      const midPeriod=/\.\s*\S/.test(t.replace(/\.\s*$/,''));
+      const startsUpper=/^[A-Z]/.test(t);
+      const oneSentence=periods===1 && endsWithPeriod;
+      const items=[
+        {label:'문장이 하나 (마침표 1개, 맨 끝에만)', pass:oneSentence},
+        {label:`35-55 단어 (현재 ${words}단어, 공식 허용 5-75)`, pass:words>=35&&words<=55},
+        {label:'첫 글자 대문자', pass:startsUpper},
+        {label:'중간에 마침표 없음', pass:!midPeriod}
+      ];
+      $('#swtCheckResult').innerHTML=`<div class="checklist">${items.map(it=>`<div class="checkitem ${it.pass?'pass':'fail'}">${it.pass?'✅':'❌'} ${it.label}</div>`).join('')}</div>`;
+    };
+  }
+
+  buildWeekSel(); buildRangeSel(); renderPlan(); buildPool(); render(); syncTabsUI();
 })();
 </script>
 </body>

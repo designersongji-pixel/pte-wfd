@@ -1,0 +1,14 @@
+{
+  "name": "PTE WFD 연습",
+  "short_name": "PTE WFD",
+  "description": "PTE WFD 받아쓰기 · PTE 템플릿 암기 · 토픽뱅크 · SWT 체크",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6fa",
+  "theme_color": "#3b5bfd",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
