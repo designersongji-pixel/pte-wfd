@@ -1012,11 +1012,11 @@
     if(struct.id==='we'){
       if(weEditing){
         stage.innerHTML=`<div class="structSel">${selHtml}</div>${weEditHtml()}`;
-        $('#tplSel').onchange=e=>{tpl.id=e.target.value; weEditing=false; weEditDraft=null; renderTpl();};
+        $('#tplSel').onchange=e=>{tpl.id=e.target.value; weEditing=false; weEditDraft=null; tpl.pmode=structs[tpl.id].writingOnly?'recall':'trace'; renderTpl();};
         wireWEEdit();
       } else {
         stage.innerHTML=`<div class="structSel">${selHtml}</div>${weHtml()}`;
-        $('#tplSel').onchange=e=>{tpl.id=e.target.value; renderTpl();};
+        $('#tplSel').onchange=e=>{tpl.id=e.target.value; tpl.pmode=structs[tpl.id].writingOnly?'recall':'trace'; renderTpl();};
         wireWE();
       }
       return;
@@ -1078,7 +1078,7 @@
         <div class="tipbox"><b>💡 TIP</b><ul>${struct.tips.map(t=>`<li>${t}</li>`).join('')}</ul></div>
       </div>`;
 
-    $('#tplSel').onchange=e=>{tpl.id=e.target.value; tpl.idx=0; renderTpl();};
+    $('#tplSel').onchange=e=>{tpl.id=e.target.value; tpl.idx=0; tpl.pmode=structs[tpl.id].writingOnly?'recall':'trace'; renderTpl();};
     $('#tplScope').value=tpl.scope; $('#tplScope').onchange=e=>{tpl.scope=e.target.value; tpl.idx=0; renderTpl();};
     $('#tplMode').value=tpl.pmode; $('#tplMode').onchange=e=>{tpl.pmode=e.target.value; renderTpl();};
     const optEl=$('#tplOpt'); if(optEl) optEl.onchange=e=>{tpl.includeOpt=e.target.checked; tpl.idx=0; renderTpl();};
@@ -1131,8 +1131,9 @@
     topic:'', benefit:'', bexample:'', problem:'', pexample:'',
     specialType:'', specialText:'',
     introType:'advdis', introText:((PTE_TEMPLATES.structures.we.introGuide||[])[0]||{}).sentence||'',
-    scope:'line', lineIdx:0, wmode:'trace'
+    scope:'line', lineIdx:0, wmode:'recall'
   }, JSON.parse(localStorage.getItem(WE_LSKEY)||'{}'));
+  weState.wmode='recall'; // 라이팅 문제는 정답을 보여주면 안 되므로, 이전에 저장된 값과 상관없이 새로 열 때마다 "안보고 암기테스트"로 시작
   function saveWEState(){ save(WE_LSKEY,weState); }
 
   function weTokenMap(){
