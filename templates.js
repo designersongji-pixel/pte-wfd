@@ -47,17 +47,20 @@ window.PTE_TEMPLATES = {
     sgd: {
       id:'sgd', cat:'SGD', title:'SGD · Summarize Group Discussion', goalSecLabel:'1분 5초 이상',
       lines: [
-        {icon:'🎯', tag:'서론', section:'서론 · Main topic', text:'The group talks about [main topic], and the speakers share different ideas about it.'},
+        {icon:'🎯', tag:'서론', section:'서론 · Main topic', text:'The group talks about [main topic], and the speakers share information about it.'},
         {icon:'🗣️', tag:'Speaker 1', section:'Speaker 1 · 첫 번째 화자', text:'The first speaker talks about [S1 - 들은 내용 1] and also mentions [S1 - 들은 내용 2].'},
+        {icon:'🗣️', tag:'Speaker 1', section:'Speaker 1 · 첫 번째 화자', text:'This speaker also focuses on [S1 - 추가 단어 1] and [S1 - 추가 단어 2].'},
         {icon:'🗣️', tag:'Speaker 1', section:'Speaker 1 · 첫 번째 화자', text:'These points give more information about the main topic.'},
         {icon:'🗣️', tag:'Speaker 2', section:'Speaker 2 · 두 번째 화자', text:'The second speaker talks about [S2 - 들은 내용 1] and also mentions [S2 - 들은 내용 2].'},
+        {icon:'🗣️', tag:'Speaker 2', section:'Speaker 2 · 두 번째 화자', text:'This speaker also focuses on [S2 - 추가 단어 1] and [S2 - 추가 단어 2].'},
         {icon:'🗣️', tag:'Speaker 2', section:'Speaker 2 · 두 번째 화자', text:'This gives more detail to the discussion.'},
         {icon:'🗣️', tag:'Speaker 3', section:'Speaker 3 · 세 번째 화자', text:'The third speaker talks about [S3 - 들은 내용 1] and also mentions [S3 - 들은 내용 2].'},
+        {icon:'🗣️', tag:'Speaker 3', section:'Speaker 3 · 세 번째 화자', text:'This adds more information to the discussion.'},
         {icon:'🗣️', tag:'Speaker 3', section:'Speaker 3 · 세 번째 화자', text:'The speakers focus on different parts of the topic.'},
         {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'Overall, the discussion gives useful information about [main topic].'},
-        {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'To sum up, the speakers share their main points.'}
+        {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'To sum up, these are the main points of the discussion.'}
       ],
-      tips:['3분 듣는 동안 main point/detail 구분하지 말고, 들은 내용을 그때그때 짧게 받아 적기','화자별로 분리해서 적기 (TOPIC 1개 + S1·S2·S3 각 2칸), 한 칸에는 2~5단어만','못 들은 내용은 추측해서 만들지 않기 — 정확히 들은 짧은 내용이 더 안전','10초 준비 시간엔 새 문장 만들지 말고, 적어둔 내용 중 화자별로 2개씩만 골라 바로 시작','고정 템플릿 문장을 천천히 또박또박 말하며 1분 5초 이상 채우기']
+      tips:['3분 듣는 동안 main point/detail 구분하지 말고, 들은 내용을 그때그때 짧게 받아 적기','화자별로 분리해서 적기 (S1·S2·S3), 한 칸에는 2~5단어만 — 여유 있으면 화자당 추가 단어까지 적어두기','못 들은 내용은 추측해서 만들지 않기 — 정확히 들은 짧은 내용이 더 안전','10초 준비 시간엔 새 문장 만들지 말고, 적어둔 내용 중 화자별로 골라 바로 시작','고정 템플릿 문장을 천천히 또박또박 말하며 1분 5초 이상 채우기']
     },
     rts: {
       id:'rts', cat:'RTS', title:'RTS · Respond to Situation', goalSec:40,
