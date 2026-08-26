@@ -45,26 +45,19 @@ window.PTE_TEMPLATES = {
       tips:['들은 순서대로 2~3개 핵심 내용 전달','says / mentions / explains 현재형으로 자연스럽게 연결','못 들었을 경우 핵심 단어만 짧게 묶어 말하기','마지막은 주제를 다시 언급하며 마무리']
     },
     sgd: {
-      id:'sgd', cat:'SGD', title:'SGD · Summarize Group Discussion', goalSecLabel:'1분 10초',
+      id:'sgd', cat:'SGD', title:'SGD · Summarize Group Discussion', goalSecLabel:'1분 5초 이상',
       lines: [
-        {tag:'서론', section:'서론 (Introduction)', text:'The group talked about [main topic].'},
-        {tag:'서론', section:'서론 (Introduction)', text:'Each person had a different idea, and they shared their thoughts during the discussion.'},
-        {tag:'인물 1', section:'인물 1', text:'One person said (주제 문장).'},
-        {tag:'인물 1', section:'인물 1', text:"He/She believed this was a good choice. He/She also said it could help them."},
-        {tag:'선택 표현', section:'인물 1 · 추가 표현 (선택, 남은 단어 많을 때)', optional:true, text:'He/She mentioned (A) and (B).'},
-        {tag:'선택 표현', section:'인물 1 · 추가 표현 (선택, 남은 단어 많을 때)', optional:true, text:'He/She focused (A) and (B).'},
-        {tag:'선택 표현', section:'인물 1 · 추가 표현 (선택, 남은 단어 많을 때)', optional:true, text:'He/She insisted (A) and (B).'},
-        {tag:'선택 표현', section:'인물 1 · 추가 표현 (선택, 남은 단어 많을 때)', optional:true, text:'He/She said (A) and (B).'},
-        {tag:'인물 2', section:'인물 2', text:'Another person preferred a different path.'},
-        {tag:'인물 2', section:'인물 2', text:"He/She talked about 명사, and said he/she enjoyed it because [reason or personal experience]."},
-        {tag:'인물 2', section:'인물 2', text:"He/She didn't care much about 명사 and wanted to do something."},
-        {tag:'인물 3', section:'인물 3', text:'A third person mentioned about 명사.'},
-        {tag:'인물 3', section:'인물 3', text:"He/She said 명사 and felt it was understandable."},
-        {tag:'인물 3', section:'인물 3', text:'However, the others gave some advice.'},
-        {tag:'결론', section:'결론 (Conclusion)', text:"In the end, even though they had different ideas, the group agreed that it's important for them prepare for the future."},
-        {tag:'결론', section:'결론 (Conclusion)', text:'To sum up, as far as I am concerned the most important aspects is that governments should try to improve the quality of 명사 by subsidizing it in order to make our lives better.'}
+        {icon:'🎯', tag:'서론', section:'서론 · Main topic', text:'The group talks about [main topic], and the speakers share different ideas about it.'},
+        {icon:'🗣️', tag:'Speaker 1', section:'Speaker 1 · 첫 번째 화자', text:'The first speaker talks about [S1 - 들은 내용 1] and also mentions [S1 - 들은 내용 2].'},
+        {icon:'🗣️', tag:'Speaker 1', section:'Speaker 1 · 첫 번째 화자', text:'These points give more information about the main topic.'},
+        {icon:'🗣️', tag:'Speaker 2', section:'Speaker 2 · 두 번째 화자', text:'The second speaker talks about [S2 - 들은 내용 1] and also mentions [S2 - 들은 내용 2].'},
+        {icon:'🗣️', tag:'Speaker 2', section:'Speaker 2 · 두 번째 화자', text:'This gives more detail to the discussion.'},
+        {icon:'🗣️', tag:'Speaker 3', section:'Speaker 3 · 세 번째 화자', text:'The third speaker talks about [S3 - 들은 내용 1] and also mentions [S3 - 들은 내용 2].'},
+        {icon:'🗣️', tag:'Speaker 3', section:'Speaker 3 · 세 번째 화자', text:'The speakers focus on different parts of the topic.'},
+        {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'Overall, the discussion gives useful information about [main topic].'},
+        {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'To sum up, the speakers share their main points.'}
       ],
-      tips:['SGD 시작 전 종이에 1,2,3번 적어두기 (한글/문장/구조 다 OK)','1번에 적어둔 단어들 중 주제 문장 하나만 고르기','명사는 메인 토픽과 연결','목표: 1분 10초 넘기지 않기']
+      tips:['3분 듣는 동안 main point/detail 구분하지 말고, 들은 내용을 그때그때 짧게 받아 적기','화자별로 분리해서 적기 (TOPIC 1개 + S1·S2·S3 각 2칸), 한 칸에는 2~5단어만','못 들은 내용은 추측해서 만들지 않기 — 정확히 들은 짧은 내용이 더 안전','10초 준비 시간엔 새 문장 만들지 말고, 적어둔 내용 중 화자별로 2개씩만 골라 바로 시작','고정 템플릿 문장을 천천히 또박또박 말하며 1분 5초 이상 채우기']
     },
     rts: {
       id:'rts', cat:'RTS', title:'RTS · Respond to Situation', goalSec:40,
