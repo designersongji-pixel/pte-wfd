@@ -1000,7 +1000,7 @@
   }
   function tplGradeBlock(target){
     return `<textarea id="tplAns" placeholder="위 문장을 그대로 입력해보세요…" spellcheck="false"></textarea>
-      <div class="btnrow"><button class="btn ghost" id="tplPlay">🔊 읽어주기</button><button class="btn primary" id="tplGrade">채점</button></div>
+      <div class="btnrow"><button class="btn ghost" id="tplPlay">🔊 읽어주기</button><button class="btn primary" id="tplGrade">채점</button><button class="btn ghost" id="tplRetry">↺ 다시 시도</button></div>
       <div id="tplResult"></div>`;
   }
   function renderTpl(){
@@ -1052,7 +1052,7 @@
     } else if(tpl.pmode==='cloze'){
       bodyHtml=`${sectionLabel?`<div class="sectionhead">${sectionLabel}</div>`:''}
         <div class="tplTarget" id="clozeBox">${clozify(targetText)}</div>
-        <div class="btnrow"><button class="btn ghost" id="tplPlay">🔊 읽어주기</button><button class="btn primary" id="tplCheck">채점</button><button class="btn ghost" id="tplFill">정답 채우기</button></div>
+        <div class="btnrow"><button class="btn ghost" id="tplPlay">🔊 읽어주기</button><button class="btn primary" id="tplCheck">채점</button><button class="btn ghost" id="tplFill">정답 채우기</button><button class="btn ghost" id="tplClozeRetry">↺ 다시 시도</button></div>
         <div id="clozeResult"></div>`;
     } else {
       bodyHtml=`${sectionLabel?`<div class="sectionhead">${sectionLabel}</div>`:''}
@@ -1090,6 +1090,10 @@
       const g=grade($('#tplAns').value, {en:targetText});
       $('#tplResult').innerHTML=`<div class="result"><div class="score ${g.perfect?'allok':'miss'}">${g.perfect?'✓ 만점! ':'✗ '}${g.okCount}/${g.total} 단어 일치</div><div class="diff">${g.out.map(w=>`<span class="w-${w.c==='ok'?'ok':w.c==='miss'?'miss':'extra'}">${esc(w.t)}</span>`).join(' ')}</div></div>`;
     };
+    const rty=$('#tplRetry'); if(rty) rty.onclick=()=>{
+      const ta=$('#tplAns'); if(ta){ ta.value=''; ta.focus(); }
+      $('#tplResult').innerHTML='';
+    };
     const chk=$('#tplCheck'); if(chk) chk.onclick=()=>{
       let ok=0, inputs=document.querySelectorAll('#clozeBox .blankInput');
       const norm=v=>v.trim().toLowerCase().replace(/\s+/g,' ');
@@ -1104,6 +1108,10 @@
     };
     const fl=$('#tplFill'); if(fl) fl.onclick=()=>{
       document.querySelectorAll('#clozeBox .blankInput').forEach(inp=>{ inp.value=inp.dataset.ans; inp.classList.add('ok'); inp.classList.remove('bad'); });
+    };
+    const czr=$('#tplClozeRetry'); if(czr) czr.onclick=()=>{
+      document.querySelectorAll('#clozeBox .blankInput').forEach(inp=>{ inp.value=''; inp.classList.remove('ok','bad'); });
+      $('#clozeResult').innerHTML='';
     };
   }
 
@@ -1363,18 +1371,18 @@
         ${legendHtml}
         <div class="tplTarget">${markPlaceholders(esc(text))}</div>
         <textarea id="weAns" placeholder="위 문장을 그대로 입력해보세요…" spellcheck="false"></textarea>
-        <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 읽어주기</button><button class="btn primary" id="weGrade">채점</button></div>
+        <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 읽어주기</button><button class="btn primary" id="weGrade">채점</button><button class="btn ghost" id="weRetry">↺ 다시 시도</button></div>
         <div id="weResult"></div>`;
     } else if(weState.wmode==='cloze'){
       bodyHtml=`${sectionLabel?`<div class="sectionhead">${esc(sectionLabel)}</div>`:''}
         <div class="tplTarget" id="weClozeBox">${clozify(text)}</div>
-        <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 읽어주기</button><button class="btn primary" id="weClozeCheck">채점</button><button class="btn ghost" id="weClozeFill">정답 채우기</button></div>
+        <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 읽어주기</button><button class="btn primary" id="weClozeCheck">채점</button><button class="btn ghost" id="weClozeFill">정답 채우기</button><button class="btn ghost" id="weClozeRetry">↺ 다시 시도</button></div>
         <div id="weClozeResult"></div>`;
     } else {
       bodyHtml=`${sectionLabel?`<div class="sectionhead">${esc(sectionLabel)}</div>`:''}
         <div class="card" style="background:var(--bg);text-align:center;padding:18px;margin-bottom:14px">안 보고 기억나는 대로 입력해보세요.</div>
         <textarea id="weAns" placeholder="기억나는 대로 입력…" spellcheck="false"></textarea>
-        <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 정답 듣기</button><button class="btn primary" id="weGrade">채점</button></div>
+        <div class="btnrow"><button class="btn ghost" id="weStagePlay">🔊 정답 듣기</button><button class="btn primary" id="weGrade">채점</button><button class="btn ghost" id="weRetry">↺ 다시 시도</button></div>
         <div id="weResult"></div>`;
     }
 
@@ -1391,6 +1399,10 @@
       const g=grade($('#weAns').value, {en:text});
       $('#weResult').innerHTML=`<div class="result"><div class="score ${g.perfect?'allok':'miss'}">${g.perfect?'✓ 만점! ':'✗ '}${g.okCount}/${g.total} 단어 일치</div><div class="diff">${g.out.map(w=>`<span class="w-${w.c==='ok'?'ok':w.c==='miss'?'miss':'extra'}">${esc(w.t)}</span>`).join(' ')}</div></div>`;
     };
+    const wrt=$('#weRetry'); if(wrt) wrt.onclick=()=>{
+      const ta=$('#weAns'); if(ta){ ta.value=''; ta.focus(); }
+      $('#weResult').innerHTML='';
+    };
     const chk=$('#weClozeCheck'); if(chk) chk.onclick=()=>{
       let ok=0, inputs=document.querySelectorAll('#weClozeBox .blankInput');
       const norm=v=>v.trim().toLowerCase().replace(/\s+/g,' ');
@@ -1405,6 +1417,10 @@
     };
     const fl=$('#weClozeFill'); if(fl) fl.onclick=()=>{
       document.querySelectorAll('#weClozeBox .blankInput').forEach(inp=>{ inp.value=inp.dataset.ans; inp.classList.add('ok'); inp.classList.remove('bad'); });
+    };
+    const wczr=$('#weClozeRetry'); if(wczr) wczr.onclick=()=>{
+      document.querySelectorAll('#weClozeBox .blankInput').forEach(inp=>{ inp.value=''; inp.classList.remove('ok','bad'); });
+      $('#weClozeResult').innerHTML='';
     };
   }
 
