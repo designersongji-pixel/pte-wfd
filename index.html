@@ -431,17 +431,20 @@
   function scoreVoice(v){
     const n=v.name.toLowerCase();
     let s=0;
-    if(n.includes('google')) s+=5;
-    if(/natural|neural|online|premium|enhanced/.test(n)) s+=6;
+    if(v.localService) s+=10; // 로컬(기기 내장) 음성은 네트워크 문제로 소리가 안 나는 일이 없어 최우선
+    if(n.includes('google')) s+=2;
+    if(/natural|neural|online|premium|enhanced/.test(n)) s+=3;
     if(/samantha|ava|zoe|jenny|aria|zira|susan|karen|moira|tessa|female/.test(n)) s+=3;
     if(v.lang==='en-US') s+=2; else if(v.lang.startsWith('en')) s+=1;
     if(/david|fred|albert|bahh|bad news|bells|boing|bubbles|junior|organ|trinoids|whisper|zarvox|hysterical|compact/.test(n)) s-=8;
     return s;
   }
-  function bestVoice(){
+  function bestVoice(forceLocal){
     if(!ttsVoices.length) return null;
-    if(voiceURI){ const v=ttsVoices.find(x=>x.voiceURI===voiceURI); if(v) return v; }
-    return ttsVoices.slice().sort((a,b)=>scoreVoice(b)-scoreVoice(a))[0];
+    if(voiceURI && !forceLocal){ const v=ttsVoices.find(x=>x.voiceURI===voiceURI); if(v) return v; }
+    const pool=forceLocal ? ttsVoices.filter(v=>v.localService) : ttsVoices;
+    const list=pool.length ? pool : ttsVoices;
+    return list.slice().sort((a,b)=>scoreVoice(b)-scoreVoice(a))[0];
   }
   function buildVoiceSel(){
     const sel=document.getElementById('voiceSel'); if(!sel) return;
@@ -459,13 +462,36 @@
     refreshVoices();
     speechSynthesis.onvoiceschanged=refreshVoices;
   }
+  // Chrome 등에서 "Google ..." 같은 네트워크(원격) 음성은 서버 연결이 안 되면
+  // 에러 없이 그냥 조용히 재생이 안 되는 경우가 있음 — onstart가 일정 시간 안에
+  // 오지 않거나 onerror가 뜨면, 기기에 내장된(local) 음성으로 자동 재시도한다.
+  let ttsCallToken=0;
+  function speakSafe(text, rate){
+    if(!window.speechSynthesis){ toast('이 브라우저는 음성 합성을 지원하지 않아요'); return; }
+    speechSynthesis.cancel();
+    const myToken=++ttsCallToken;
+    let retried=false;
+    function fallback(){
+      const lv=bestVoice(true);
+      if(lv) fire(lv);
+    }
+    function fire(voice){
+      if(myToken!==ttsCallToken) return;
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang='en-US'; u.rate=rate;
+      if(voice) u.voice=voice; else applyVoice(u);
+      let started=false;
+      u.onstart=()=>{ started=true; };
+      u.onerror=()=>{ if(myToken===ttsCallToken && !retried){ retried=true; fallback(); } };
+      speechSynthesis.speak(u);
+      setTimeout(()=>{ if(myToken===ttsCallToken && !started && !retried){ retried=true; fallback(); } }, 700);
+    }
+    fire();
+  }
 
   // ---------- 단어: 발음(TTS는 단어 전용) + 뜻 + IPA + 저장 ----------
   const sayWord=window.sayWord=function(w){
-    if(!window.speechSynthesis) return;
-    speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(w); u.lang='en-US'; u.rate=0.9; applyVoice(u);
-    speechSynthesis.speak(u);
+    speakSafe(w, 0.9);
   };
   async function getIPA(word){
     const k=word.toLowerCase();
@@ -969,16 +995,12 @@
   // ================= PTE 템플릿 / 토픽뱅크 / SWT 체크 =================
   const SPEAKING_ORDER=['di_basic','rl','sgd','rts'];
   function sayText(text){
-    if(!window.speechSynthesis){ toast('이 브라우저는 음성 합성을 지원하지 않아요'); return; }
-    speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text.replace(/\n+/g,'. '));
-    u.lang='en-US'; u.rate=0.92; applyVoice(u);
-    speechSynthesis.speak(u);
+    speakSafe(text.replace(/\n+/g,'. '), 0.92);
   }
   window.sayText=sayText;
 
   // ---------- PTE 템플릿 ----------
-  let tpl={id:'di_basic', scope:'line', pmode:'trace', idx:0, includeOpt:false, autoPlay:true};
+  let tpl={id:'di_basic', scope:'line', pmode:'recall', idx:0, includeOpt:false, autoPlay:true};
   let tplLastAutoKey=null;
   const FILLRE=/\(([^)]*)\)|\[([^\]]*)\]|명사/g;
   // 따라치기 모드: (subject)/[word1,word2]/명사 같은 "직접 채워 넣는 부분"을 색으로 표시만 (고정 문구와 구분)
@@ -1013,11 +1035,11 @@
     if(struct.id==='we'){
       if(weEditing){
         stage.innerHTML=`<div class="structSel">${selHtml}</div>${weEditHtml()}`;
-        $('#tplSel').onchange=e=>{tpl.id=e.target.value; weEditing=false; weEditDraft=null; tpl.pmode=structs[tpl.id].writingOnly?'recall':'trace'; renderTpl();};
+        $('#tplSel').onchange=e=>{tpl.id=e.target.value; weEditing=false; weEditDraft=null; tpl.pmode='recall'; renderTpl();};
         wireWEEdit();
       } else {
         stage.innerHTML=`<div class="structSel">${selHtml}</div>${weHtml()}`;
-        $('#tplSel').onchange=e=>{tpl.id=e.target.value; tpl.pmode=structs[tpl.id].writingOnly?'recall':'trace'; renderTpl();};
+        $('#tplSel').onchange=e=>{tpl.id=e.target.value; tpl.pmode='recall'; renderTpl();};
         wireWE();
       }
       return;
@@ -1080,7 +1102,7 @@
         <div class="tipbox"><b>💡 TIP</b><ul>${struct.tips.map(t=>`<li>${t}</li>`).join('')}</ul></div>
       </div>`;
 
-    $('#tplSel').onchange=e=>{tpl.id=e.target.value; tpl.idx=0; tpl.pmode=structs[tpl.id].writingOnly?'recall':'trace'; renderTpl();};
+    $('#tplSel').onchange=e=>{tpl.id=e.target.value; tpl.idx=0; tpl.pmode='recall'; renderTpl();};
     $('#tplScope').value=tpl.scope; $('#tplScope').onchange=e=>{tpl.scope=e.target.value; tpl.idx=0; renderTpl();};
     $('#tplMode').value=tpl.pmode; $('#tplMode').onchange=e=>{tpl.pmode=e.target.value; renderTpl();};
     const optEl=$('#tplOpt'); if(optEl) optEl.onchange=e=>{tpl.includeOpt=e.target.checked; tpl.idx=0; renderTpl();};
