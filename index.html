@@ -978,7 +978,8 @@
   window.sayText=sayText;
 
   // ---------- PTE 템플릿 ----------
-  let tpl={id:'di_basic', scope:'line', pmode:'trace', idx:0, includeOpt:false};
+  let tpl={id:'di_basic', scope:'line', pmode:'trace', idx:0, includeOpt:false, autoPlay:true};
+  let tplLastAutoKey=null;
   const FILLRE=/\(([^)]*)\)|\[([^\]]*)\]|명사/g;
   // 따라치기 모드: (subject)/[word1,word2]/명사 같은 "직접 채워 넣는 부분"을 색으로 표시만 (고정 문구와 구분)
   function markPlaceholders(escapedText){
@@ -1071,6 +1072,7 @@
             <option value="trace">따라치기</option><option value="cloze">빈칸채우기</option><option value="recall">안보고 암기테스트</option>
           </select></label>
           ${hasOptional?`<label><input type="checkbox" id="tplOpt" ${tpl.includeOpt?'checked':''}> 선택 표현 포함</label>`:''}
+          <label><input type="checkbox" id="tplAutoPlay" ${tpl.autoPlay?'checked':''}> 자동재생</label>
         </div>
         ${stepbarHtml}
         ${bodyHtml}
@@ -1082,10 +1084,14 @@
     $('#tplScope').value=tpl.scope; $('#tplScope').onchange=e=>{tpl.scope=e.target.value; tpl.idx=0; renderTpl();};
     $('#tplMode').value=tpl.pmode; $('#tplMode').onchange=e=>{tpl.pmode=e.target.value; renderTpl();};
     const optEl=$('#tplOpt'); if(optEl) optEl.onchange=e=>{tpl.includeOpt=e.target.checked; tpl.idx=0; renderTpl();};
+    const apEl=$('#tplAutoPlay'); if(apEl) apEl.onchange=e=>{tpl.autoPlay=e.target.checked;};
     document.querySelectorAll('.step').forEach(el=>el.onclick=()=>{tpl.idx=parseInt(el.dataset.i); renderTpl();});
     const pv=$('#tplPrev'); if(pv) pv.onclick=()=>{tpl.idx--; renderTpl();};
     const nx=$('#tplNext'); if(nx) nx.onclick=()=>{tpl.idx++; renderTpl();};
     const play=$('#tplPlay'); if(play) play.onclick=()=>sayText(targetText);
+    // 자동재생: 줄/범위/모드가 실제로 바뀌었을 때 1회만 (체크박스 토글 자체로는 재생 안 함)
+    const tplAutoKey=tpl.id+'|'+tpl.scope+'|'+tpl.pmode+'|'+tpl.idx+'|'+(tpl.includeOpt?1:0);
+    if(tpl.autoPlay && tplAutoKey!==tplLastAutoKey){ tplLastAutoKey=tplAutoKey; sayText(targetText); }
     const gr=$('#tplGrade'); if(gr) gr.onclick=()=>{
       const g=grade($('#tplAns').value, {en:targetText});
       $('#tplResult').innerHTML=`<div class="result"><div class="score ${g.perfect?'allok':'miss'}">${g.perfect?'✓ 만점! ':'✗ '}${g.okCount}/${g.total} 단어 일치</div><div class="diff">${g.out.map(w=>`<span class="w-${w.c==='ok'?'ok':w.c==='miss'?'miss':'extra'}">${esc(w.t)}</span>`).join(' ')}</div></div>`;
@@ -1134,12 +1140,13 @@
   let weEditDraft=null;             // "템플릿 수정" 모드에서만 쓰는 임시 값 (취소하면 버려짐)
   let weEditing=false;
   let weResetArmed=false;
+  let weLastAutoKey=null;
 
   let weState=Object.assign({
     topic:'', benefit:'', bexample:'', problem:'', pexample:'',
     specialType:'', specialText:'',
     introType:'advdis', introText:((PTE_TEMPLATES.structures.we.introGuide||[])[0]||{}).sentence||'',
-    scope:'line', lineIdx:0, wmode:'recall'
+    scope:'line', lineIdx:0, wmode:'recall', autoPlay:true
   }, JSON.parse(localStorage.getItem(WE_LSKEY)||'{}'));
   weState.wmode='recall'; // 라이팅 문제는 정답을 보여주면 안 되므로, 이전에 저장된 값과 상관없이 새로 열 때마다 "안보고 암기테스트"로 시작
   function saveWEState(){ save(WE_LSKEY,weState); }
@@ -1237,6 +1244,7 @@
           <option value="cloze">빈칸채우기</option>
           <option value="recall">안보고 암기테스트</option>
         </select></label>
+        <label><input type="checkbox" id="weAutoPlay" ${weState.autoPlay?'checked':''}> 자동재생</label>
       </div>
       <div id="weStage"></div>
 
@@ -1327,6 +1335,7 @@
     $('#weScope').value=weState.scope; $('#weMode').value=weState.wmode;
     $('#weScope').onchange=e=>{weState.scope=e.target.value; saveWEState(); renderWEStage();};
     $('#weMode').onchange=e=>{weState.wmode=e.target.value; saveWEState(); renderWEStage();};
+    const weApEl=$('#weAutoPlay'); if(weApEl) weApEl.onchange=e=>{weState.autoPlay=e.target.checked; saveWEState();};
     renderWEIntroInput();
     renderWEEssay();
     renderWESpecialInput();
@@ -1395,6 +1404,9 @@
     const nx=$('#weLineNext'); if(nx) nx.onclick=()=>{weState.lineIdx++; saveWEState(); renderWEStage();};
 
     const play=$('#weStagePlay'); if(play) play.onclick=()=>sayText(text);
+    // 자동재생: 줄/범위/모드가 실제로 바뀌었을 때 1회만 (체크박스 토글 자체로는 재생 안 함)
+    const weAutoKey=weState.scope+'|'+weState.lineIdx+'|'+weState.wmode;
+    if(weState.autoPlay && weAutoKey!==weLastAutoKey){ weLastAutoKey=weAutoKey; sayText(text); }
     const gr=$('#weGrade'); if(gr) gr.onclick=()=>{
       const g=grade($('#weAns').value, {en:text});
       $('#weResult').innerHTML=`<div class="result"><div class="score ${g.perfect?'allok':'miss'}">${g.perfect?'✓ 만점! ':'✗ '}${g.okCount}/${g.total} 단어 일치</div><div class="diff">${g.out.map(w=>`<span class="w-${w.c==='ok'?'ok':w.c==='miss'?'miss':'extra'}">${esc(w.t)}</span>`).join(' ')}</div></div>`;
