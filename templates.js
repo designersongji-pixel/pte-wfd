@@ -5,28 +5,28 @@ window.PTE_TEMPLATES = {
     di_basic: {
       id:'di_basic', cat:'DI', title:'DI · 기본 템플릿 (Picture / Diagram)', goalSec:40,
       lines: [
-        {icon:'🎯', tag:'주제', text:'This image gives information about [subject].'},
-        {icon:'⭐', tag:'핵심 2가지', text:'There are key aspects such as [topic 1] and [topic 2].'},
+        {icon:'🎯', tag:'주제', text:'This image gives information about [topic].'},
+        {icon:'👀', tag:'개요', text:'It shows [topic].'},
+        {icon:'⬆️', tag:'위', text:'The top shows [word 1] and [word 2].'},
+        {icon:'🔘', tag:'중간', text:'The middle shows [word 3] and [word 4].'},
+        {icon:'⬅️', tag:'좌', text:'The left side shows [word 5] and [word 6].'},
+        {icon:'➡️', tag:'우', text:'The right side shows [word 7] and [word 8].'},
         {icon:'🎓', tag:'교육적', text:'Furthermore, it is educational.'},
-        {icon:'⬆️', tag:'위', text:'The top shows […].'},
-        {icon:'⬇️', tag:'아래', text:'The bottom shows […].'},
-        {icon:'⬅️', tag:'좌', text:'The left side shows […].'},
-        {icon:'➡️', tag:'우', text:'The right side shows […].'},
-        {icon:'✅', tag:'주제 정리', text:'To sum up, it is useful for understanding [subject].'}
+        {icon:'✅', tag:'주제 정리', text:'To sum up, it is useful for understanding [topic].'}
       ],
-      tips:['[topic 1]/[topic 2]에는 핵심 단어 2개씩 넣기','위 → 아래 → 좌 → 우 순서 꼭 지키기','마지막은 주제를 다시 언급하며 마무리']
+      tips:['[topic]에는 이미지의 핵심 주제를 넣기','위 → 중간 → 좌 → 우 순서로 [word 1]~[word 8]에 핵심 단어 2개씩 채우기','Furthermore, it is educational.은 설명을 다 한 뒤, 마무리 직전에 넣기','마지막은 주제를 다시 언급하며 마무리']
     },
     di_chart: {
       id:'di_chart', cat:'DI', title:'DI · 숫자가 있는 경우 (Chart / Graph)', goalSec:40,
       lines: [
-        {icon:'🎯', tag:'주제', text:'This image gives information about [subject].'},
-        {icon:'⭐', tag:'핵심 2가지', text:'There are key aspects such as [topic 1] and [topic 2].'},
-        {icon:'🎓', tag:'교육적', text:'Furthermore, it is educational.'},
-        {icon:'📊', tag:'최고/최저', text:'The highest value is […] in […], and the lowest value is […] in […].'},
-        {icon:'⬅️', tag:'좌/우', text:'The left side shows […], and the right side shows […].'},
-        {icon:'✅', tag:'주제 정리', text:'To sum up, it is useful for understanding [subject].'}
+        {icon:'🎯', tag:'주제', text:'This image gives information about [topic].'},
+        {icon:'📊', tag:'그래프 소개', text:'This figure shows the highest value and the lowest value.'},
+        {icon:'⬆️', tag:'최고값', text:'The highest value is [number] in [item].'},
+        {icon:'⬇️', tag:'최저값', text:'The lowest value is [number] in [item].'},
+        {icon:'⬅️', tag:'좌측', text:'On the left side, there is [word].'},
+        {icon:'✅', tag:'주제 정리', text:'To sum up, it is useful for understanding [topic].'}
       ],
-      tips:['[topic 1]/[topic 2]에는 핵심 단어 2개씩 넣기','최고/최저값은 수치+단위+항목(연도/국가 등)까지','비교표현은 간단하게: highest / lowest','좌/우로 전체 흐름 한 번 더 설명']
+      tips:['[topic]에는 이미지의 핵심 주제를 넣기','최고값/최저값은 각각 수치([number])+항목([item], 연도·국가 등)으로 두 문장에 나눠 쓰기','왼쪽에 보이는 항목이나 수치를 [word]에 넣기','마지막은 주제를 다시 언급하며 마무리']
     },
     rl: {
       id:'rl', cat:'RL', title:'RL · Repeat Lecture', goalSec:40,
@@ -34,15 +34,15 @@ window.PTE_TEMPLATES = {
         {icon:'🎯', tag:'주제', text:'This lecture gives information about [subject].'},
         {icon:'⭐', tag:'핵심 2가지', text:'There are key aspects such as [word 1] and [word 2].'},
         {icon:'🎓', tag:'교육적', text:'Furthermore, it is educational.'},
-        {icon:'💬', tag:'내용 1', text:'The speaker says that [word 3] and [word 4] are related to the topic.'},
-        {icon:'💬', tag:'내용 2', text:'Also, the speaker mentions that [word 5] and [word 6] are related to the topic.'},
-        {icon:'💬', tag:'내용 3', text:'Lastly, the speaker explains that [word 7] and [word 8] are related to the topic.'},
+        {icon:'💬', tag:'내용 1', text:'The speaker says that [word 3] and [word 4] are important.'},
+        {icon:'💬', tag:'내용 2', text:'Also, the speaker mentions [word 5] and [word 6] in the lecture.'},
+        {icon:'💬', tag:'내용 3', text:'Lastly, the speaker explains [word 7] and [word 8] in more detail.'},
         {icon:'✅', tag:'주제 정리', text:'To sum up, it is useful for understanding [subject].'},
         {icon:'📌', tag:'안 들렸을 때 A', text:'(A) and (B) are very important.', optional:true, section:'못 들었을 경우 (단어 12개 정도 듣기)'},
         {icon:'📌', tag:'안 들렸을 때 B', text:'(C) and (D) are very necessary.', optional:true, section:'못 들었을 경우 (단어 12개 정도 듣기)'},
         {icon:'📌', tag:'안 들렸을 때 C', text:'(E) and (F) are very essential.', optional:true, section:'못 들었을 경우 (단어 12개 정도 듣기)'}
       ],
-      tips:['들은 순서대로 2~3개 핵심 내용 전달','says / mentions / explains 현재형으로 자연스럽게 연결','못 들었을 경우 핵심 단어만 짧게 묶어 말하기','마지막은 주제를 다시 언급하며 마무리']
+      tips:['들은 순서대로 2~3개 핵심 내용 전달','says(~are important) / mentions(~in the lecture) / explains(~in more detail)로 문장마다 다른 마무리 사용','못 들었을 경우 핵심 단어만 짧게 묶어 말하기','마지막은 주제를 다시 언급하며 마무리']
     },
     sgd: {
       id:'sgd', cat:'SGD', title:'SGD · Summarize Group Discussion', goalSecLabel:'1분 5초 이상',
@@ -53,14 +53,13 @@ window.PTE_TEMPLATES = {
         {icon:'🗣️', tag:'Speaker 1', section:'Speaker 1 · 첫 번째 화자', text:'These points give more information about the main topic.'},
         {icon:'🗣️', tag:'Speaker 2', section:'Speaker 2 · 두 번째 화자', text:'The second speaker talks about [S2 - 들은 내용 1] and also mentions [S2 - 들은 내용 2].'},
         {icon:'🗣️', tag:'Speaker 2', section:'Speaker 2 · 두 번째 화자', text:'This speaker also focuses on [S2 - 추가 단어 1] and [S2 - 추가 단어 2].'},
-        {icon:'🗣️', tag:'Speaker 2', section:'Speaker 2 · 두 번째 화자', text:'This gives more detail to the discussion.'},
+        {icon:'🗣️', tag:'Speaker 2', section:'Speaker 2 · 두 번째 화자', text:'These points give more detail to the discussion.'},
         {icon:'🗣️', tag:'Speaker 3', section:'Speaker 3 · 세 번째 화자', text:'The third speaker talks about [S3 - 들은 내용 1] and also mentions [S3 - 들은 내용 2].'},
-        {icon:'🗣️', tag:'Speaker 3', section:'Speaker 3 · 세 번째 화자', text:'This adds more information to the discussion.'},
-        {icon:'🗣️', tag:'Speaker 3', section:'Speaker 3 · 세 번째 화자', text:'The speakers focus on different parts of the topic.'},
-        {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'Overall, the discussion gives useful information about [main topic].'},
-        {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'To sum up, these are the main points of the discussion.'}
+        {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'The speakers focus on different parts of the topic.'},
+        {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'These points explain the main topic in more detail.'},
+        {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'To sum up, the discussion gives useful information about [main topic].'}
       ],
-      tips:['3분 듣는 동안 main point/detail 구분하지 말고, 들은 내용을 그때그때 짧게 받아 적기','화자별로 분리해서 적기 (S1·S2·S3), 한 칸에는 2~5단어만 — 여유 있으면 화자당 추가 단어까지 적어두기','못 들은 내용은 추측해서 만들지 않기 — 정확히 들은 짧은 내용이 더 안전','10초 준비 시간엔 새 문장 만들지 말고, 적어둔 내용 중 화자별로 골라 바로 시작','고정 템플릿 문장을 천천히 또박또박 말하며 1분 5초 이상 채우기']
+      tips:['3분 듣는 동안 main point/detail 구분하지 말고, 들은 내용을 그때그때 짧게 받아 적기','S1·S2는 들은 내용 2개 + 여유 있으면 추가 단어 2개까지, S3는 들은 내용 2개만 적어도 충분','못 들은 내용은 추측해서 만들지 않기 — 정확히 들은 짧은 내용이 더 안전','10초 준비 시간엔 새 문장 만들지 말고, 적어둔 내용 중 화자별로 골라 바로 시작','고정 템플릿 문장을 천천히 또박또박 말하며 1분 5초 이상 채우기']
     },
     rts: {
       id:'rts', cat:'RTS', title:'RTS · Respond to Situation', goalSec:40,
@@ -76,24 +75,27 @@ window.PTE_TEMPLATES = {
     rts_min: {
       id:'rts_min', cat:'RTS', title:'RTS · 최소 방어 전략 (Backup)', goalSec:40,
       lines: [
-        {icon:'🛟', tag:'최소 방어 문장', text:'Hi, how are you? I think this situation about [핵심문장] is very important, so I will talk to you to solve the problem.'}
+        {icon:'👋', tag:'인사', text:'Hi, how are you?'},
+        {icon:'🗣️', tag:'상황 요약', text:'I think this situation about [핵심내용 1] and [핵심내용 2] is very important, so I will talk to you about it.'},
+        {icon:'✅', tag:'마무리', text:'I think we should work together to solve the problem because I want to help you.'}
       ],
-      tips:['기본 RTS 템플릿이 항상 우선 — 이건 상황을 전혀 이해 못했을 때만 쓰는 최후의 안전 문장','[핵심문장] 자리에는 들린 단어를 최대한 그대로 넣기 — 완벽한 문장이 아니어도 됨','침묵보다 이 한 문장이라도 말하는 게 유창성 점수에 훨씬 유리함','시간이 남으면 이 문장 뒤에 아는 만큼 더 덧붙이기']
+      tips:['기본 RTS 템플릿이 항상 우선 — 이건 상황을 전혀 이해 못했을 때만 쓰는 최후의 안전 문장','[핵심내용 1]/[핵심내용 2] 자리에는 들린 단어를 최대한 그대로 넣기 — 완벽한 문장이 아니어도 됨','침묵보다 이 세 문장이라도 말하는 게 유창성 점수에 훨씬 유리함','시간이 남으면 마지막 문장 뒤에 아는 만큼 더 덧붙이기']
     },
     sst: {
-      id:'sst', cat:'SST', title:'SST · Summarize Spoken Text', writingOnly:true, charRange:[50,70],
+      id:'sst', cat:'SST', title:'SST · Summarize Spoken Text', writingOnly:true, charRange:[50,70], goalSecLabel:'50-65 단어',
       lines: [
         {icon:'🎯', tag:'주제', text:'This lecture gives information about [subject].'},
         {icon:'⭐', tag:'핵심 2가지', text:'There are key aspects such as [word 1] and [word 2].'},
         {icon:'💬', tag:'내용 1', text:'Furthermore, it mentions [word 3] and [word 4].'},
-        {icon:'💬', tag:'내용 2', text:'The speaker says that [word 5] and [word 6] are related to the topic.'},
-        {icon:'💬', tag:'내용 3', text:'He/She mentions that [word 7] and [word 8] are related to the topic.'},
+        {icon:'💬', tag:'내용 2', text:'The speaker talks about [word 5] and [word 6].'},
+        {icon:'💬', tag:'내용 3', text:'The speaker also mentions [word 7] and [word 8].'},
+        {icon:'📝', tag:'내용 정리', text:'These points give more information about the main topic of the lecture.'},
         {icon:'✅', tag:'주제 정리', text:'To sum up, it is useful for understanding [subject].'},
         {icon:'📌', tag:'안 들렸을 때 A', text:'(A) and (B) are very important.', optional:true, section:'못 들었을 경우 (단어 12개 정도 듣기)'},
         {icon:'📌', tag:'안 들렸을 때 B', text:'(C) and (D) are very necessary.', optional:true, section:'못 들었을 경우 (단어 12개 정도 듣기)'},
         {icon:'📌', tag:'안 들렸을 때 C', text:'(E) and (F) are very essential.', optional:true, section:'못 들었을 경우 (단어 12개 정도 듣기)'}
       ],
-      tips:['이 6문장은 듣기·암기용 연습 구조 — 실제 SST 답안은 이 내용을 압축해 50~70자 내외의 "한 문장"으로 작성','예: 핵심 단어만 골라 that/and/while 등으로 이어 붙여 한 문장으로 압축','직접 타이핑해야 하는 라이팅 문제(스피킹 아님)','못 들었을 경우 핵심 단어만 짧게 묶어 말하기']
+      tips:['이 7문장은 듣기·암기용 연습 구조 — 실제 SST 답안은 이 내용을 압축해 "한 문장"으로 작성','예: 핵심 단어만 골라 that/and/while 등으로 이어 붙여 한 문장으로 압축','직접 타이핑해야 하는 라이팅 문제(스피킹 아님)','못 들었을 경우 핵심 단어만 짧게 묶어 말하기']
     },
     we: {
       id:'we', cat:'WE', title:'WE · Write Essay', writingOnly:true,
