@@ -105,6 +105,39 @@
   .browse-item .bi-badge{font-size:11px;border-radius:6px;padding:2px 7px;margin-left:6px;vertical-align:middle}
   .b-wrong{background:var(--bad-soft);color:var(--bad)}
   .b-done{background:var(--ok-soft);color:var(--ok)}
+  .b-conf{background:var(--warn-soft);color:var(--warn);font-weight:700}
+  .gold{font-size:10.5px;color:var(--sub);font-weight:600}
+  /* 그룹정리 */
+  .ghint{font-size:13px;color:var(--sub);line-height:1.7;margin:2px 0 12px}
+  .ghint b{color:var(--warn)}
+  .gbar select{max-width:190px}
+  .gset{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px 16px 12px;margin-bottom:14px}
+  .gset-h{display:flex;align-items:center;gap:8px;padding:11px 0 8px;border-bottom:1px dashed var(--line);margin-bottom:6px}
+  .gset-n{font-weight:800;font-size:13px;color:var(--accent)}
+  .gset-c,.gset-s{font-size:11.5px;color:var(--sub)}
+  .gset-s{margin-left:auto}
+  .grow{padding:10px 0;border-bottom:1px solid var(--line)}
+  .grow:last-child{border-bottom:0;padding-bottom:2px}
+  .grow .bi-top{display:flex;gap:10px;align-items:flex-start}
+  .grow .bi-num{font-size:12px;color:var(--sub);font-weight:700;padding-top:8px;min-width:38px}
+  .grow .bi-en{font-size:15.5px;font-weight:600;line-height:1.6;flex:1;padding-top:5px}
+  .grow .bi-ko{font-size:13.5px;color:var(--sub);margin-top:5px;padding-left:48px}
+  .grow .bi-badge{font-size:11px;border-radius:6px;padding:2px 7px;margin-left:6px;vertical-align:middle}
+  .grow .gprac{margin-left:8px;padding:3px 9px;font-size:11.5px}
+  .gdiff{background:var(--warn-soft);color:var(--warn);border-radius:5px;padding:1px 4px;font-weight:800}
+  .gwk{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+  .tchips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+  .tchip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:12.5px;cursor:pointer;color:var(--ink)}
+  .tchip:hover{border-color:var(--accent);color:var(--accent)}
+  .tchip b{color:var(--accent);margin-left:2px}
+  .gtopic{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden}
+  .gtopic-h{display:flex;align-items:center;gap:9px;width:100%;background:none;border:0;padding:14px 16px;cursor:pointer;text-align:left;color:var(--ink);font-family:inherit}
+  .gtopic-h:hover{background:var(--warn-soft)}
+  .gt-em{font-size:17px}
+  .gt-lb{font-weight:800;font-size:14.5px}
+  .gt-ar{margin-left:auto;color:var(--sub)}
+  .gtopic-b{padding:0 16px 10px}
+  @media(max-width:640px){ .grow .bi-ko{padding-left:0} .gset{padding:6px 12px 10px} .gtopic-b{padding:0 12px 8px} }
   /* 단어장 */
   .word-item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
   .word-item .wi-word{font-weight:800;font-size:16px;color:var(--accent);min-width:120px;cursor:pointer}
@@ -274,6 +307,7 @@
     <button class="tab" data-mode="flash">학습카드</button>
     <button class="tab" data-mode="review">오답복습</button>
     <button class="tab" data-mode="browse">전체보기</button>
+    <button class="tab" data-mode="groups">그룹정리</button>
   </nav>
   <div class="plan" id="planBox"></div>
   <div class="stat" id="statBoxes"></div>
@@ -288,12 +322,14 @@
   <p class="foot" id="footTip">단축키: <kbd>Enter</kbd> 제출 → 한 번 더 <kbd>Enter</kbd> 다음 · <kbd>←</kbd><kbd>→</kbd> 이전/다음 문제 · <kbd>Ctrl</kbd>+<kbd>K</kbd> 검색 · 단어 클릭 = 뜻/발음 · 문제 오류는 "오류 신고"로</p>
 </main>
 <div id="toast"></div>
-<script src="data.js?v=2"></script>
+<script src="data.js?v=3"></script>
+<script src="audio_index.js?v=3"></script>
+<script src="groups.js?v=3"></script>
 <script src="words.js?v=2"></script>
 <script src="templates.js?v=2"></script>
 <script>
 (function(){
-  const D = window.WFD_DATA;
+  const D = window.WFD_DATA, WFD_DATA = window.WFD_DATA;
   if(!D || !D.weeks){ document.getElementById('stage').innerHTML='<div class="card empty">data.js를 찾을 수 없습니다.</div>'; return; }
 
   // ---------- 상태/저장 ----------
@@ -417,13 +453,23 @@
     if(audio){audio.pause();audio.currentTime=0;}
     if(window.speechSynthesis) speechSynthesis.cancel();
   }
+  // 음성 파일은 문장 "내용" 기준으로 찾습니다.
+  // (주차마다 문항 번호가 바뀌기 때문에 번호로만 찾으면 다른 문장 음성이 재생돼요)
+  function audioFileNo(s){
+    const key=(s.en||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
+    const hit=window.WFD_AUDIO_INDEX && window.WFD_AUDIO_INDEX[key];
+    return hit || null;
+  }
   function playAudio(s){
     stopAll();
-    audio=new Audio('audio/'+String(s.n).padStart(3,'0')+'.mp3');
+    const no=audioFileNo(s);
+    if(!no){ toast('⚠️ 이 문장은 아직 음성 파일이 없어요 (#'+s.n+')'); return; }
+    audio=new Audio('audio/'+String(no).padStart(3,'0')+'.mp3');
     audio.playbackRate=speed;
     audio.onerror=()=>toast('⚠️ 이 문장은 음성 파일이 없어요 (#'+s.n+')');
     audio.play().catch(()=>{}); // 자동재생 차단 등은 조용히 무시 — 합성음 대체 없음
   }
+  window.hasAudio=s=>!!audioFileNo(s);
 
   // ---------- TTS 목소리 선택 (기본 목소리가 어색하면 여기서 바꿀 수 있음) ----------
   let ttsVoices=[];
@@ -633,7 +679,7 @@
   function render(){
     statHtml();
     const practice = mode==='wfd'||mode==='flash'||mode==='review';
-    document.querySelector('#planBox').style.display=(mode==='words'||mode==='wordquiz'||mode==='tpl'||mode==='bank'||mode==='swt')?'none':'flex';
+    document.querySelector('#planBox').style.display=(mode==='words'||mode==='wordquiz'||mode==='tpl'||mode==='bank'||mode==='swt'||mode==='groups')?'none':'flex';
     $('#ctrlBar').style.display=practice?'flex':'none';
     $('#progWrap').style.display=practice?'block':'none';
     if(!practice){ renderPage(); return; }
@@ -717,6 +763,124 @@
     statHtml();
   }
 
+  // ---------- 그룹정리 (주제별 / 비슷한 문장) ----------
+  // WFD는 같은 틀에서 단어만 바꾼 문장이 자주 나와서, 헷갈리는 짝을 한자리에서 비교하는 게 핵심입니다.
+  const gState={ view:'sim', th:0.33, scope:'week', q:'', closed:{} };
+  const TH_LABEL={0.42:'엄격하게', 0.33:'보통', 0.28:'넓게'};
+  let gItems=[];   // 현재 화면에 그려진 문장들 (버튼에서 인덱스로 참조)
+
+  function groupSource(){
+    if(gState.scope==='week') return sentences().map(s=>({...s, wk:week}));
+    const seen={}, out=[];
+    for(const wk of Object.keys(WFD_DATA.weeks)){
+      for(const s of WFD_DATA.weeks[wk].sentences){
+        const k=s.en.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
+        if(seen[k]){ if(!seen[k].wks.includes(wk)) seen[k].wks.push(wk); continue; }
+        seen[k]={...s, wk, wks:[wk]}; out.push(seen[k]);
+      }
+    }
+    return out;
+  }
+  function gFilter(list){
+    const q=gState.q.trim().toLowerCase();
+    if(!q) return list;
+    return list.filter(s=>s.en.toLowerCase().includes(q)||s.ko.includes(gState.q.trim())||String(s.n).includes(q));
+  }
+  const wkShort=w=>String(w).replace(/^\d{4}-W/,'W');
+
+  // 문장 출력 — diff에 들어있는 단어는 노란색으로 강조
+  function gWords(text,n,diff){
+    return text.split(/\s+/).map(w=>{
+      const bare=w.toLowerCase().replace(/[^a-z']/g,'');
+      const on=diff&&diff.has(bare)?' gdiff':'';
+      return `<span class="wclick${on}" onclick="wordInfo(event,'${wArg(w)}',${n})">${w}</span>`;
+    }).join(' ');
+  }
+  let gConfusable=new Set();   // 혼동 세트에 속한 문장 (주제별 보기에서 ⚠️ 표시)
+  function gRow(s,i,diff){
+    // 전체 주차 보기에서는 번호가 주차마다 다르므로, 이번 주차에 있는 문장이면 이번 주차 번호로 보여줍니다.
+    const cur=gState.scope==='week'?s:sentences().find(x=>x.en===s.en);
+    const num=cur?cur.n:s.n;
+    let badge=cur?(isWrongItem(cur)?'<span class="bi-badge b-wrong">복습 필요</span>':(isDone(cur)?'<span class="bi-badge b-done">암기 완료</span>':'')):'';
+    if(gState.view==='topic'&&gConfusable.has(s.en)) badge+='<span class="bi-badge b-conf">⚠️ 헷갈리는 짝 있음</span>';
+    const wkTag=gState.scope==='all'?`<span class="gwk" title="이 문장이 나온 주차">${s.wks.map(wkShort).join('·')}</span>`:'';
+    return `<div class="grow">
+      <div class="bi-top">
+        <button class="playbtn small" onclick="gPlay(event,${i})" title="듣기">▶</button>
+        <span class="bi-num">${cur?'#'+String(num).padStart(3,'0'):'<span class="gold">지난주차</span>'}</span>
+        <div class="bi-en">${gWords(s.en,num,diff)}${badge}${wkTag}
+          ${cur?`<button class="btn ghost sm gprac" onclick="event.stopPropagation();jumpTo(${num})">연습하기</button>`:''}</div>
+      </div>
+      <div class="bi-ko">${s.ko}</div>
+    </div>`;
+  }
+  window.gPlay=function(ev,i){ ev&&ev.stopPropagation(); const s=gItems[i]; if(s) playAudio(s); };
+
+  function renderGroups(){
+    const stage=$('#stage');
+    const G=window.WFD_GROUPS;
+    const src=gFilter(groupSource());
+    gItems=[];
+    const push=s=>{ gItems.push(s); return gItems.length-1; };
+
+    const bar=`<div class="bar gbar">
+        <label>보기
+          <select id="gView">
+            <option value="sim" ${gState.view==='sim'?'selected':''}>비슷한 문장 묶어보기</option>
+            <option value="topic" ${gState.view==='topic'?'selected':''}>주제별로 보기</option>
+          </select>
+        </label>
+        ${gState.view==='sim'?`<label>묶는 기준
+          <select id="gTh">${[0.42,0.33,0.28].map(v=>`<option value="${v}" ${gState.th===v?'selected':''}>${TH_LABEL[v]}</option>`).join('')}</select>
+        </label>`:''}
+        <label>범위
+          <select id="gScope">
+            <option value="week" ${gState.scope==='week'?'selected':''}>이번 주차만</option>
+            <option value="all" ${gState.scope==='all'?'selected':''}>전체 주차 합쳐서</option>
+          </select>
+        </label>
+        <input type="text" id="gq" placeholder="검색 (영어/한글/번호)…" value="${esc(gState.q)}" style="flex:1;min-width:160px">
+      </div>`;
+
+    let body='';
+    if(gState.view==='sim'){
+      const groups=G.similarGroups(src,gState.th);
+      const inGroup=groups.reduce((a,g)=>a+g.items.length,0);
+      body=`<p class="ghint">틀 하나에 단어만 바꿔 출제되는 문장들이에요. <b>노란색으로 표시된 단어</b>가 서로 다른 부분이니, 그 자리만 집중해서 들으세요.</p>
+        <div class="bar"><span class="chip"><b>${groups.length}</b>세트 · 문장 ${inGroup}개 ${gState.scope==='all'?'(전체 주차)':''}</span></div>`;
+      if(!groups.length) body+='<div class="card empty">이 조건에서는 비슷한 문장이 없어요. "묶는 기준"을 넓게로 바꿔보세요.</div>';
+      body+=groups.map((g,gi)=>`<div class="gset">
+          <div class="gset-h"><span class="gset-n">세트 ${gi+1}</span><span class="gset-c">${g.items.length}문장</span>
+            <span class="gset-s">닮은 정도 ${Math.round(Math.min(g.sim,1)*100)}%</span></div>
+          ${g.items.map((s,k)=>gRow(s,push(s),g.diffs[k])).join('')}
+        </div>`).join('');
+    } else {
+      const topics=G.byTopic(src);
+      gConfusable=new Set();
+      G.similarGroups(src,0.33).forEach(g=>g.items.forEach(x=>gConfusable.add(x.en)));
+      body=`<p class="ghint">주제가 같으면 쓰이는 단어도 겹칩니다. 한 덩어리씩 몰아서 연습하면 받아쓸 때 단어가 훨씬 빨리 떠올라요. <b>⚠️ 표시</b>가 붙은 문장은 거의 똑같은 짝이 따로 있으니 "비슷한 문장 묶어보기"에서 꼭 비교해 보세요.</p>
+        <div class="tchips">${topics.map(t=>`<button class="tchip" data-go="${t.id}">${t.emoji} ${t.label} <b>${t.items.length}</b></button>`).join('')}</div>`;
+      body+=topics.map(t=>{
+        const open=!gState.closed[t.id];
+        return `<div class="gtopic" id="gt-${t.id}">
+          <button class="gtopic-h" data-toggle="${t.id}"><span class="gt-em">${t.emoji}</span><span class="gt-lb">${t.label}</span><span class="chip">${t.items.length}</span><span class="gt-ar">${open?'▾':'▸'}</span></button>
+          <div class="gtopic-b" style="display:${open?'block':'none'}">${t.items.map(s=>gRow(s,push(s),null)).join('')}</div>
+        </div>`;
+      }).join('');
+    }
+
+    stage.innerHTML=bar+body;
+    const v=$('#gView'); if(v) v.onchange=e=>{ gState.view=e.target.value; renderGroups(); };
+    const th=$('#gTh'); if(th) th.onchange=e=>{ gState.th=parseFloat(e.target.value); renderGroups(); };
+    const sc=$('#gScope'); if(sc) sc.onchange=e=>{ gState.scope=e.target.value; renderGroups(); };
+    const q=$('#gq'); if(q) q.oninput=()=>{ gState.q=q.value; clearTimeout(window.__gt); window.__gt=setTimeout(()=>{ renderGroups(); const n=$('#gq'); n.focus(); n.setSelectionRange(n.value.length,n.value.length); },250); };
+    stage.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{ const id=b.dataset.toggle; gState.closed[id]=!gState.closed[id]; renderGroups(); });
+    stage.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{
+      const id=b.dataset.go; gState.closed[id]=false; renderGroups();
+      const el=document.getElementById('gt-'+id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }
+
   // ---------- 전체보기 / 단어장 페이지 ----------
   function renderPage(){
     const stage=$('#stage');
@@ -740,6 +904,8 @@
           </div>`;}).join('')}</div>`;
       const si=$('#bSearch');
       si.oninput=()=>{ window.__bq=si.value; clearTimeout(window.__bt); window.__bt=setTimeout(()=>{renderPage(); const s2=$('#bSearch'); s2.focus(); s2.setSelectionRange(s2.value.length,s2.value.length);},250); };
+    } else if(mode==='groups'){
+      renderGroups();
     } else if(mode==='words'){
       const entries=Object.entries(savedWords).sort((a,b)=>b[1].at-a[1].at);
       if(!entries.length){ stage.innerHTML='<div class="card empty">저장한 단어가 없어요.<br>문장 속 단어를 클릭한 뒤 "⭐ 내 단어장에 저장"을 눌러보세요.</div>'; return; }
@@ -880,7 +1046,7 @@
 
   // ---------- 이벤트 ----------
   let lastWfdMode='wfd';
-  const WFD_FAMILY=['wfd','flash','review','browse'];
+  const WFD_FAMILY=['wfd','flash','review','browse','groups'];
   function topOf(m){ return WFD_FAMILY.includes(m)?'wfd':m; }
   function syncTabsUI(){
     const top=topOf(mode);
