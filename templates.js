@@ -57,7 +57,7 @@ window.PTE_TEMPLATES = {
         {icon:'🗣️', tag:'Speaker 3', section:'Speaker 3 · 세 번째 화자', text:'The third speaker talks about [S3 - 들은 내용 1] and also mentions [S3 - 들은 내용 2].'},
         {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'The speakers focus on different parts of the topic.'},
         {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'These points explain the main topic in more detail.'},
-        {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'To sum up, the discussion gives useful information about [main topic].'}
+        {icon:'✅', tag:'결론', section:'결론 · 전체 정리', text:'To sum up, it is useful information about [main topic].'}
       ],
       tips:['3분 듣는 동안 main point/detail 구분하지 말고, 들은 내용을 그때그때 짧게 받아 적기','S1·S2는 들은 내용 2개 + 여유 있으면 추가 단어 2개까지, S3는 들은 내용 2개만 적어도 충분','못 들은 내용은 추측해서 만들지 않기 — 정확히 들은 짧은 내용이 더 안전','10초 준비 시간엔 새 문장 만들지 말고, 적어둔 내용 중 화자별로 골라 바로 시작','고정 템플릿 문장을 천천히 또박또박 말하며 1분 5초 이상 채우기']
     },
