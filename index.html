@@ -105,7 +105,17 @@
   .browse-item .bi-badge{font-size:11px;border-radius:6px;padding:2px 7px;margin-left:6px;vertical-align:middle}
   .b-wrong{background:var(--bad-soft);color:var(--bad)}
   .b-done{background:var(--ok-soft);color:var(--ok)}
-  .b-conf{background:var(--warn-soft);color:var(--warn);font-weight:700}
+  .b-conf{background:var(--warn-soft);color:var(--warn);font-weight:700;border:1px solid #f0dcb4;cursor:pointer;font-family:inherit;font-size:11px;padding:2px 8px;border-radius:6px}
+  .b-conf:hover{background:#fbe9c8}
+  .b-me{background:var(--accent-soft);color:var(--accent);font-weight:700}
+  .gpair{margin:8px 0 2px 48px;border-left:2px solid var(--warn);background:var(--warn-soft);border-radius:0 8px 8px 0;padding:8px 12px}
+  .gpair-h{font-size:11.5px;color:var(--warn);font-weight:700;margin-bottom:4px}
+  .gpair-row{padding:5px 0}
+  .gpair-row+.gpair-row{border-top:1px dashed #ecd9b0}
+  .gpair-row.me .bi-en,.gpair-row.me .bi-ko{color:var(--sub)}
+  .gpair-row .bi-en{font-size:14.5px}
+  .gpair-row .bi-ko{padding-left:48px;margin-top:2px}
+  @media(max-width:640px){ .gpair{margin-left:0} .gpair-row .bi-ko{padding-left:0} }
   .gold{font-size:10.5px;color:var(--sub);font-weight:600}
   /* 그룹정리 */
   .ghint{font-size:13px;color:var(--sub);line-height:1.7;margin:2px 0 12px}
@@ -796,13 +806,19 @@
       return `<span class="wclick${on}" onclick="wordInfo(event,'${wArg(w)}',${n})">${w}</span>`;
     }).join(' ');
   }
-  let gConfusable=new Set();   // 혼동 세트에 속한 문장 (주제별 보기에서 ⚠️ 표시)
+  let gPairOf={};   // 문장(en) → 그 문장이 속한 혼동 세트 (주제별 보기에서 ⚠️ 짝 표시용)
+  // 이번 주차 기준 번호. 지난 주차에만 있는 문장이면 null
+  function gCur(s){ return gState.scope==='week'?s:sentences().find(x=>x.en===s.en); }
+  function gNum(s){ const c=gCur(s); return c?c.n:s.n; }
   function gRow(s,i,diff){
     // 전체 주차 보기에서는 번호가 주차마다 다르므로, 이번 주차에 있는 문장이면 이번 주차 번호로 보여줍니다.
-    const cur=gState.scope==='week'?s:sentences().find(x=>x.en===s.en);
-    const num=cur?cur.n:s.n;
+    const cur=gCur(s), num=gNum(s);
     let badge=cur?(isWrongItem(cur)?'<span class="bi-badge b-wrong">복습 필요</span>':(isDone(cur)?'<span class="bi-badge b-done">암기 완료</span>':'')):'';
-    if(gState.view==='topic'&&gConfusable.has(s.en)) badge+='<span class="bi-badge b-conf">⚠️ 헷갈리는 짝 있음</span>';
+    const grp=gState.view==='topic'?gPairOf[s.en]:null;
+    if(grp){
+      const nums=grp.items.filter(x=>x.en!==s.en).map(x=>'#'+String(gNum(x)).padStart(3,'0')).join(', ');
+      badge+=`<button class="bi-badge b-conf" onclick="gTogglePair(event,${i})" title="눌러서 나란히 비교하기">⚠️ 헷갈리는 짝 ${nums} ▾</button>`;
+    }
     const wkTag=gState.scope==='all'?`<span class="gwk" title="이 문장이 나온 주차">${s.wks.map(wkShort).join('·')}</span>`:'';
     return `<div class="grow">
       <div class="bi-top">
@@ -812,9 +828,36 @@
           ${cur?`<button class="btn ghost sm gprac" onclick="event.stopPropagation();jumpTo(${num})">연습하기</button>`:''}</div>
       </div>
       <div class="bi-ko">${s.ko}</div>
+      ${grp?'<div class="gpair" style="display:none"></div>':''}
     </div>`;
   }
   window.gPlay=function(ev,i){ ev&&ev.stopPropagation(); const s=gItems[i]; if(s) playAudio(s); };
+
+  // ⚠️ 배지를 누르면 짝이 되는 문장을 바로 아래에 펼쳐서 나란히 보여줍니다.
+  window.gTogglePair=function(ev,i){
+    ev.stopPropagation();
+    const btn=ev.currentTarget, row=btn.closest('.grow'), box=row&&row.querySelector('.gpair');
+    const s=gItems[i], grp=s&&gPairOf[s.en];
+    if(!box||!grp) return;
+    const show=box.style.display==='none';
+    box.style.display=show?'block':'none';
+    btn.innerHTML=btn.innerHTML.replace(show?'▾':'▴', show?'▴':'▾');
+    if(!show) return;
+    box.innerHTML='<div class="gpair-h">노란 단어만 다릅니다 — 그 자리만 비교하세요</div>'+
+      grp.items.map((x,k)=>{
+        const cur=gCur(x), num=gNum(x), me=x.en===s.en;
+        gItems.push(x); const gi=gItems.length-1;
+        return `<div class="gpair-row${me?' me':''}">
+          <div class="bi-top">
+            <button class="playbtn small" onclick="gPlay(event,${gi})" title="듣기">▶</button>
+            <span class="bi-num">${cur?'#'+String(num).padStart(3,'0'):'<span class="gold">지난주차</span>'}</span>
+            <div class="bi-en">${gWords(x.en,num,grp.diffs[k])}
+              ${me?'<span class="bi-badge b-me">지금 이 문장</span>':(cur?`<button class="btn ghost sm gprac" onclick="event.stopPropagation();jumpTo(${num})">연습하기</button>`:'')}</div>
+          </div>
+          <div class="bi-ko">${x.ko}</div>
+        </div>`;
+      }).join('');
+  };
 
   function renderGroups(){
     const stage=$('#stage');
@@ -856,9 +899,9 @@
         </div>`).join('');
     } else {
       const topics=G.byTopic(src);
-      gConfusable=new Set();
-      G.similarGroups(src,0.33).forEach(g=>g.items.forEach(x=>gConfusable.add(x.en)));
-      body=`<p class="ghint">주제가 같으면 쓰이는 단어도 겹칩니다. 한 덩어리씩 몰아서 연습하면 받아쓸 때 단어가 훨씬 빨리 떠올라요. <b>⚠️ 표시</b>가 붙은 문장은 거의 똑같은 짝이 따로 있으니 "비슷한 문장 묶어보기"에서 꼭 비교해 보세요.</p>
+      gPairOf={};
+      G.similarGroups(src,0.33).forEach(g=>g.items.forEach(x=>{ gPairOf[x.en]=g; }));
+      body=`<p class="ghint">주제가 같으면 쓰이는 단어도 겹칩니다. 한 덩어리씩 몰아서 연습하면 받아쓸 때 단어가 훨씬 빨리 떠올라요. <b>⚠️ 배지</b>에 적힌 번호가 헷갈리는 짝이고, 배지를 누르면 바로 아래에 나란히 펼쳐집니다.</p>
         <div class="tchips">${topics.map(t=>`<button class="tchip" data-go="${t.id}">${t.emoji} ${t.label} <b>${t.items.length}</b></button>`).join('')}</div>`;
       body+=topics.map(t=>{
         const open=!gState.closed[t.id];
