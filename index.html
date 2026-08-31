@@ -331,6 +331,11 @@
     </span>
     <label>순서 <select id="orderSel"><option value="seq">번호순</option><option value="rand">랜덤</option></select></label>
     <label><input type="checkbox" id="autoPlay" checked> 자동재생</label>
+    <label title="읽어주기: 모든 문장을 브라우저 음성으로 읽어줍니다 / 원어민 녹음: mp3가 있으면 우선 사용">음성
+      <select id="audioSrcSel">
+        <option value="tts">읽어주기(전체)</option>
+        <option value="mp3">원어민 녹음 우선</option>
+      </select></label>
     <span class="chip" id="posChip"></span>
   </div>
   <div class="prog" id="progWrap"><i id="progBar"></i></div>
@@ -534,16 +539,27 @@
     const hit=window.WFD_AUDIO_INDEX && window.WFD_AUDIO_INDEX[key];
     return hit || null;
   }
+  // 음성 소스: 'tts'(문장을 읽어주기, 기본) 또는 'mp3'(원어민 녹음 우선, 없으면 읽어주기)
+  let audioSrc=localStorage.getItem('wfd_audio_src')||'tts';
+  function readAloud(s){
+    speakSafe(s.en, Math.max(0.6, Math.min(1.4, speed*0.95)));
+  }
   function playAudio(s){
     stopAll();
+    if(audioSrc==='tts'){ readAloud(s); return; }
     const no=audioFileNo(s);
-    if(!no){ toast('⚠️ 이 문장은 아직 음성 파일이 없어요 (#'+s.n+')'); return; }
+    if(!no){ readAloud(s); return; }
+    let fellBack=false;
+    const useTTS=()=>{ if(fellBack) return; fellBack=true; readAloud(s); };
     audio=new Audio('audio/'+String(no).padStart(3,'0')+'.mp3');
     audio.playbackRate=speed;
-    audio.onerror=()=>toast('⚠️ 이 문장은 음성 파일이 없어요 (#'+s.n+')');
-    audio.play().catch(()=>{}); // 자동재생 차단 등은 조용히 무시 — 합성음 대체 없음
+    audio.onerror=useTTS;                       // 파일이 없거나 깨졌을 때만 대체
+    audio.play().catch(err=>{
+      if(err && err.name==='NotAllowedError') return;   // 자동재생 차단은 조용히 무시
+      useTTS();
+    });
   }
-  window.hasAudio=s=>!!audioFileNo(s);
+  window.hasAudio=()=>true;   // 읽어주기가 있으므로 모든 문장 재생 가능
 
   // ---------- TTS 목소리 선택 (기본 목소리가 어색하면 여기서 바꿀 수 있음) ----------
   let ttsVoices=[];
@@ -1178,6 +1194,11 @@
   });
   $('#weekSel').onchange=e=>{week=e.target.value;localStorage.setItem('wfd_week',week);buildRangeSel();renderPlan();buildPool();render();};
   $('#voiceSel').onchange=e=>{ voiceURI=e.target.value; localStorage.setItem('wfd_voice_uri',voiceURI); sayText('This is a preview of this voice.'); };
+  if($('#audioSrcSel')){
+    $('#audioSrcSel').value=audioSrc;
+    $('#audioSrcSel').onchange=e=>{ audioSrc=e.target.value; localStorage.setItem('wfd_audio_src',audioSrc); stopAll();
+      toast(audioSrc==='tts'?'모든 문장을 읽어줍니다':'원어민 녹음을 우선 사용합니다'); };
+  }
   $('#rangeSel').onchange=()=>{
     const isCustom=$('#rangeSel').value==='custom';
     const box=$('#customBox');
