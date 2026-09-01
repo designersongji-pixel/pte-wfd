@@ -171,6 +171,14 @@
   .qfeed .c-miss{color:var(--bad);opacity:.45}
   .qanswer{margin-top:10px;font-size:15px;color:var(--sub)}
   .qanswer b{color:var(--ink);font-size:19px}
+  /* 단어 카드 그리드 */
+  .wordgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:10px}
+  .wcell{background:var(--accent-soft);border:1px solid transparent;border-radius:10px;padding:9px 11px;cursor:pointer;transition:border-color .12s}
+  .wcell:hover{border-color:var(--accent)}
+  .wc-en{font-weight:800;color:var(--accent);font-size:14.5px}
+  .wc-spk{font-size:11px;opacity:.6}
+  .wc-ko{font-size:12.5px;margin-top:2px}
+  .wc-kr{font-size:11px;color:var(--sub);margin-top:1px}
   /* 홈 화면 */
   .homegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:6px}
   .homecard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s}
@@ -315,7 +323,7 @@
     <button class="tab" data-top="home">🏠 홈</button>
     <button class="tab on" data-top="wfd">WFD</button>
     <button class="tab" data-top="sst">SST 단어</button>
-    <button class="tab" data-top="lfib">LFIB 빈칸</button>
+    <button class="tab" data-top="lfib">LFIB 단어</button>
     <button class="tab" data-top="tpl">PTE 템플릿</button>
     <button class="tab" data-top="bank">토픽뱅크</button>
     <button class="tab" data-top="swt">SWT 체크</button>
@@ -342,7 +350,7 @@
       <button class="btn primary sm" onclick="applyCustomRange()">적용</button>
     </span>
     <label>순서 <select id="orderSel"><option value="seq">번호순</option><option value="rand">랜덤</option></select></label>
-    <label><input type="checkbox" id="autoPlay" checked> 자동재생</label>
+    <label><input type="checkbox" id="autoPlay"> 자동재생</label>
     <label title="읽어주기: 모든 문장을 브라우저 음성으로 읽어줍니다 / 원어민 녹음: mp3가 있으면 우선 사용">음성
       <select id="audioSrcSel">
         <option value="tts">읽어주기(전체)</option>
@@ -361,8 +369,8 @@
 <script src="words.js?v=2"></script>
 <script src="templates.js?v=2"></script>
 <script src="sst.js?v=1"></script>
-<script src="lfib.js?v=1"></script>
-<script src="parts.js?v=1"></script>
+<script src="lfib.js?v=2"></script>
+<script src="parts.js?v=3"></script>
 <script>
 (function(){
   const D = window.WFD_DATA, WFD_DATA = window.WFD_DATA;
@@ -603,9 +611,17 @@
     const cur=bestVoice();
     sel.innerHTML=ttsVoices.map(v=>`<option value="${v.voiceURI}" ${cur&&v.voiceURI===cur.voiceURI?'selected':''}>${v.name}${v.lang!=='en-US'?' ('+v.lang+')':''}</option>`).join('');
   }
+  // macOS/Windows의 장난용·기계음 목소리(쉰소리, 로봇 소리)는 목록에서 아예 제외한다
+  const NOVELTY=/albert|bad news|good news|bahh|bells|boing|bubbles|cellos|jester|junior|organ|pipe organ|trinoids|whisper|zarvox|deranged|hysterical|bruce|ralph|kathy|princess|wobble|superstar|grandma|grandpa|rocko|shelley|sandy|flo|eddy|reed|rishi|novelty/i;
   function refreshVoices(){
     if(!window.speechSynthesis) return;
-    ttsVoices=speechSynthesis.getVoices().filter(v=>v.lang && v.lang.toLowerCase().startsWith('en'));
+    const all=speechSynthesis.getVoices().filter(v=>v.lang && v.lang.toLowerCase().startsWith('en'));
+    const good=all.filter(v=>!NOVELTY.test(v.name));
+    ttsVoices = good.length ? good : all;      // 전부 걸러지면 원래 목록 사용
+    // 저장된 목소리가 걸러졌다면 초기화해서 좋은 목소리로 다시 고르게 한다
+    if(voiceURI && !ttsVoices.some(v=>v.voiceURI===voiceURI)){
+      voiceURI=''; try{ localStorage.removeItem('wfd_voice_uri'); }catch(e){}
+    }
     buildVoiceSel();
   }
   function applyVoice(u){ const v=bestVoice(); if(v) u.voice=v; }
@@ -1210,7 +1226,7 @@
       <div class="homegrid">
         ${card('wfd','🎧','WFD 받아쓰기','문장 듣고 받아쓰기 · 주제별/헷갈리는 문장 연습',n+'문장')}
         ${card('sst','📖','SST 단어 타이핑','챕터별 핵심 표현을 뜻 보고 영어로 타이핑',c.sstCh+'챕터 · '+c.sstItems+'표현')}
-        ${card('lfib','✏️','LFIB 빈칸 타이핑','지문 속 빈칸에 들어갈 단어를 타이핑',c.lfibDoc+'지문 · '+c.lfibBlanks+'빈칸')}
+        ${card('lfib','✏️','LFIB 단어 받아쓰기','토픽별 빈칸 정답 단어를 발음 듣고 타이핑',c.lfibDoc+'토픽 · '+c.lfibBlanks+'단어')}
         ${card('tpl','🧩','PTE 템플릿','말하기·쓰기 답변 구조 암기','구조 암기')}
         ${card('bank','🗂️','토픽뱅크','자주 나오는 주제 정리','주제별')}
         ${card('words','⭐','내 단어장','WFD에서 저장한 내 단어',myWords+'개')}
