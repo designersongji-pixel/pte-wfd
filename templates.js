@@ -107,24 +107,24 @@ window.PTE_TEMPLATES = {
         {n:1,  section:'intro',      text:'Nowadays, there are different opinions about [TOPIC].'},
         {n:2,  section:'intro',      text:'This issue is important, and many people have different opinions about it.'},
         {n:3,  section:'intro',      text:'It can affect many people, so we should think about it carefully.'},
-        {n:4,  section:'intro',      text:'[INTRO OPINION]'},
+        {n:4,  section:'intro',      text:'I think that [INTRO OPINION].'},
         {n:5,  section:'benefit',    text:'First of all, there are several benefits.'},
         {n:6,  section:'benefit',    text:'One important benefit is that [BENEFIT].'},
         {n:7,  section:'benefit',    text:"This can make people's lives better and help society."},
-        {n:8,  section:'benefit',    text:'For example, [BENEFIT EXAMPLE].'},
+        {n:8,  section:'benefit',    text:'According to a recent report, [BENEFIT EXAMPLE].'},
         {n:9,  section:'benefit',    text:'This shows that this issue can be useful in real life.'},
         {n:10, section:'benefit',    text:'It can also help many people in different situations.'},
         {n:11, section:'problem',    text:'There are also some cons.'},
         {n:12, section:'problem',    text:'One possible problem is that [PROBLEM].'},
         {n:13, section:'problem',    text:'This problem can become serious and affect many people.'},
-        {n:14, section:'problem',    text:'For example, [PROBLEM EXAMPLE].'},
+        {n:14, section:'problem',    text:'According to a recent report, [PROBLEM EXAMPLE].'},
         {n:15, section:'problem',    text:'This shows that this issue can also cause problems.'},
         {n:16, section:'problem',    text:'So, people should understand the risks and try to reduce them.'},
         {n:17, section:'special',    text:'[SPECIAL SLOT]', optional:true},
         {n:18, section:'conclusion', text:'In conclusion, I believe the pros are greater than the cons.'},
         {n:19, section:'conclusion', text:'There are some problems, but the benefits can still be greater.'},
-        {n:20, section:'conclusion', text:'People should think about both sides before making decisions.'},
-        {n:21, section:'conclusion', text:'These decisions can affect both people and society.'}
+        {n:20, section:'conclusion', text:'People should think about both sides before making decisions.', optional:true},
+        {n:21, section:'conclusion', text:'Therefore, I think that [SAME CORE CLAIM AS #4].'}
       ],
       sections: [
         {key:'intro', num:'①', label:'서론'},
@@ -133,22 +133,22 @@ window.PTE_TEMPLATES = {
         {key:'special', num:'④', label:'특별 요구사항', hint:'문제에서 요구할 때만 사용'},
         {key:'conclusion', num:'⑤', label:'결론'}
       ],
-      placeholders: ['[TOPIC]','[INTRO OPINION]','[BENEFIT]','[BENEFIT EXAMPLE]','[PROBLEM]','[PROBLEM EXAMPLE]'],
+      placeholders: ['[TOPIC]','[INTRO OPINION]','[BENEFIT]','[BENEFIT EXAMPLE]','[PROBLEM]','[PROBLEM EXAMPLE]','[SAME CORE CLAIM AS #4]'],
       // 서론 4번 문장 — 질문 유형에 따라 교체 (SPECIAL SLOT과 같은 방식: 유형 선택 → 자동입력 → 직접 수정)
       introGuide: [
-        {key:'advdis', label:'A · advantages/disadvantages → pros/cons', sentence:'In my opinion, it has more pros than cons.', note:'뒤 문장은 기본 문장 그대로 사용'},
-        {key:'should', label:'B · Should A ...?', sentence:'In my opinion, A should ...', note:'Should를 빼고 A + should + 나머지를 그대로 사용. 예: In my opinion, parents should be held legally responsible for the actions of their children. (반대 의견이면 "A should not ...")'},
-        {key:'agree', label:'C · Do you agree that X?', sentence:'', note:'Do you agree that를 빼고 X를 그대로 사용. 예: In my opinion, social networks should regulate fake news more strictly.'},
-        {key:'extent', label:'D · To what extent do you agree?', sentence:'', note:'문제에 있는 핵심 주장 문장을 그대로 가져오기. 예: In my opinion, modern mass communications have both positive and negative consequences.'},
-        {key:'who', label:'E · Who should / Who has the responsibility?', sentence:'In my opinion, ... should ...', note:'보기에서 주체 하나 선택 + 문제의 행동 표현을 그대로 사용. 예: In my opinion, governments should take the main responsibility.'},
-        {key:'ownopinion', label:'F · What is your opinion?', sentence:'', note:'문제에 나온 주장 중 하나를 골라 그대로 사용. 예: In my opinion, laws can change human behavior.'}
+        {key:'advdis', label:'A · 장점/단점 (advantages and disadvantages)', sentence:'[TOPIC] has more pros than cons', note:'예: What are the advantages and disadvantages of online learning? → I think that online learning has more pros than cons.'},
+        {key:'dothink', label:'B · Do you think ...?', sentence:'', note:'"Do you think"을 빼고 뒤의 핵심 문장을 그대로 붙이기. 예: Do you think experiential learning can work well in high schools? → I think that experiential learning can work well in high schools.'},
+        {key:'agree', label:'C · Agree / To what extent do you agree?', sentence:'', note:'문제의 핵심 주장 문장을 단어 순서 바꾸지 말고 그대로 가져오기.'},
+        {key:'mostimp', label:'D · 가장 중요한 것 / most pressing', sentence:'[선택] is the most important', note:'예: climate change → I think that climate change is the most pressing problem for the inhabitants of our planet.'},
+        {key:'who', label:'E · 책임 주체 (Who should take responsibility?)', sentence:'[주체] should take the main responsibility', note:'보기에서 주체 하나만 고르고 나머지는 고정 문장 그대로.'}
       ],
       specialSlotGuide: [
-        {key:'experience', label:'share your own experience', sentence:'In my own experience, this issue has had a positive effect on my daily life.'},
-        {key:'solution', label:'give a solution', sentence:'One possible solution is for governments and individuals to work together to solve this problem.'},
+        {key:'none', label:'기본 · 특별 요구 없음 (17번 생략)', sentence:'', skip:true, note:'일반 opinion / agree / advantages-disadvantages / do you think 문제는 17번을 쓰지 않습니다.'},
+        {key:'solution', label:'give the solution (가장 자주 나옴)', sentence:'One possible solution is for governments and individuals to work together to solve this problem.'},
+        {key:'experience', label:'share your own experience (범용)', sentence:'In my own experience, I have seen how this issue affects people in their daily lives.', note:'찬성·반대 어느 쪽이든 쓸 수 있는 중립 문장입니다. 경험을 새로 지어내면 문법·철자 오류 위험이 커지니 그대로 사용하세요.'},
+        {key:'experience_pos', label:'share your own experience (긍정 강조)', sentence:'In my own experience, this issue has had a positive effect on my daily life.'},
         {key:'government', label:'what should governments do?', sentence:'In my opinion, governments should create clear rules and provide proper support.'},
-        {key:'minage', label:'minimum age / state which age', sentence:'I believe 18 is a suitable minimum age for this activity.', note:'숫자와 대상은 문제에 맞게 바꿔서 사용하세요.'},
-        {key:'example', label:'give an example only', sentence:'', skip:true, note:'SPECIAL SLOT 추가 X — 이미 [BENEFIT EXAMPLE] / [PROBLEM EXAMPLE]에서 예시를 처리합니다.'}
+        {key:'minage', label:'minimum age / state which age', sentence:'I believe 18 is a suitable minimum age for this activity.', note:'숫자와 대상만 문제에 맞게 바꾸기.'}
       ],
       // A/B/C/D 만능 내용 세트 — 새 템플릿이 아니라 BENEFIT/BENEFIT EXAMPLE/PROBLEM/PROBLEM EXAMPLE 4칸을 한번에 채우는 카테고리
       contentSets: [
@@ -171,36 +171,52 @@ window.PTE_TEMPLATES = {
           benefit:'it can encourage people to act more responsibly',
           bexample:"parents may pay more attention to their children's behavior",
           problem:'it can be unfair to people who cannot control every situation',
-          pexample:"parents may be blamed even when they did not know about their children's actions"}
+          pexample:"parents may be blamed even when they did not know about their children's actions"},
+        {key:'E', label:'E · 일/생활/시간/스트레스', keywords:'스트레스 → 가족 → 과로',
+          benefit:"it can make people's lives better and reduce stress",
+          bexample:'people can spend more time with their family and relax',
+          problem:'people may have too much work and not enough free time',
+          pexample:'some people may have less time for their family and daily life'},
+        {key:'F', label:'F · 비즈니스/회사/소비자/경쟁', keywords:'신뢰 → 평판 → 비용',
+          benefit:'it can help companies build trust and attract more customers',
+          bexample:'customers may choose companies with a good reputation',
+          problem:'it can cost companies more money and take more time',
+          pexample:'some companies may have difficulty competing with other businesses'}
       ],
       categoryGuide: [
         {match:'technology / internet / social media / AI / online', cat:'A'},
         {match:'education / work / skills / jobs / learning', cat:'B'},
         {match:'health / environment / pollution / climate', cat:'C'},
-        {match:'law / rules / responsibility / parents / government', cat:'D'}
+        {match:'law / rules / responsibility / parents / government', cat:'D'},
+        {match:'work-life balance / working hours / stress / free time / family', cat:'E'},
+        {match:'marketing / company reputation / customers / business / competition', cat:'F'}
       ],
       principles: [
-        '가장 중요: TOPIC만 문제에서 찾기 — 새 영어를 만들지 않고 문제의 핵심 표현을 최대한 그대로 가져오기',
-        '기본 흐름: TOPIC → 장점 → 장점 예시 → 단점 → 단점 예시 → 특별 요구 → 결론',
-        '4번은 생각해서 새로 쓰지 않기 — Should / Agree / Who 등 질문 모양만 보고 지문 문장을 최소한으로 바꾸기',
-        '6 · 8 · 12 · 14번은 A/B/C/D 중 가장 가까운 내용 세트를 그대로 가져와서 채우기',
-        '17번은 문제에 특별 요구(경험·해결·정부·나이)가 있을 때만 정해진 문장 하나 넣기',
-        '기본 문장은 그대로 암기'
+        'TOPIC은 문제에서 그대로 — about 뒤에는 주제 이름/명사 덩어리만 (about + 주어 + should/can + 동사 금지)',
+        '4번은 I think that 고정 — 문제에 대한 답을 문제 표현 그대로 가져오기',
+        '6 · 8 · 12 · 14번은 A~F 중 한 세트만 — 세트를 서로 섞지 않기',
+        '8 · 14번은 According to a recent report, + 선택한 세트의 EXAMPLE',
+        'why / reason을 묻는 문제면 새 문장을 만들지 말고 12번을 One possible reason is that ~ 로 바꾸기',
+        '17번은 특별 요구(경험·해결·정부·나이)가 있을 때만 — give an example만 요구하면 추가하지 않기',
+        '결론 마지막은 Therefore, I think that + 4번 주장 반복 (새로 만들지 않기)',
+        '20번은 기본에서 제외 — 분량이 부족할 때만 보조로 추가'
       ],
       steps: [
-        '문제에서 TOPIC 찾기',
-        '4번: 질문에 직접 답하되, 지문 표현을 최대한 그대로 가져오기',
-        'A / B / C / D 중 가장 가까운 내용 세트 선택',
-        '6 / 8 / 12 / 14번에 내용 세트 넣기',
-        '특별 요구가 있으면 17번 고정 문장 하나 선택',
-        'Word Count 220-250 확인'
+        '1 · 문제에서 TOPIC 찾기',
+        '2 · 4번: I think that + 문제에 대한 답',
+        '3 · A/B/C/D/E/F 중 가장 가까운 세트 하나 선택',
+        '4 · 6 / 8 / 12 / 14번에 같은 세트 넣기',
+        '5 · why·reason 문제면 12번 problem → reason 으로 교체',
+        '6 · 특별 요구가 있으면 17번 한 문장 선택',
+        '7 · 결론 3문장 + 마지막에 4번 주장 반복',
+        '8 · Word Count 220-250 확인 (부족하면 20번 보조 문장 추가)'
       ],
       finalCheck: [
-        '문단: 문단이 끝나면 Enter 한 번',
-        '마침표: 문장 끝에는 마침표(.) 하나',
-        '띄어쓰기: 마침표 뒤에는 공백 한 칸 (예: society. First)',
-        '대문자: 새 문장의 첫 글자는 대문자 (예: This / First / In / People)',
-        '최종 확인: 빈칸 없음 · 철자 · 단수/복수 · 200-300 words 범위'
+        '문단: 서론 / 장점 / 단점(+특별 요구) / 결론 — 4문단',
+        '마침표: 문장 끝에는 마침표(.) 하나 · 뒤에는 공백 한 칸',
+        '대문자: 새 문장의 첫 글자는 대문자',
+        '빈칸 없음 · 철자 · 단수/복수 · is/are 확인',
+        '분량: 220-250 words 목표 (200-300 범위) — 부족할 때만 20번 보조 문장 추가'
       ],
       verbTable: [
         {base:'save', wrong:'saved, saves, saving', mean:'절약하다 / 아끼다', ex:'people can save time'},

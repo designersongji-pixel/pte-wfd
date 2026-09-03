@@ -37,6 +37,7 @@
 
   // ── 상태 ─────────────────────────────────────────────────────
   let part='sst', view='list', scope='all', quiz=null;
+  let order=load('pt_order_v1','seq');   // 'seq' = 번호순(기본), 'rand' = 랜덤
   const statsOf=p=>load(K[p].stats,{});
   function record(p,key,ok){
     const st=statsOf(p); const r=st[key]||{r:0,w:0};
@@ -86,6 +87,9 @@
     return `<div class="bar">
       <span class="chip"><b>${isS?'SST 기출':'LFIB 단어'}</b></span>
       <label>${label} <select id="ptScope">${opts.join('')}</select></label>
+      <label>순서 <select id="ptOrder">
+        <option value="seq" ${order==='seq'?'selected':''}>번호순</option>
+        <option value="rand" ${order==='rand'?'selected':''}>랜덤</option></select></label>
       <button class="btn primary sm" id="ptStart">${isS?'뜻 보고 타이핑 →':'발음 듣고 타이핑 →'}</button>
       ${wrong?'<button class="btn badb sm" id="ptWrong">틀린 것만</button>':''}
       <button class="btn ghost sm" id="ptEdit">단어 수정·추가</button>
@@ -95,6 +99,7 @@
   function wireHeader(box){
     const q=s=>box.querySelector(s);
     if(q('#ptScope')) q('#ptScope').onchange=e=>{scope=e.target.value;render();};
+    if(q('#ptOrder')) q('#ptOrder').onchange=e=>{order=e.target.value;save('pt_order_v1',order);};
     if(q('#ptStart')) q('#ptStart').onclick=()=>startQuiz(false);
     if(q('#ptWrong')) q('#ptWrong').onclick=()=>startQuiz(true);
     if(q('#ptEdit'))  q('#ptEdit').onclick=()=>{view='edit';render();};
@@ -118,8 +123,8 @@
   function startQuiz(wrongOnly){
     const qs=buildQuestions(wrongOnly);
     if(!qs.length){ toast(wrongOnly?'틀린 단어가 없어요':'단어가 없어요'); return; }
-    for(let i=qs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[qs[i],qs[j]]=[qs[j],qs[i]];}
-    quiz={list:qs,i:0,ok:0,done:0,wrong:[]};
+    if(order==='rand') for(let i=qs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[qs[i],qs[j]]=[qs[j],qs[i]];}
+    quiz={list:qs,i:0,ok:0,done:0,wrong:[],ans:{}};   // ans: 이미 푼 문제의 결과 (앞뒤로 오가도 유지)
     view='quiz'; render();
   }
   function finishScreen(box){
@@ -140,6 +145,7 @@
   function renderQuiz(box){
     const q=quiz.list[quiz.i];
     const listen = part==='lfib';          // LFIB = 단어를 감추고 발음만 들려준다
+    const prev=quiz.ans[quiz.i];           // 이미 푼 문제면 결과를 그대로 다시 보여준다
     box.innerHTML=`<div class="quizcard">
       <div class="qnum" style="justify-content:space-between"><span>${quiz.i+1} / ${quiz.list.length}</span><span>${esc(q.topic)}</span></div>
       ${listen
@@ -151,34 +157,46 @@
         <button class="playbtn" id="ptSay" title="발음 듣기">🔊</button>
         ${listen?'<span class="chip">눌러서 듣기 (여러 번 가능)</span>':''}
       </div>
-      <input type="text" id="ptIn" placeholder="영어로 입력하세요" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <input type="text" id="ptIn" placeholder="영어로 입력하세요" autocomplete="off" autocapitalize="off" spellcheck="false" value="${prev?esc(prev.typed):''}" ${prev?'disabled':''}>
       <div id="ptRes"></div>
       <div class="btnrow" style="justify-content:center">
         <button class="btn ghost" id="ptPrev" ${quiz.i===0?'disabled style="opacity:.4"':''}>← 이전</button>
-        <button class="btn primary" id="ptSubmit">확인 (Enter)</button>
-        <button class="btn ghost" id="ptSkip">모르겠어요</button>
+        <button class="btn primary" id="ptSubmit">${prev?'다음 (Enter) →':'확인 (Enter)'}</button>
+        <button class="btn ghost" id="ptSkip">${prev?'다시 풀기':'모르겠어요'}</button>
+        <button class="btn ghost" id="ptNext" ${quiz.i>=quiz.list.length-1?'disabled style="opacity:.4"':''}>다음 →</button>
       </div></div>`;
-    const inp=box.querySelector('#ptIn'); inp.focus();
+    const inp=box.querySelector('#ptIn');
+    if(!prev) inp.focus();
     box.querySelector('#ptSay').onclick=()=>speak(q.ans);
-    let answered=false;
+    let answered=!!prev;
     const next=()=>{ document.onkeydown=null; stopSpeak(); quiz.i++; render(); };
+    if(prev){ showResult(prev.typed, prev.ok); }
+    function showResult(typed, ok){
+      box.querySelector('#ptRes').innerHTML=
+        `<div class="qfeed">${diffHTML(charDiff(typed,q.ans))}</div>
+         <div class="qanswer">${ok?'✅ 정답!':'정답: <b>'+esc(q.ans)+'</b>'}
+           ${q.ko?'<div style="margin-top:6px;font-size:14px;color:var(--sub)">'+esc(q.ko)+(q.kr?' ['+esc(q.kr)+']':'')+'</div>':''}</div>`;
+    }
     function submit(giveUp){
       if(answered) return; answered=true;
       const typed=inp.value.trim();
       const ok=!giveUp&&typed.toLowerCase()===q.ans.toLowerCase();
       record(part,q.key,ok); quiz.done++; ok?quiz.ok++:quiz.wrong.push(q.ans);
-      box.querySelector('#ptRes').innerHTML=
-        `<div class="qfeed">${diffHTML(charDiff(typed,q.ans))}</div>
-         <div class="qanswer">${ok?'✅ 정답!':'정답: <b>'+esc(q.ans)+'</b>'}
-           ${q.ko?'<div style="margin-top:6px;font-size:14px;color:var(--sub)">'+esc(q.ko)+(q.kr?' ['+esc(q.kr)+']':'')+'</div>':''}</div>`;
+      quiz.ans[quiz.i]={typed,ok};
+      showResult(typed,ok);
       inp.disabled=true;
       const sb=box.querySelector('#ptSubmit'); sb.textContent='다음 (Enter) →'; sb.onclick=next;
+      box.querySelector('#ptSkip').textContent='다시 풀기';
+      box.querySelector('#ptSkip').onclick=redo;
       document.onkeydown=e=>{ if(e.key==='Enter'){e.preventDefault();next();} };
     }
+    function redo(){ delete quiz.ans[quiz.i]; stopSpeak(); render(); }
     inp.onkeydown=e=>{ if(e.key==='Enter'){e.preventDefault(); answered?next():submit(false);} };
-    box.querySelector('#ptSubmit').onclick=()=>submit(false);
-    box.querySelector('#ptSkip').onclick=()=>submit(true);
+    box.querySelector('#ptSubmit').onclick=()=>answered?next():submit(false);
+    box.querySelector('#ptSkip').onclick=()=>answered?redo():submit(true);
     box.querySelector('#ptPrev').onclick=()=>{ if(quiz.i>0){stopSpeak();quiz.i--;render();} };
+    box.querySelector('#ptNext').onclick=()=>{ if(quiz.i<quiz.list.length-1){stopSpeak();quiz.i++;render();} };
+    if(prev) document.onkeydown=e=>{ if(e.key==='Enter'){e.preventDefault();next();} };
   }
 
   // ── 단어 수정·추가 (두 파트 공통) ────────────────────────────

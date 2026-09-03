@@ -171,6 +171,8 @@
   .qfeed .c-miss{color:var(--bad);opacity:.45}
   .qanswer{margin-top:10px;font-size:15px;color:var(--sub)}
   .qanswer b{color:var(--ink);font-size:19px}
+  .weOpt{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--sub);
+    background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer}
   /* 단어 카드 그리드 */
   .wordgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:10px}
   .wcell{background:var(--accent-soft);border:1px solid transparent;border-radius:10px;padding:9px 11px;cursor:pointer;transition:border-color .12s}
@@ -367,10 +369,10 @@
 <script src="audio_index.js?v=3"></script>
 <script src="groups.js?v=3"></script>
 <script src="words.js?v=2"></script>
-<script src="templates.js?v=2"></script>
+<script src="templates.js?v=5"></script>
 <script src="sst.js?v=1"></script>
 <script src="lfib.js?v=2"></script>
-<script src="parts.js?v=3"></script>
+<script src="parts.js?v=4"></script>
 <script>
 (function(){
   const D = window.WFD_DATA, WFD_DATA = window.WFD_DATA;
@@ -1513,17 +1515,24 @@
   }
 
   // ---------- WE (Write Essay) — 2026-08 개편: 카테고리 뱅크 제거 → 5개 자유입력 + SPECIAL SLOT + 템플릿 수정 ----------
-  const WE_LSKEY='wfd_we_v2';
-  const WE_TPL_LSKEY='wfd_we_template_v1';
+  const WE_LSKEY='wfd_we_v3';   // v3: 4번이 'I think that [ ]' 구조로 바뀌어 예전 저장값과 호환되지 않음
+  // v2: 2026-09 정책 개편(8·14 According to a recent report / 4·21 I think that 연결)이
+  // 예전에 저장해 둔 커스텀 템플릿에 가려지지 않도록 키를 올림
+  const WE_TPL_LSKEY='wfd_we_template_v2';
   const WE_FIELDS=[
     {key:'topic',label:'TOPIC'},{key:'benefit',label:'BENEFIT'},{key:'bexample',label:'BENEFIT EXAMPLE'},
     {key:'problem',label:'PROBLEM'},{key:'pexample',label:'PROBLEM EXAMPLE'}
   ];
-  function weDefaultSentences(){ return PTE_TEMPLATES.structures.we.sentences.map(s=>({n:s.n, section:s.section, text:s.text})); }
+  function weDefaultSentences(){ return PTE_TEMPLATES.structures.we.sentences.map(s=>({n:s.n, section:s.section, text:s.text, optional:!!s.optional})); }
+  // 저장해 둔 커스텀 템플릿에는 optional 표시가 없을 수 있으므로 기본값 기준으로 다시 채운다
+  function weMarkOptional(list){
+    const def=PTE_TEMPLATES.structures.we.sentences;
+    return list.map(s=>Object.assign({},s,{optional: s.optional!==undefined ? !!s.optional : !!(def.find(d=>d.n===s.n)||{}).optional}));
+  }
   function weLoadTemplate(){
     try{
       const saved=JSON.parse(localStorage.getItem(WE_TPL_LSKEY)||'null');
-      if(saved && Array.isArray(saved) && saved.length===PTE_TEMPLATES.structures.we.sentences.length) return saved;
+      if(saved && Array.isArray(saved) && saved.length===PTE_TEMPLATES.structures.we.sentences.length) return weMarkOptional(saved);
     }catch(e){}
     return weDefaultSentences();
   }
@@ -1537,7 +1546,9 @@
     topic:'', benefit:'', bexample:'', problem:'', pexample:'',
     specialType:'', specialText:'',
     introType:'advdis', introText:((PTE_TEMPLATES.structures.we.introGuide||[])[0]||{}).sentence||'',
-    scope:'line', lineIdx:0, wmode:'recall', autoPlay:true
+    scope:'line', lineIdx:0, wmode:'recall', autoPlay:true,
+    useOptional:false,   // 20번 보조 문장 — 분량이 부족할 때만 켠다
+    reasonMode:false     // why/reason 문제 — 12번 problem → reason
   }, JSON.parse(localStorage.getItem(WE_LSKEY)||'{}'));
   weState.wmode='recall'; // 라이팅 문제는 정답을 보여주면 안 되므로, 이전에 저장된 값과 상관없이 새로 열 때마다 "안보고 암기테스트"로 시작
   function saveWEState(){ save(WE_LSKEY,weState); }
@@ -1548,11 +1559,27 @@
       '[PROBLEM]': weState.problem.trim(), '[PROBLEM EXAMPLE]': weState.pexample.trim(), '[SPECIAL SLOT]': weState.specialText.trim()
     };
   }
-  // 최종 Essay 문장 배열 — SPECIAL SLOT을 안 채웠으면 17번 문장은 통째로 빠짐. 안 채운 나머지 빈칸은 토큰 그대로 남김.
+  // 실제로 쓸 문장만 남기기
+  //  · 17번(SPECIAL SLOT): 특별 요구가 있을 때만
+  //  · 20번(분량 보조): "20번 보조 문장"을 켰을 때만
+  // forEssay=true면 최종 에세이 기준(내용을 채웠는지), false면 연습 화면 기준(선택했는지)
+  function weVisibleTpl(forEssay){
+    const sp = forEssay ? !!(weState.specialText||'').trim()
+                        : !!(weState.specialType && weState.specialType!=='none');
+    return weTpl.filter(s=>{
+      if(s.section==='special') return sp;
+      if(s.optional) return !!weState.useOptional;
+      return true;
+    });
+  }
+  // 최종 Essay 문장 배열 — 안 채운 나머지 빈칸은 토큰 그대로 남김.
   function weAssembledSentences(){
     const vals=weTokenMap();
-    return weTpl.filter(s=> s.section!=='special' || vals['[SPECIAL SLOT]']).map(s=>{
+    return weVisibleTpl(true)
+      .map(s=>{
       let t=s.text;
+      // why/reason 문제: 12번을 problem → reason 으로 교체 (새 문장을 외우지 않기 위한 규칙)
+      if(weState.reasonMode && s.n===12) t=t.replace('One possible problem is that','One possible reason is that');
       Object.keys(vals).forEach(tok=>{ if(t.indexOf(tok)>-1) t=t.split(tok).join(vals[tok]||tok); });
       return {n:s.n, section:s.section, text:t};
     });
@@ -1598,6 +1625,8 @@
         <span class="weBadge words">${we.wordRange[0]}–${we.wordRange[1]} words</span>
         <span class="weBadge time">⏱ ${we.timeGoalLabel}</span>
         <span class="weTimeDetail">${we.timeGoalDetail}</span>
+        <label class="weOpt" title="why / reason을 묻는 문제면 12번을 One possible reason is that ~ 로 바꿉니다"><input type="checkbox" id="weReason" ${weState.reasonMode?'checked':''}> why·reason 문제</label>
+        <label class="weOpt" title="기본은 20번 문장 없이 작성합니다. 분량이 부족할 때만 켜세요"><input type="checkbox" id="weOptional" ${weState.useOptional?'checked':''}> 20번 보조 문장</label>
         <button class="btn ghost sm" id="weEditBtn" style="margin-left:auto">✏️ 템플릿 수정</button>
       </div>
       <div class="wePrincipleBanner">${esc(we.principles[0])}</div>
@@ -1626,9 +1655,9 @@
       <div class="sectionhead">✍️ 암기 &amp; 타이핑 연습 — 서론/장점/단점/특별요구사항/결론 + 한 줄씩 + 전체 이어서</div>
       <div class="bar" style="margin-bottom:10px">
         <label>범위 <select id="weScope">
-          <option value="line">한 줄 (1~${weTpl.length})</option>
+          <option value="line">한 줄 (1~${weVisibleTpl(false).length})</option>
           ${we.sections.map(s=>`<option value="${s.key}">${s.num} ${s.label}</option>`).join('')}
-          <option value="all">전체 이어서 (${weTpl.length}문장)</option>
+          <option value="all">전체 이어서 (${weVisibleTpl(false).length}문장)</option>
         </select></label>
         <label>모드 <select id="weMode">
           <option value="trace">따라치기</option>
@@ -1710,6 +1739,10 @@
       };
     });
     $('#weEditBtn').onclick=()=>{ weEditing=true; weEditDraft=null; renderTpl(); };
+    if($('#weReason')) $('#weReason').onchange=e=>{ weState.reasonMode=e.target.checked; saveWEState(); renderTpl();
+      toast(e.target.checked?'12번을 One possible reason is that ~ 로 씁니다':'12번을 One possible problem is that ~ 로 되돌렸어요'); };
+    if($('#weOptional')) $('#weOptional').onchange=e=>{ weState.useOptional=e.target.checked; saveWEState(); renderTpl();
+      toast(e.target.checked?'20번 보조 문장을 포함합니다':'20번 보조 문장을 뺐어요 (기본)'); };
     $('#wePlay').onclick=()=>sayText(weFullText()||'The essay is still empty.');
     $('#weIntroType').onchange=e=>{
       weState.introType=e.target.value;
@@ -1737,26 +1770,28 @@
   function renderWEStage(){
     const box=$('#weStage'); if(!box) return;
     const we=PTE_TEMPLATES.structures.we;
-    if(weState.lineIdx==null || weState.lineIdx<0 || weState.lineIdx>=weTpl.length) weState.lineIdx=0;
+    const T=weVisibleTpl(false);                 // 연습에서도 안 쓰는 17·20번은 제외
+    if(!T.length){ box.innerHTML='<div class="empty">연습할 문장이 없어요.</div>'; return; }
+    if(weState.lineIdx==null || weState.lineIdx<0 || weState.lineIdx>=T.length) weState.lineIdx=0;
 
     let text, sectionLabel='';
     if(weState.scope==='line'){
-      const l=weTpl[weState.lineIdx];
+      const l=T[weState.lineIdx];
       text=l.text;
       const sec=we.sections.find(s=>s.key===l.section);
       sectionLabel=sec?`${sec.num} ${sec.label} · ${l.n}번 문장`:`${l.n}번 문장`;
     } else if(weState.scope==='all'){
-      text=weTpl.map(s=>s.text).join('\n');
+      text=T.map(s=>s.text).join('\n');
     } else {
       const sec=we.sections.find(s=>s.key===weState.scope);
       sectionLabel=sec?`${sec.num} ${sec.label}`:'';
-      text=weTpl.filter(s=>s.section===weState.scope).map(s=>s.text).join('\n');
+      text=T.filter(s=>s.section===weState.scope).map(s=>s.text).join('\n');
     }
     if(!text || !text.trim()){ box.innerHTML='<div class="empty">이 구간에 내용이 없어요.</div>'; return; }
 
     let stepbarHtml='';
     if(weState.scope==='line'){
-      stepbarHtml=`<div class="stepbar">`+weTpl.map((s,i)=>{
+      stepbarHtml=`<div class="stepbar">`+T.map((s,i)=>{
         const sec=we.sections.find(x=>x.key===s.section);
         return `<div class="step ${i===weState.lineIdx?'on':''}" data-i="${i}" title="${esc(sec?sec.label:'')}"><span class="si">${sec?sec.num:'▫️'}</span>${s.n}</div>`;
       }).join('')+`</div>`;
@@ -1788,7 +1823,7 @@
 
     box.innerHTML=`${stepbarHtml}
       ${bodyHtml}
-      ${weState.scope==='line'?`<div class="btnrow"><button class="btn ghost" id="weLinePrev" ${weState.lineIdx===0?'disabled style="opacity:.4"':''}>← 이전</button><span class="chip">${weState.lineIdx+1} / ${weTpl.length}</span><button class="btn ghost" id="weLineNext" ${weState.lineIdx>=weTpl.length-1?'disabled style="opacity:.4"':''}>다음 →</button></div>`:''}`;
+      ${weState.scope==='line'?`<div class="btnrow"><button class="btn ghost" id="weLinePrev" ${weState.lineIdx===0?'disabled style="opacity:.4"':''}>← 이전</button><span class="chip">${weState.lineIdx+1} / ${T.length}</span><button class="btn ghost" id="weLineNext" ${weState.lineIdx>=T.length-1?'disabled style="opacity:.4"':''}>다음 →</button></div>`:''}`;
 
     document.querySelectorAll('#weStage .step').forEach(el=>el.onclick=()=>{weState.lineIdx=parseInt(el.dataset.i); saveWEState(); renderWEStage();});
     const pv=$('#weLinePrev'); if(pv) pv.onclick=()=>{weState.lineIdx--; saveWEState(); renderWEStage();};
@@ -1875,7 +1910,7 @@
         if(missing.length) bad.push(s.n+'번: '+missing.join(', ')+' 빠짐');
       });
       if(bad.length){ $('#weEditWarn').innerHTML=`<div class="weTokenWarn">저장 못 했어요 — ${esc(bad.join(' · '))}</div>`; return; }
-      weTpl=weEditDraft.map(s=>({n:s.n, section:s.section, text:s.text}));
+      weTpl=weEditDraft.map(s=>({n:s.n, section:s.section, text:s.text, optional:!!s.optional}));
       localStorage.setItem(WE_TPL_LSKEY, JSON.stringify(weTpl));
       weEditDraft=null; weEditing=false; renderTpl(); toast('템플릿을 저장했어요');
     };
