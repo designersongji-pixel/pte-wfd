@@ -369,7 +369,7 @@
 <script src="audio_index.js?v=3"></script>
 <script src="groups.js?v=3"></script>
 <script src="words.js?v=2"></script>
-<script src="templates.js?v=5"></script>
+<script src="templates.js?v=6"></script>
 <script src="sst.js?v=1"></script>
 <script src="lfib.js?v=2"></script>
 <script src="parts.js?v=4"></script>
@@ -1515,10 +1515,10 @@
   }
 
   // ---------- WE (Write Essay) — 2026-08 개편: 카테고리 뱅크 제거 → 5개 자유입력 + SPECIAL SLOT + 템플릿 수정 ----------
-  const WE_LSKEY='wfd_we_v3';   // v3: 4번이 'I think that [ ]' 구조로 바뀌어 예전 저장값과 호환되지 않음
+  const WE_LSKEY='wfd_we_v4';   // v3: 4번이 'I think that [ ]' 구조로 바뀌어 예전 저장값과 호환되지 않음
   // v2: 2026-09 정책 개편(8·14 According to a recent report / 4·21 I think that 연결)이
   // 예전에 저장해 둔 커스텀 템플릿에 가려지지 않도록 키를 올림
-  const WE_TPL_LSKEY='wfd_we_template_v2';
+  const WE_TPL_LSKEY='wfd_we_template_v3';
   const WE_FIELDS=[
     {key:'topic',label:'TOPIC'},{key:'benefit',label:'BENEFIT'},{key:'bexample',label:'BENEFIT EXAMPLE'},
     {key:'problem',label:'PROBLEM'},{key:'pexample',label:'PROBLEM EXAMPLE'}
@@ -1547,7 +1547,6 @@
     specialType:'', specialText:'',
     introType:'advdis', introText:((PTE_TEMPLATES.structures.we.introGuide||[])[0]||{}).sentence||'',
     scope:'line', lineIdx:0, wmode:'recall', autoPlay:true,
-    useOptional:false,   // 20번 보조 문장 — 분량이 부족할 때만 켠다
     reasonMode:false     // why/reason 문제 — 12번 problem → reason
   }, JSON.parse(localStorage.getItem(WE_LSKEY)||'{}'));
   weState.wmode='recall'; // 라이팅 문제는 정답을 보여주면 안 되므로, 이전에 저장된 값과 상관없이 새로 열 때마다 "안보고 암기테스트"로 시작
@@ -1555,20 +1554,18 @@
 
   function weTokenMap(){
     return {
-      '[TOPIC]': weState.topic.trim(), '[INTRO OPINION]': weState.introText.trim(), '[BENEFIT]': weState.benefit.trim(), '[BENEFIT EXAMPLE]': weState.bexample.trim(),
+      '[TOPIC]': weState.topic.trim(), '[ANSWER FROM THE QUESTION]': weState.introText.trim(), '[REPEAT SENTENCE 04]': weState.introText.trim(), '[BENEFIT]': weState.benefit.trim(), '[BENEFIT EXAMPLE]': weState.bexample.trim(),
       '[PROBLEM]': weState.problem.trim(), '[PROBLEM EXAMPLE]': weState.pexample.trim(), '[SPECIAL SLOT]': weState.specialText.trim()
     };
   }
   // 실제로 쓸 문장만 남기기
-  //  · 17번(SPECIAL SLOT): 특별 요구가 있을 때만
-  //  · 20번(분량 보조): "20번 보조 문장"을 켰을 때만
+  //  · 17번(SPECIAL SLOT): 특별 요구가 있을 때만 포함
   // forEssay=true면 최종 에세이 기준(내용을 채웠는지), false면 연습 화면 기준(선택했는지)
   function weVisibleTpl(forEssay){
     const sp = forEssay ? !!(weState.specialText||'').trim()
                         : !!(weState.specialType && weState.specialType!=='none');
     return weTpl.filter(s=>{
       if(s.section==='special') return sp;
-      if(s.optional) return !!weState.useOptional;
       return true;
     });
   }
@@ -1626,7 +1623,6 @@
         <span class="weBadge time">⏱ ${we.timeGoalLabel}</span>
         <span class="weTimeDetail">${we.timeGoalDetail}</span>
         <label class="weOpt" title="why / reason을 묻는 문제면 12번을 One possible reason is that ~ 로 바꿉니다"><input type="checkbox" id="weReason" ${weState.reasonMode?'checked':''}> why·reason 문제</label>
-        <label class="weOpt" title="기본은 20번 문장 없이 작성합니다. 분량이 부족할 때만 켜세요"><input type="checkbox" id="weOptional" ${weState.useOptional?'checked':''}> 20번 보조 문장</label>
         <button class="btn ghost sm" id="weEditBtn" style="margin-left:auto">✏️ 템플릿 수정</button>
       </div>
       <div class="wePrincipleBanner">${esc(we.principles[0])}</div>
@@ -1741,8 +1737,6 @@
     $('#weEditBtn').onclick=()=>{ weEditing=true; weEditDraft=null; renderTpl(); };
     if($('#weReason')) $('#weReason').onchange=e=>{ weState.reasonMode=e.target.checked; saveWEState(); renderTpl();
       toast(e.target.checked?'12번을 One possible reason is that ~ 로 씁니다':'12번을 One possible problem is that ~ 로 되돌렸어요'); };
-    if($('#weOptional')) $('#weOptional').onchange=e=>{ weState.useOptional=e.target.checked; saveWEState(); renderTpl();
-      toast(e.target.checked?'20번 보조 문장을 포함합니다':'20번 보조 문장을 뺐어요 (기본)'); };
     $('#wePlay').onclick=()=>sayText(weFullText()||'The essay is still empty.');
     $('#weIntroType').onchange=e=>{
       weState.introType=e.target.value;

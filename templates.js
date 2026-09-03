@@ -107,7 +107,7 @@ window.PTE_TEMPLATES = {
         {n:1,  section:'intro',      text:'Nowadays, there are different opinions about [TOPIC].'},
         {n:2,  section:'intro',      text:'This issue is important, and many people have different opinions about it.'},
         {n:3,  section:'intro',      text:'It can affect many people, so we should think about it carefully.'},
-        {n:4,  section:'intro',      text:'I think that [INTRO OPINION].'},
+        {n:4,  section:'intro',      text:'I think that [ANSWER FROM THE QUESTION].'},
         {n:5,  section:'benefit',    text:'First of all, there are several benefits.'},
         {n:6,  section:'benefit',    text:'One important benefit is that [BENEFIT].'},
         {n:7,  section:'benefit',    text:"This can make people's lives better and help society."},
@@ -123,8 +123,7 @@ window.PTE_TEMPLATES = {
         {n:17, section:'special',    text:'[SPECIAL SLOT]', optional:true},
         {n:18, section:'conclusion', text:'In conclusion, I believe the pros are greater than the cons.'},
         {n:19, section:'conclusion', text:'There are some problems, but the benefits can still be greater.'},
-        {n:20, section:'conclusion', text:'People should think about both sides before making decisions.', optional:true},
-        {n:21, section:'conclusion', text:'Therefore, I think that [SAME CORE CLAIM AS #4].'}
+        {n:20, section:'conclusion', text:'Therefore, I think that [REPEAT SENTENCE 04].'}
       ],
       sections: [
         {key:'intro', num:'①', label:'서론'},
@@ -133,17 +132,18 @@ window.PTE_TEMPLATES = {
         {key:'special', num:'④', label:'특별 요구사항', hint:'문제에서 요구할 때만 사용'},
         {key:'conclusion', num:'⑤', label:'결론'}
       ],
-      placeholders: ['[TOPIC]','[INTRO OPINION]','[BENEFIT]','[BENEFIT EXAMPLE]','[PROBLEM]','[PROBLEM EXAMPLE]','[SAME CORE CLAIM AS #4]'],
+      placeholders: ['[TOPIC]','[ANSWER FROM THE QUESTION]','[BENEFIT]','[BENEFIT EXAMPLE]','[PROBLEM]','[PROBLEM EXAMPLE]','[REPEAT SENTENCE 04]'],
       // 서론 4번 문장 — 질문 유형에 따라 교체 (SPECIAL SLOT과 같은 방식: 유형 선택 → 자동입력 → 직접 수정)
       introGuide: [
-        {key:'advdis', label:'A · 장점/단점 (advantages and disadvantages)', sentence:'[TOPIC] has more pros than cons', note:'예: What are the advantages and disadvantages of online learning? → I think that online learning has more pros than cons.'},
-        {key:'dothink', label:'B · Do you think ...?', sentence:'', note:'"Do you think"을 빼고 뒤의 핵심 문장을 그대로 붙이기. 예: Do you think experiential learning can work well in high schools? → I think that experiential learning can work well in high schools.'},
-        {key:'agree', label:'C · Agree / To what extent do you agree?', sentence:'', note:'문제의 핵심 주장 문장을 단어 순서 바꾸지 말고 그대로 가져오기.'},
-        {key:'mostimp', label:'D · 가장 중요한 것 / most pressing', sentence:'[선택] is the most important', note:'예: climate change → I think that climate change is the most pressing problem for the inhabitants of our planet.'},
-        {key:'who', label:'E · 책임 주체 (Who should take responsibility?)', sentence:'[주체] should take the main responsibility', note:'보기에서 주체 하나만 고르고 나머지는 고정 문장 그대로.'}
+        {key:'advdis', label:'A · 장점/단점 (advantages and disadvantages)', sentence:'', note:'예: What are the advantages and disadvantages of online learning? → I think that online learning has more pros than cons.'},
+        {key:'dothink', label:'B · Do you think ...?', sentence:'', note:'"Do you think"을 지우고 뒤 문장을 그대로. 예: Do you think experiential learning can work well in high schools? → I think that experiential learning can work well in high schools.'},
+        {key:'agree', label:'C · Agree / To what extent do you agree?', sentence:'', note:'문제의 핵심 주장 문장을 단어 순서 바꾸지 말고 그대로 복사.'},
+        {key:'mostimp', label:'D · 가장 중요한 것 / most pressing', sentence:'', note:'예: I think that climate change is the most pressing problem for the inhabitants of our planet.'},
+        {key:'who', label:'E · 책임 주체 (Who should take responsibility?)', sentence:'', note:'보기에서 주체 하나만 고르기. 예: I think that governments should take the main responsibility.'},
+        {key:'importance', label:'F · 중요성 (Importance)', sentence:'', note:'예: I think that this balance is very important.'}
       ],
       specialSlotGuide: [
-        {key:'none', label:'기본 · 특별 요구 없음 (17번 생략)', sentence:'', skip:true, note:'일반 opinion / agree / advantages-disadvantages / do you think 문제는 17번을 쓰지 않습니다.'},
+        {key:'none', label:'기본 · 특별 요구 없음 (17번 생략)', sentence:'', skip:true, note:'일반 opinion / agree / advantages-disadvantages / do you think 문제는 17번을 쓰지 않습니다. 특별 요구가 2개면 SPECIAL 문장도 2개 사용하세요.'},
         {key:'solution', label:'give the solution (가장 자주 나옴)', sentence:'One possible solution is for governments and individuals to work together to solve this problem.'},
         {key:'experience', label:'share your own experience (범용)', sentence:'In my own experience, I have seen how this issue affects people in their daily lives.', note:'찬성·반대 어느 쪽이든 쓸 수 있는 중립 문장입니다. 경험을 새로 지어내면 문법·철자 오류 위험이 커지니 그대로 사용하세요.'},
         {key:'experience_pos', label:'share your own experience (긍정 강조)', sentence:'In my own experience, this issue has had a positive effect on my daily life.'},
@@ -198,8 +198,7 @@ window.PTE_TEMPLATES = {
         '8 · 14번은 According to a recent report, + 선택한 세트의 EXAMPLE',
         'why / reason을 묻는 문제면 새 문장을 만들지 말고 12번을 One possible reason is that ~ 로 바꾸기',
         '17번은 특별 요구(경험·해결·정부·나이)가 있을 때만 — give an example만 요구하면 추가하지 않기',
-        '결론 마지막은 Therefore, I think that + 4번 주장 반복 (새로 만들지 않기)',
-        '20번은 기본에서 제외 — 분량이 부족할 때만 보조로 추가'
+        '결론은 18 · 19 · 20 세 문장 — 마지막 20번은 Therefore, I think that + 4번 문장 그대로 반복'
       ],
       steps: [
         '1 · 문제에서 TOPIC 찾기',
@@ -208,15 +207,15 @@ window.PTE_TEMPLATES = {
         '4 · 6 / 8 / 12 / 14번에 같은 세트 넣기',
         '5 · why·reason 문제면 12번 problem → reason 으로 교체',
         '6 · 특별 요구가 있으면 17번 한 문장 선택',
-        '7 · 결론 3문장 + 마지막에 4번 주장 반복',
-        '8 · Word Count 220-250 확인 (부족하면 20번 보조 문장 추가)'
+        '7 · 결론 18 · 19 · 20 — 마지막에 4번 문장 반복',
+        '8 · Word Count 220-250 확인'
       ],
       finalCheck: [
         '문단: 서론 / 장점 / 단점(+특별 요구) / 결론 — 4문단',
         '마침표: 문장 끝에는 마침표(.) 하나 · 뒤에는 공백 한 칸',
         '대문자: 새 문장의 첫 글자는 대문자',
         '빈칸 없음 · 철자 · 단수/복수 · is/are 확인',
-        '분량: 220-250 words 목표 (200-300 범위) — 부족할 때만 20번 보조 문장 추가'
+        '분량: 220-250 words 목표 (200-300 범위)'
       ],
       verbTable: [
         {base:'save', wrong:'saved, saves, saving', mean:'절약하다 / 아끼다', ex:'people can save time'},
